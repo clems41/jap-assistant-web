@@ -2,3 +2,124 @@
 @import "tailwindcss";
 @import "primeicons/primeicons.css";
 @import "bootstrap-icons/font/bootstrap-icons.css";
+
+@theme {
+  --color-cam-120: #0e4130;
+  --color-cam-100: #125740;
+  --color-cam-80: #417966;
+  --color-cam-50: #89aba0;
+  --color-cam-15: #dbe6e2;
+  --color-cam-5: #f3f7f5;
+
+  --color-cam-secondary-120: #336e5b;
+  --color-cam-secondary-100: #449379;
+  --color-cam-secondary-80: #69a994;
+  --color-cam-secondary-50: #a2c9bc;
+  --color-cam-secondary-15: #e3efeb;
+  --color-cam-secondary-5: #f6faf8;
+
+  --color-jaune-120: #bf9514;
+  --color-jaune-100: #FFC61B;
+  --color-jaune-80: #ffd149;
+  --color-jaune-50: #ffe38d;
+  --color-jaune-15: #fff6dd;
+  --color-jaune-5: #fffcf4;
+
+  --color-bleu-120: #4a8cbf;
+  --color-bleu-100: #63BBFF;
+  --color-bleu-80: #82c9ff;
+  --color-bleu-50: #b1ddff;
+  --color-bleu-15: #e8f5ff;
+  --color-bleu-5: #f7fcff;
+
+  --color-vert-120: #478e75;
+  --color-vert-100: #5FBD9C;
+  --color-vert-80: #7fcab0;
+  --color-vert-50: #afdece;
+  --color-vert-15: #e7f5f0;
+  --color-vert-5: #f7fcfa;
+
+  --color-orange-120: #b6662e;
+  --color-orange-100: #F3883D;
+  --color-orange-80: #f5a064;
+  --color-orange-50: #f9c49e;
+  --color-orange-15: #fdede2;
+  --color-orange-5: #fef9f5;
+
+  --color-rouge-120: #b03130;
+  --color-rouge-100: #EB4140;
+  --color-rouge-80: #ef6766;
+  --color-rouge-50: #f5a0a0;
+  --color-rouge-15: #fce3e2;
+  --color-rouge-5: #fef6f5;
+
+  --color-violet-120: #744887;
+  --color-violet-100: #9A60B4;
+  --color-violet-80: #ae80c3;
+  --color-violet-50: #cdb0da;
+  --color-violet-15: #f0e7f4;
+  --color-violet-5: #faf7fb;
+
+  --color-gris-120: #4f4f4f;
+  --color-gris-100: #696969;
+  --color-gris-80: #878787;
+  --color-gris-50: #b4b4b4;
+  --color-gris-30: #d2d2d2;
+  --color-gris-15: #e9e9e9;
+  --color-gris-5: #f8f8f8;
+
+  --color-blanc-100: #ffffff;
+  --color-blanc-80: #cccccc;
+  --color-blanc-50: #808080;
+  --color-blanc-40: #666666;
+  --color-blanc-15: #262626;
+  --color-blanc-5: #0d0d0d;
+
+  --font-poppins: 'Poppins', sans-serif;
+
+  --text-title-1: 35px;
+  --text-title-1--line-height: 40px;
+  --text-title-1--font-weight: 700;
+  --text-title-2: 22px;
+  --text-title-2--line-height: 24px;
+  --text-title-2--font-weight: 700;
+  --text-title-3: 20px;
+  --text-title-3--line-height: 24px;
+  --text-title-3--font-weight: 700;
+  --text-title-4: 18px;
+  --text-title-4--line-height: 24px;
+  --text-title-4--font-weight: 700;
+
+  --text-body-error: 14px;
+  --text-body-error--line-height: 1.2;
+  --text-body-error--font-weight: 300;
+  --text-body-light: 14px;
+  --text-body-light--line-height: 1.2;
+  --text-body-light--font-weight: 300;
+  --text-body-regular: 16px;
+  --text-body-regular--line-height: 24px;
+  --text-body-regular--font-weight: 400;
+  --text-body-medium: 16px;
+  --text-body-medium--line-height: 24px;
+  --text-body-medium--font-weight: 500;
+  --text-body-bold: 16px;
+  --text-body-bold--line-height: 24px;
+  --text-body-bold--font-weight: 700;
+
+  --text-label: 16px;
+  --text-label--line-height: 24px;
+  --text-label--font-weight: 400;
+  --text-floatlabel: 14px;
+  --text-floatlabel--line-height: 1.2;
+  --text-floatlabel--font-weight: 400;
+  --text-placeholder: 16px;
+  --text-placeholder--line-height: 24px;
+  --text-placeholder--font-weight: 400;
+
+  --text-button: 16px;
+  --text-button--line-height: 18px;
+  --text-button--font-weight: 600;
+  --text-menu: 16px;
+  --text-menu--line-height: 100%;
+  --text-menu--font-weight: 500;
+}

@@ -4,70 +4,79 @@
 @import "bootstrap-icons/font/bootstrap-icons.css";
 
 @theme {
-  --color-cam-120: #0e4130;
-  --color-cam-100: #125740;
-  --color-cam-80: #417966;
-  --color-cam-50: #89aba0;
-  --color-cam-15: #dbe6e2;
-  --color-cam-5: #f3f7f5;
+  /* ─── Primary — Orange brûlé ─────────────────────────── */
+  --color-primary-120: #a13e18;
+  --color-primary-100: #c94e1e;
+  --color-primary-80:  #d4714b;
+  --color-primary-50:  #e4a78f;
+  --color-primary-30:  #efcabc;
+  --color-primary-15:  #f7e4dd;
+  --color-primary-5:   #fcf6f4;
 
-  --color-cam-secondary-120: #336e5b;
-  --color-cam-secondary-100: #449379;
-  --color-cam-secondary-80: #69a994;
-  --color-cam-secondary-50: #a2c9bc;
-  --color-cam-secondary-15: #e3efeb;
-  --color-cam-secondary-5: #f6faf8;
+  /* ─── Secondary — Orange clair ───────────────────────── */
+  --color-secondary-120: #ba6432;
+  --color-secondary-100: #e87d3e;
+  --color-secondary-80:  #ed9765;
+  --color-secondary-50:  #f4be9f;
+  --color-secondary-30:  #f8d8c5;
+  --color-secondary-15:  #fcece2;
+  --color-secondary-5:   #fef9f5;
 
-  --color-jaune-120: #bf9514;
-  --color-jaune-100: #FFC61B;
-  --color-jaune-80: #ffd149;
-  --color-jaune-50: #ffe38d;
-  --color-jaune-15: #fff6dd;
-  --color-jaune-5: #fffcf4;
+  /* ─── Contrast — Bleu marine ─────────────────────────── */
+  --color-contrast-120: #163258;
+  --color-contrast-100: #1b3f6e;
+  --color-contrast-80:  #49658b;
+  --color-contrast-50:  #8d9fb7;
+  --color-contrast-30:  #bbc5d4;
+  --color-contrast-15:  #dde2e9;
+  --color-contrast-5:   #f4f5f8;
 
-  --color-bleu-120: #4a8cbf;
-  --color-bleu-100: #63BBFF;
-  --color-bleu-80: #82c9ff;
-  --color-bleu-50: #b1ddff;
-  --color-bleu-15: #e8f5ff;
-  --color-bleu-5: #f7fcff;
+  /* ─── Info — Bleu ────────────────────────────────────── */
+  --color-info-120: #2f68c5;
+  --color-info-100: #3b82f6;
+  --color-info-80:  #629bf8;
+  --color-info-50:  #9dc1fb;
+  --color-info-30:  #c4dafc;
+  --color-info-15:  #e2ecfe;
+  --color-info-5:   #f5f9ff;
 
-  --color-vert-120: #478e75;
-  --color-vert-100: #5FBD9C;
-  --color-vert-80: #7fcab0;
-  --color-vert-50: #afdece;
-  --color-vert-15: #e7f5f0;
-  --color-vert-5: #f7fcfa;
+  /* ─── Success — Vert ─────────────────────────────────── */
+  --color-success-120: #12823b;
+  --color-success-100: #16a34a;
+  --color-success-80:  #45b56e;
+  --color-success-50:  #8bd1a5;
+  --color-success-30:  #b9e3c9;
+  --color-success-15:  #dcf1e4;
+  --color-success-5:   #f3faf6;
 
-  --color-orange-120: #b6662e;
-  --color-orange-100: #F3883D;
-  --color-orange-80: #f5a064;
-  --color-orange-50: #f9c49e;
-  --color-orange-15: #fdede2;
-  --color-orange-5: #fef9f5;
+  /* ─── Error — Rouge ──────────────────────────────────── */
+  --color-error-120: #b01e1e;
+  --color-error-100: #dc2626;
+  --color-error-80:  #e35151;
+  --color-error-50:  #ee9393;
+  --color-error-30:  #f5bebe;
+  --color-error-15:  #fadede;
+  --color-error-5:   #fdf4f4;
 
-  --color-rouge-120: #b03130;
-  --color-rouge-100: #EB4140;
-  --color-rouge-80: #ef6766;
-  --color-rouge-50: #f5a0a0;
-  --color-rouge-15: #fce3e2;
-  --color-rouge-5: #fef6f5;
+  /* ─── Warn — Orange vif ──────────────────────────────── */
+  --color-warn-120: #bb460a;
+  --color-warn-100: #ea580c;
+  --color-warn-80:  #ee793d;
+  --color-warn-50:  #f5ac86;
+  --color-warn-30:  #f9cdb6;
+  --color-warn-15:  #fce6db;
+  --color-warn-5:   #fef7f3;
 
-  --color-violet-120: #744887;
-  --color-violet-100: #9A60B4;
-  --color-violet-80: #ae80c3;
-  --color-violet-50: #cdb0da;
-  --color-violet-15: #f0e7f4;
-  --color-violet-5: #faf7fb;
+  /* ─── Gris — Gris chaud neutre ───────────────────────── */
+  --color-gris-120: #56504d;
+  --color-gris-100: #6b6460;
+  --color-gris-80:  #898380;
+  --color-gris-50:  #b5b2b0;
+  --color-gris-30:  #d3d1cf;
+  --color-gris-15:  #e9e8e7;
+  --color-gris-5:   #f8f7f7;
 
-  --color-gris-120: #4f4f4f;
-  --color-gris-100: #696969;
-  --color-gris-80: #878787;
-  --color-gris-50: #b4b4b4;
-  --color-gris-30: #d2d2d2;
-  --color-gris-15: #e9e9e9;
-  --color-gris-5: #f8f8f8;
-
+  /* ─── Blanc ───────────────────────────────────────────── */
   --color-blanc-100: #ffffff;
   --color-blanc-80: #cccccc;
   --color-blanc-50: #808080;

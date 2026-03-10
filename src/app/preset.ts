@@ -4,12 +4,13 @@ import Aura from '@primeng/themes/aura';
 export const MyPreset = definePreset(Aura, {
     semantic: {
       primary: {
-        50: 'var(--color-cam-5)',
-        100: 'var(--color-cam-15)',
-        200: 'var(--color-cam-50)',
-        300: 'var(--color-cam-80)',
-        400: 'var(--color-cam-100)',
-        500: 'var(--color-cam-120)',
+        50:  'var(--color-primary-5)',
+        100: 'var(--color-primary-15)',
+        200: 'var(--color-primary-30)',
+        300: 'var(--color-primary-50)',
+        400: 'var(--color-primary-80)',
+        500: 'var(--color-primary-100)',
+        600: 'var(--color-primary-120)',
       },
       colorScheme: {
         light: {
@@ -22,42 +23,79 @@ export const MyPreset = definePreset(Aura, {
             borderColor: 'var(--color-gris-30)',
 
             hoverBackground: 'var(--color-blanc-100)',
-            hoverBorderColor: 'var(--color-cam-50)',
+            hoverBorderColor: 'var(--color-primary-50)',
 
             focusBorderColor: 'var(--color-gris-30)',
 
             disabledColor: 'var(--color-gris-50)',
             disabledBackground: 'var(--color-gris-5)',
 
-            invalidColor: 'var(--color-rouge-100)',
-            invalidBorderColor: 'var(--color-rouge-100)',
-            invalidPlaceholderColor: 'var(--color-rouge-100)'
+            invalidColor: 'var(--color-error-100)',
+            invalidBorderColor: 'var(--color-error-100)',
+            invalidPlaceholderColor: 'var(--color-error-100)'
           },
           dropdown: {
-            selectedBackground: 'var(--color-cam-100)',
+            selectedBackground: 'var(--color-primary-100)',
             selectedColor: 'var(--color-blanc-100)',
 
             hoverBackground: 'var(--color-blanc-100)',
-            hoverColor: 'var(--color-cam-50)',
+            hoverColor: 'var(--color-primary-50)',
 
             clearIconColor: 'var(--color-gris-100)',
             triggerIconColor: 'var(--color-gris-100)'
           },
           primary: {
-            color: 'var(--color-cam-100)',
+            color: 'var(--color-primary-100)',
             contrastColor: 'var(--color-blanc-100)',
-            hoverColor: 'var(--color-cam-80)',
-            activeColor: 'var(--color-cam-120)'
+            hoverColor: 'var(--color-primary-80)',
+            activeColor: 'var(--color-primary-120)'
+          },
+          secondary: {
+            color: 'var(--color-secondary-100)',
+            contrastColor: 'var(--color-blanc-100)',
+            hoverColor: 'var(--color-secondary-80)',
+            activeColor: 'var(--color-secondary-120)'
+          },
+          info: {
+            color: 'var(--color-info-100)',
+            contrastColor: 'var(--color-blanc-100)',
+            hoverColor: 'var(--color-info-80)',
+            activeColor: 'var(--color-info-120)'
+          },
+          success: {
+            color: 'var(--color-success-100)',
+            contrastColor: 'var(--color-blanc-100)',
+            hoverColor: 'var(--color-success-80)',
+            activeColor: 'var(--color-success-120)'
+          },
+          warn: {
+            color: 'var(--color-warn-100)',
+            contrastColor: 'var(--color-blanc-100)',
+            hoverColor: 'var(--color-warn-80)',
+            activeColor: 'var(--color-warn-120)'
+          },
+          error: {
+            color: 'var(--color-error-100)',
+            contrastColor: 'var(--color-blanc-100)',
+            hoverColor: 'var(--color-error-80)',
+            activeColor: 'var(--color-error-120)'
+          },
+          contrast: {
+            color: 'var(--color-contrast-100)',
+            contrastColor: 'var(--color-blanc-100)',
+            hoverColor: 'var(--color-contrast-80)',
+            activeColor: 'var(--color-contrast-120)'
           },
         }
       },
       surface: {
-        50: 'var(--color-gris-5)',
+        50:  'var(--color-gris-5)',
         100: 'var(--color-gris-15)',
-        200: 'var(--color-gris-50)',
-        300: 'var(--color-gris-80)',
-        400: 'var(--color-gris-100)',
-        500: 'var(--color-gris-120)',
+        200: 'var(--color-gris-30)',
+        300: 'var(--color-gris-50)',
+        400: 'var(--color-gris-80)',
+        500: 'var(--color-gris-100)',
+        600: 'var(--color-gris-120)',
       },
     },
     components: {
@@ -66,7 +104,7 @@ export const MyPreset = definePreset(Aura, {
           light: {
             root: {
               headerPadding: '0px',
-              color: 'var(--color-cam-100)',
+              color: 'var(--color-primary-100)',
               background: 'var(--color-blanc-100)',
             }
           }
@@ -76,7 +114,7 @@ export const MyPreset = definePreset(Aura, {
         colorScheme: {
           light: {
             root: {
-              color: 'var(--color-cam-100)',
+              color: 'var(--color-primary-100)',
               background: 'var(--color-blanc-100)',
             }
           }
@@ -97,10 +135,10 @@ export const MyPreset = definePreset(Aura, {
         colorScheme: {
           light: {
             root: {
-              handleContentBackground: 'var(--color-cam-100)',
-              handleBackground: 'var(--color-cam-100)',
-              handleContentHoverBackground: 'var(--color-cam-120)',
-              handleHoverBackground: 'var(--color-cam-120)',
+              handleContentBackground: 'var(--color-primary-100)',
+              handleBackground: 'var(--color-primary-100)',
+              handleContentHoverBackground: 'var(--color-primary-120)',
+              handleHoverBackground: 'var(--color-primary-120)',
               trackSize: '8px',
               handleHeight: '16px',
               handleWidth: '16px',
@@ -113,7 +151,7 @@ export const MyPreset = definePreset(Aura, {
         colorScheme: {
           light: {
             root: {
-              iconColor: 'var(--color-cam-100)',
+              iconColor: 'var(--color-primary-100)',
             }
           }
         }
@@ -124,7 +162,7 @@ export const MyPreset = definePreset(Aura, {
             root: {
               contentPadding: '0px',
               borderRadius: '2.5rem',
-              color: 'var(--color-cam-100)',
+              color: 'var(--color-primary-100)',
               background: 'var(--color-blanc-100)',
               borderColor: 'transparent',
             }
@@ -146,8 +184,8 @@ export const MyPreset = definePreset(Aura, {
             root: {
               height: '1rem',
               borderRadius: '6rem',
-              background: 'var(--color-cam-50)',
-              valueBackground: 'var(--color-jaune-100)',
+              background: 'var(--color-primary-50)',
+              valueBackground: 'var(--color-contrast-100)',
             }
           }
         }
@@ -157,13 +195,13 @@ export const MyPreset = definePreset(Aura, {
           light: {
             root: {
               borderRadius: '30px',
-              background: 'var(--color-cam-5)',
-              navButtonSelectedBackground: 'var(--color-cam-80)',
+              background: 'var(--color-primary-5)',
+              navButtonSelectedBackground: 'var(--color-primary-80)',
               navButtonSelectedColor: 'var(--color-blanc-100)',
-              navButtonHoverBackground: 'var(--color-cam-120)',
+              navButtonHoverBackground: 'var(--color-primary-120)',
               navButtonHoverColor: 'var(--color-blanc-100)',
-              navButtonBackground: 'var(--color-cam-5)',
-              navButtonColor: 'var(--color-cam-100)',
+              navButtonBackground: 'var(--color-primary-5)',
+              navButtonColor: 'var(--color-primary-100)',
             }
           }
         }
@@ -173,7 +211,7 @@ export const MyPreset = definePreset(Aura, {
           light: {
             root: {
               borderRadius: '9999px',
-              background: 'var(--color-cam-secondary-100)',
+              background: 'var(--color-secondary-100)',
               color: 'var(--color-blanc-100)',
               iconColor: 'var(--color-blanc-100) !important',
               removeIconColor: 'var(--color-blanc-100) !important',
@@ -185,9 +223,9 @@ export const MyPreset = definePreset(Aura, {
         colorScheme: {
           light: {
             root: {
-              checkedBackground: 'var(--color-vert-100)',
+              checkedBackground: 'var(--color-success-100)',
               background: 'var(--color-gris-80)',
-              checkedHoverBackground: 'var(--color-vert-120)',
+              checkedHoverBackground: 'var(--color-success-120)',
               hoverBackground: 'var(--color-gris-100)',
             }
           }
@@ -197,10 +235,10 @@ export const MyPreset = definePreset(Aura, {
         colorScheme: {
           light: {
             root: {
-              background: 'var(--color-cam-5)',
+              background: 'var(--color-primary-5)',
               borderColor: 'var(--color-gris-15)',
-              color: 'var(--color-cam-100)',
-              subtitleColor: 'var(--color-cam-80)',
+              color: 'var(--color-primary-100)',
+              subtitleColor: 'var(--color-primary-80)',
             }
           }
         }
@@ -211,8 +249,8 @@ export const MyPreset = definePreset(Aura, {
             root: {
               chipBorderRadius: '9999px',
               borderColor: 'var(--color-gris-15)',
-              color: 'var(--color-cam-100)',
-              subtitleColor: 'var(--color-cam-80)',
+              color: 'var(--color-primary-100)',
+              subtitleColor: 'var(--color-primary-80)',
             }
           }
         }
@@ -226,7 +264,7 @@ export const MyPreset = definePreset(Aura, {
               tabBorderColor: 'transparent',
               tabHoverBorderColor: 'var(--color-blanc-80)',
               tabBorderWidth: '0px 0px 4px 0px',
-              tabActiveBorderColor: 'var(--color-jaune-100)',
+              tabActiveBorderColor: 'var(--color-contrast-100)',
               tabColor: 'var(--color-blanc-80)',
               tabActiveColor: 'var(--color-blanc-100)',
             }
@@ -248,28 +286,28 @@ export const MyPreset = definePreset(Aura, {
       },
       toast: {
         success: {
-          background: 'var(--color-vert-5) !important',
-          borderColor: 'var(--color-vert-80) !important',
-          color: 'var(--color-vert-120) !important',
-          detailColor: 'var(--color-vert-120) !important'
+          background: 'var(--color-success-5) !important',
+          borderColor: 'var(--color-success-80) !important',
+          color: 'var(--color-success-120) !important',
+          detailColor: 'var(--color-success-120) !important'
         },
         info: {
-          background: 'var(--color-bleu-5) !important',
-          borderColor: 'var(--color-bleu-80) !important',
-          color: 'var(--color-bleu-120) !important',
-          detailColor: 'var(--color-bleu-120) !important'
+          background: 'var(--color-info-5) !important',
+          borderColor: 'var(--color-info-80) !important',
+          color: 'var(--color-info-120) !important',
+          detailColor: 'var(--color-info-120) !important'
         },
         warning: {
-          background: 'var(--color-jaune-5) !important',
-          borderColor: 'var(--color-jaune-80) !important',
-          color: 'var(--color-jaune-120) !important',
-          detailColor: 'var(--color-jaune-120) !important'
+          background: 'var(--color-warn-5) !important',
+          borderColor: 'var(--color-warn-80) !important',
+          color: 'var(--color-warn-120) !important',
+          detailColor: 'var(--color-warn-120) !important'
         },
         error: {
-          background: 'var(--color-rouge-5) !important',
-          borderColor: 'var(--color-rouge-80) !important',
-          color: 'var(--color-rouge-120) !important',
-          detailColor: 'var(--color-rouge-120) !important'
+          background: 'var(--color-error-5) !important',
+          borderColor: 'var(--color-error-80) !important',
+          color: 'var(--color-error-120) !important',
+          detailColor: 'var(--color-error-120) !important'
         }
       },
       button: {
@@ -285,9 +323,9 @@ export const MyPreset = definePreset(Aura, {
             },
             borderRadius: '9999px',
             primary: {
-              background: 'var(--color-cam-100)',
-              hoverBackground: 'var(--color-cam-80)',
-              activeBackground: 'var(--color-cam-120)',
+              background: 'var(--color-primary-100)',
+              hoverBackground: 'var(--color-primary-80)',
+              activeBackground: 'var(--color-primary-120)',
               borderColor: 'transparent',
               hoverBorderColor: 'transparent',
               activeBorderColor: 'transparent',
@@ -307,9 +345,9 @@ export const MyPreset = definePreset(Aura, {
               activeColor: 'var(--color-blanc-100)',
             },
             danger: {
-              background: 'var(--color-rouge-100)',
-              hoverBackground: 'var(--color-rouge-80)',
-              activeBackground: 'var(--color-rouge-120)',
+              background: 'var(--color-error-100)',
+              hoverBackground: 'var(--color-error-80)',
+              activeBackground: 'var(--color-error-120)',
               borderColor: 'transparent',
               hoverBorderColor: 'transparent',
               activeBorderColor: 'transparent',
@@ -318,9 +356,9 @@ export const MyPreset = definePreset(Aura, {
               activeColor: 'var(--color-blanc-100)',
             },
             warn: {
-              background: 'var(--color-orange-100)',
-              hoverBackground: 'var(--color-orange-80)',
-              activeBackground: 'var(--color-orange-120)',
+              background: 'var(--color-warn-100)',
+              hoverBackground: 'var(--color-warn-80)',
+              activeBackground: 'var(--color-warn-120)',
               borderColor: 'transparent',
               hoverBorderColor: 'transparent',
               activeBorderColor: 'transparent',
@@ -329,9 +367,9 @@ export const MyPreset = definePreset(Aura, {
               activeColor: 'var(--color-blanc-100)',
             },
             success: {
-              background: 'var(--color-vert-100)',
-              hoverBackground: 'var(--color-vert-80)',
-              activeBackground: 'var(--color-vert-120)',
+              background: 'var(--color-success-100)',
+              hoverBackground: 'var(--color-success-80)',
+              activeBackground: 'var(--color-success-120)',
               borderColor: 'transparent',
               hoverBorderColor: 'transparent',
               activeBorderColor: 'transparent',
@@ -340,9 +378,9 @@ export const MyPreset = definePreset(Aura, {
               activeColor: 'var(--color-blanc-100)',
             },
             info: {
-              background: 'var(--color-bleu-100)',
-              hoverBackground: 'var(--color-bleu-80)',
-              activeBackground: 'var(--color-bleu-120)',
+              background: 'var(--color-info-100)',
+              hoverBackground: 'var(--color-info-80)',
+              activeBackground: 'var(--color-info-120)',
               borderColor: 'transparent',
               hoverBorderColor: 'transparent',
               activeBorderColor: 'transparent',
@@ -351,58 +389,58 @@ export const MyPreset = definePreset(Aura, {
               activeColor: 'var(--color-blanc-100)',
             },
             contrast: {
-              background: 'var(--color-jaune-100)',
-              hoverBackground: 'var(--color-jaune-80)',
-              activeBackground: 'var(--color-jaune-120)',
+              background: 'var(--color-contrast-100)',
+              hoverBackground: 'var(--color-contrast-80)',
+              activeBackground: 'var(--color-contrast-120)',
               borderColor: 'transparent',
               hoverBorderColor: 'transparent',
               activeBorderColor: 'transparent',
-              color: 'var(--color-cam-100)',
-              hoverColor: 'var(--color-cam-100)',
-              activeColor: 'var(--color-cam-100)',
+              color: 'var(--color-blanc-100)',
+              hoverColor: 'var(--color-blanc-100)',
+              activeColor: 'var(--color-blanc-100)',
             },
             outlined: {
               primary: {
                 hoverBackground: 'var(--color-blanc-100)',
                 activeBackground: 'var(--color-blanc-100)',
-                borderColor: 'var(--color-cam-120)',
-                color: 'var(--color-cam-120)',
+                borderColor: 'var(--color-primary-120)',
+                color: 'var(--color-primary-120)',
               },
               secondary: {
                 hoverBackground: 'var(--color-blanc-100)',
                 activeBackground: 'var(--color-blanc-100)',
-                borderColor: 'var(--color-cam-secondary-120)',
-                color: 'var(--color-cam-secondary-120)',
+                borderColor: 'var(--color-secondary-120)',
+                color: 'var(--color-secondary-120)',
               },
               danger: {
                 hoverBackground: 'var(--color-blanc-100)',
                 activeBackground: 'var(--color-blanc-100)',
-                borderColor: 'var(--color-rouge-120)',
-                color: 'var(--color-rouge-120)',
+                borderColor: 'var(--color-error-120)',
+                color: 'var(--color-error-120)',
               },
               warn: {
                 hoverBackground: 'var(--color-blanc-100)',
                 activeBackground: 'var(--color-blanc-100)',
-                borderColor: 'var(--color-orange-120)',
-                color: 'var(--color-orange-120)',
+                borderColor: 'var(--color-warn-120)',
+                color: 'var(--color-warn-120)',
               },
               success: {
                 hoverBackground: 'var(--color-blanc-100)',
                 activeBackground: 'var(--color-blanc-100)',
-                borderColor: 'var(--color-vert-120)',
-                color: 'var(--color-vert-120)',
+                borderColor: 'var(--color-success-120)',
+                color: 'var(--color-success-120)',
               },
               info: {
                 hoverBackground: 'var(--color-blanc-100)',
                 activeBackground: 'var(--color-blanc-100)',
-                borderColor: 'var(--color-bleu-120)',
-                color: 'var(--color-bleu-120)',
+                borderColor: 'var(--color-info-120)',
+                color: 'var(--color-info-120)',
               },
               contrast: {
-                hoverBackground: 'var(--color-cam-80)',
-                activeBackground: 'var(--color-cam-100)',
-                borderColor: 'var(--color-jaune-100)',
-                color: 'var(--color-jaune-100)',
+                hoverBackground: 'var(--color-primary-80)',
+                activeBackground: 'var(--color-primary-100)',
+                borderColor: 'var(--color-contrast-100)',
+                color: 'var(--color-contrast-100)',
               },
             }
           }

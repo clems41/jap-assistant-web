@@ -9,6 +9,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { MyPreset } from './preset';
 import { ENVIRONMENT } from './core/tokens/environment.token';
 import { environment } from '../environments/environment';
+import {MessageService} from 'primeng/api';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -16,6 +17,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideClientHydration(withEventReplay()),
     provideAnimationsAsync(),
+    MessageService,
     provideHttpClient(withFetch(), withInterceptorsFromDi()),
     { provide: ENVIRONMENT, useValue: environment },
     providePrimeNG({

@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { HttpRequesterService } from './http-requester.service';
 
@@ -47,6 +47,11 @@ export interface LoginResponse {
 export class AuthService {
   private http = inject(HttpRequesterService);
 
+  private readonly _isAuthenticated = signal<boolean>(
+    typeof localStorage !== 'undefined' && !!localStorage.getItem('access_token'),
+  );
+  readonly isAuthenticated = this._isAuthenticated.asReadonly();
+
   /**
    * Registers a new user account.
    * POST /auth/register
@@ -88,8 +93,19 @@ export class AuthService {
   login(email: string, password: string): Observable<LoginResponse> {
     const body: LoginRequest = { email, password };
     return this.http.post<LoginResponse>('/auth/token', body).pipe(
-      tap((res) => this.http.saveTokens(res.access, res.refresh)),
+      tap((res) => {
+        this.http.saveTokens(res.access, res.refresh);
+        this._isAuthenticated.set(true);
+      }),
     );
+  }
+
+  logout(): void {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+    }
+    this._isAuthenticated.set(false);
   }
 
 }

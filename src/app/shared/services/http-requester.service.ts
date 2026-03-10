@@ -97,7 +97,7 @@ export class HttpRequesterService {
     const refreshToken = this.getRefreshToken();
 
     if (!refreshToken) {
-      this.router.navigate(['/login']);
+      this.router.navigate(['/auth/login']);
       return EMPTY;
     }
 
@@ -112,7 +112,11 @@ export class HttpRequesterService {
           return retryFn();
         }),
         catchError(() => {
-          this.router.navigate(['/login']);
+          if (typeof localStorage !== 'undefined') {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+          }
+          this.router.navigate(['/auth/login']);
           return EMPTY;
         }),
       );

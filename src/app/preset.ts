@@ -17,9 +17,9 @@ export const MyPreset = definePreset(Aura, {
           formField: {
             paddingX: '10px',
             paddingY: '10px',
-            placeholderColor: 'var(--color-gris-50)',
+            placeholderColor: 'var(--color-contrast-50)',
             background: 'var(--color-blanc-100)',
-            color: 'var(--color-gris-100)',
+            color: 'var(--color-contrast-100)',
             borderColor: 'var(--color-gris-30)',
 
             hoverBackground: 'var(--color-blanc-100)',

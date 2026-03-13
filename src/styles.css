@@ -132,3 +132,30 @@
   --text-menu--line-height: 100%;
   --text-menu--font-weight: 500;
 }
+
+label {
+  color: var(--color-contrast-100);
+}
+
+h1, h2, h3 {
+  font-family: var(--font-poppins), serif;
+  color: var(--color-contrast-100);
+}
+
+h1 {
+  font-size: var(--text-title-1);
+  line-height: var(--text-title-1--line-height);
+  font-weight: var(--text-title-1--font-weight);
+}
+
+h2 {
+  font-size: var(--text-title-2);
+  line-height: var(--text-title-2--line-height);
+  font-weight: var(--text-title-2--font-weight);
+}
+
+h3 {
+  font-size: var(--text-title-3);
+  line-height: var(--text-title-3--line-height);
+  font-weight: var(--text-title-3--font-weight);
+}

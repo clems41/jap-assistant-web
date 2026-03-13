@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
-import { HttpRequesterService } from './http-requester.service';
+import {HttpRequesterOptions, HttpRequesterService} from './http-requester.service';
 
 // ---------------------------------------------------------------------------
 // Request / Response interfaces
@@ -92,7 +92,10 @@ export class AuthService {
    */
   login(email: string, password: string): Observable<LoginResponse> {
     const body: LoginRequest = { email, password };
-    return this.http.post<LoginResponse>('/auth/token', body).pipe(
+    const options: HttpRequesterOptions = {
+      enable_retry: false,
+    }
+    return this.http.post<LoginResponse>('/auth/token', body, options).pipe(
       tap((res) => {
         this.http.saveTokens(res.access, res.refresh);
         this._isAuthenticated.set(true);

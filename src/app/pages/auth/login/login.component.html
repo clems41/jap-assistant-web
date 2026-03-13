@@ -1,1 +1,25 @@
-<p>login works!</p>
+<form [formGroup]="form" class="flex flex-col gap-5 w-full items-center" (ngSubmit)="login()">
+
+  <h2>Se connecter</h2>
+
+  <div class="flex flex-col w-full">
+    <label for="email">Email</label>
+    <input fluid="" pInputText id="email" autocomplete="off" formControlName="email"/>
+  </div>
+
+  <div class="flex flex-col w-full">
+    <label for="password">Mot de passe</label>
+    <input pInputText id="password" type="password" autocomplete="off" formControlName="password"/>
+  </div>
+
+  <div class="w-full">
+    <p-button label="Connexion" icon="bi bi-check-circle" type="submit" fluid=""
+              [disabled]="form.invalid" [loading]="loginLoading"/>
+  </div>
+
+  <p class="text-body-light text-gris-100">
+    Pas encore de compte ?
+    <a routerLink="/auth/register" class="text-primary-100 font-medium hover:underline">S'inscrire</a>
+  </p>
+
+</form>

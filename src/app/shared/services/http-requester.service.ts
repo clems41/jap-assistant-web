@@ -9,9 +9,15 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { Observable, EMPTY, switchMap, catchError, take } from 'rxjs';
+import {Observable, EMPTY, switchMap, catchError, take, tap} from 'rxjs';
 import { ENVIRONMENT } from '../../core/tokens/environment.token';
 import { Environment } from '../../../environments/environment.model';
+
+export interface HttpRequesterOptions {
+  succes_message?: string;
+  show_error?: boolean;
+  enable_retry?: boolean;
+}
 
 interface RefreshResponse {
   access_token: string;
@@ -19,12 +25,15 @@ interface RefreshResponse {
 
 interface ApiErrorResponse {
   message?: string;
+  detail?: string;
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class HttpRequesterService {
+  private defaultShowError: boolean = true;
+  private defaultEnableRetry: boolean = true;
   private http = inject(HttpClient);
   private router = inject(Router);
   private messageService = inject(MessageService);
@@ -80,12 +89,22 @@ export class HttpRequesterService {
   private showErrorToast(error: HttpErrorResponse): void {
     const body = error.error as ApiErrorResponse | null;
     const message =
-      body?.message ?? error.message ?? 'Une erreur est survenue.';
+      body?.detail ?? error.message ?? 'Une erreur est survenue.';
 
     this.messageService.add({
       key: 'global',
       severity: 'error',
       summary: 'Erreur',
+      detail: message,
+      life: 5000,
+    });
+  }
+
+  private showSuccessToast(message: string): void {
+    this.messageService.add({
+      key: 'global',
+      severity: 'success',
+      summary: 'Succès',
       detail: message,
       life: 5000,
     });
@@ -125,12 +144,29 @@ export class HttpRequesterService {
   private handleError<T>(
     error: HttpErrorResponse,
     retryFn: () => Observable<T>,
+    options?: HttpRequesterOptions
   ): Observable<T> {
-    if (error.status === 401) {
+    const enableRetry = options?.enable_retry ?? this.defaultEnableRetry;
+    const showError = options?.show_error ?? this.defaultShowError;
+
+    if (error.status === 401 && enableRetry) {
       return this.refreshAndRetry(retryFn);
     }
 
-    this.showErrorToast(error);
+    if (showError) {
+      this.showErrorToast(error);
+    }
+
+    return EMPTY;
+  }
+
+  private handleSuccess<T>(
+    options?: HttpRequesterOptions
+  ): Observable<T> {
+    const showSuccessMessage: boolean = options?.succes_message !== undefined;
+    if (showSuccessMessage) {
+      this.showSuccessToast(options?.succes_message ?? '');
+    }
     return EMPTY;
   }
 
@@ -138,53 +174,68 @@ export class HttpRequesterService {
   // Public HTTP methods
   // ---------------------------------------------------------------------------
 
-  get<T>(path: string): Observable<T> {
+  get<T>(path: string, options?: HttpRequesterOptions): Observable<T> {
     const call = (): Observable<T> =>
       this.http
-        .get<T>(`${this.baseUrl}${path}`, { headers: this.buildHeaders() })
-        .pipe(catchError((err: HttpErrorResponse) => this.handleError(err, call)));
+        .get<T>(`${this.baseUrl}${path}/`, { headers: this.buildHeaders() })
+        .pipe(
+          tap(() => this.handleSuccess(options)),
+          catchError((err: HttpErrorResponse) => this.handleError(err, call, options))
+        );
 
     return call();
   }
 
-  post<T>(path: string, body: unknown): Observable<T> {
+  post<T>(path: string, body: unknown, options?: HttpRequesterOptions): Observable<T> {
     const call = (): Observable<T> =>
       this.http
-        .post<T>(`${this.baseUrl}${path}`, body, {
+        .post<T>(`${this.baseUrl}${path}/`, body, {
           headers: this.buildHeaders(),
         })
-        .pipe(catchError((err: HttpErrorResponse) => this.handleError(err, call)));
+        .pipe(
+          tap(() => this.handleSuccess(options)),
+          catchError((err: HttpErrorResponse) => this.handleError(err, call, options))
+        );
 
     return call();
   }
 
-  put<T>(path: string, body: unknown): Observable<T> {
+  put<T>(path: string, body: unknown, options?: HttpRequesterOptions): Observable<T> {
     const call = (): Observable<T> =>
       this.http
-        .put<T>(`${this.baseUrl}${path}`, body, {
+        .put<T>(`${this.baseUrl}${path}/`, body, {
           headers: this.buildHeaders(),
         })
-        .pipe(catchError((err: HttpErrorResponse) => this.handleError(err, call)));
+        .pipe(
+          tap(() => this.handleSuccess(options)),
+          catchError((err: HttpErrorResponse) => this.handleError(err, call, options))
+        );
 
     return call();
   }
 
-  patch<T>(path: string, body: unknown): Observable<T> {
+  patch<T>(path: string, body: unknown, options?: HttpRequesterOptions): Observable<T> {
     const call = (): Observable<T> =>
       this.http
-        .patch<T>(`${this.baseUrl}${path}`, body, {
+        .patch<T>(`${this.baseUrl}${path}/`, body, {
           headers: this.buildHeaders(),
         })
-        .pipe(catchError((err: HttpErrorResponse) => this.handleError(err, call)));
+        .pipe(
+          tap(() => this.handleSuccess(options)),
+          catchError((err: HttpErrorResponse) => this.handleError(err, call, options))
+        );
 
     return call();
   }
 
-  delete<T>(path: string): Observable<T> {
+  delete<T>(path: string, options?: HttpRequesterOptions): Observable<T> {
     const call = (): Observable<T> =>
       this.http
-        .delete<T>(`${this.baseUrl}${path}`, { headers: this.buildHeaders() })
-        .pipe(catchError((err: HttpErrorResponse) => this.handleError(err, call)));
+        .delete<T>(`${this.baseUrl}${path}/`, { headers: this.buildHeaders() })
+        .pipe(
+          tap(() => this.handleSuccess(options)),
+          catchError((err: HttpErrorResponse) => this.handleError(err, call, options))
+        );
 
     return call();
   }

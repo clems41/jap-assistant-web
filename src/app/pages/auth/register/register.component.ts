@@ -1,10 +1,10 @@
 import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
 import {FieldErrorComponent} from '../../../shared/components/field-error/field-error.component';
-import {AuthService, RegisterRequest} from '../../../shared/services/auth.service';
+import {AuthService, LoginRequest, RegisterRequest} from '../../../shared/services/auth.service';
 import {AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
 import {InputTextModule} from 'primeng/inputtext';
-import {RouterLink} from '@angular/router';
+import {Router, RouterLink} from '@angular/router';
 import {PasswordModule} from 'primeng/password';
 
 @Component({
@@ -21,6 +21,7 @@ import {PasswordModule} from 'primeng/password';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RegisterComponent {
+  private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly formBuilder = inject(FormBuilder);
 
@@ -56,7 +57,20 @@ export class RegisterComponent {
     this.authService.register(input)
       .subscribe({
         next: () => {
-          this.loading = false;
+          const loginInput: LoginRequest = {
+            email: email,
+            password: password,
+          }
+          this.authService.login(loginInput).subscribe({
+            next: () => {
+              this.loading = false;
+              this.router.navigate(['/home']).then();
+            },
+            error: () => {
+              this.loading = false;
+              this.router.navigate(['/auth/login']).then();
+            }
+          })
         },
         error: () => {
           this.loading = false;

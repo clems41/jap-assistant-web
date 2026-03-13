@@ -159,14 +159,10 @@ export class HttpRequesterService {
     return throwError(() => error);
   }
 
-  private handleSuccess<T>(
-    options?: HttpRequesterOptions
-  ): Observable<T> {
-    const showSuccessMessage: boolean = options?.succes_message !== undefined;
-    if (showSuccessMessage) {
-      this.showSuccessToast(options?.succes_message ?? '');
+  private handleSuccess(options?: HttpRequesterOptions): void {
+    if (options?.succes_message !== undefined) {
+      this.showSuccessToast(options.succes_message);
     }
-    return EMPTY;
   }
 
   // ---------------------------------------------------------------------------

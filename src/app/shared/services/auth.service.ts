@@ -57,7 +57,10 @@ export class AuthService {
    * POST /auth/register
    */
   register(input: RegisterRequest): Observable<RegisterResponse> {
-    return this.http.post<RegisterResponse>('/auth/register', input);
+    const options: HttpRequesterOptions = {
+      succes_message: `Votre compte a été correctement créée, vous allez être redirigé vers la page d'accueil.`,
+    }
+    return this.http.post<RegisterResponse>('/auth/register', input,options);
   }
 
   /**

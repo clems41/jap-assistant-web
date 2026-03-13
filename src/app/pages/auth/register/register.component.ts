@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
 import {FieldErrorComponent} from '../../../shared/components/field-error/field-error.component';
 import {AuthService, LoginRequest, RegisterRequest} from '../../../shared/services/auth.service';
 import {AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators} from '@angular/forms';
@@ -26,7 +26,7 @@ export class RegisterComponent {
   private readonly formBuilder = inject(FormBuilder);
 
   form: FormGroup = this.buildForm();
-  loading: boolean = false;
+  loading = signal(false);
 
   private passwordMatchValidator(group: AbstractControl): ValidationErrors | null {
     const password = group.get('password')?.value;
@@ -47,7 +47,7 @@ export class RegisterComponent {
   register(): void {
     if (this.form.invalid) return
     const {email, password, first_name, last_name} = this.form.value;
-    this.loading = true;
+    this.loading.set(true);
     const input: RegisterRequest = {
       email: email,
       password: password,
@@ -63,17 +63,17 @@ export class RegisterComponent {
           }
           this.authService.login(loginInput).subscribe({
             next: () => {
-              this.loading = false;
+              this.loading.set(false);
               this.router.navigate(['/home']).then();
             },
             error: () => {
-              this.loading = false;
+              this.loading.set(false);
               this.router.navigate(['/auth/login']).then();
             }
           })
         },
         error: () => {
-          this.loading = false;
+          this.loading.set(false);
         }
       })
   }

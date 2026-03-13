@@ -1,1 +1,47 @@
-<p>register works!</p>
+<form [formGroup]="form" class="flex flex-col gap-5 w-full items-center" (ngSubmit)="register()">
+
+  <h2>Inscription</h2>
+
+  <div class="flex flex-col w-full">
+    <label for="email">Email</label>
+    <input fluid="" type="email" pInputText id="email" autocomplete="off" formControlName="email"/>
+    <app-field-error [control]="form.get('email')"></app-field-error>
+  </div>
+
+  <div class="flex flex-col w-full">
+    <label for="first_name">Prénom</label>
+    <input fluid="" pInputText id="first_name" autocomplete="off" formControlName="first_name"/>
+    <app-field-error [control]="form.get('first_name')"></app-field-error>
+  </div>
+
+  <div class="flex flex-col w-full">
+    <label for="last_name">Nom</label>
+    <input fluid="" pInputText id="last_name" autocomplete="off" formControlName="last_name"/>
+    <app-field-error [control]="form.get('last_name')"></app-field-error>
+  </div>
+
+  <div class="flex flex-col w-full">
+    <label for="password">Mot de passe</label>
+    <p-password fluid="" formControlName="password" inputId="password" [feedback]="true" [toggleMask]="true" />
+    <app-field-error [control]="form.get('password')"></app-field-error>
+  </div>
+
+  <div class="flex flex-col w-full">
+    <label for="password_confirm">Confirmation de mot de passe</label>
+    <p-password fluid="" formControlName="password_confirm" inputId="password_confirm" [feedback]="false" [toggleMask]="true" />
+    @if (form.hasError('passwordMismatch') && form.get('password_confirm')?.dirty) {
+      <small class="text-error-100 text-body-light mt-1">Les mots de passe ne correspondent pas.</small>
+    }
+  </div>
+
+  <div class="w-full">
+    <p-button label="S'inscrire" icon="bi bi-check-circle" type="submit" fluid=""
+              [disabled]="form.invalid" [loading]="loading"/>
+  </div>
+
+  <p class="text-body-light text-gris-100">
+    Déjà un compte ?
+    <a routerLink="/auth/login" class="text-primary-100 font-medium hover:underline">Se connecter</a>
+  </p>
+
+</form>

@@ -9,7 +9,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import {Observable, EMPTY, switchMap, catchError, take, tap} from 'rxjs';
+import {Observable, EMPTY, throwError, switchMap, catchError, take, tap} from 'rxjs';
 import { ENVIRONMENT } from '../../core/tokens/environment.token';
 import { Environment } from '../../../environments/environment.model';
 
@@ -25,7 +25,6 @@ interface RefreshResponse {
 
 interface ApiErrorResponse {
   message?: string;
-  detail?: string;
 }
 
 @Injectable({
@@ -89,7 +88,7 @@ export class HttpRequesterService {
   private showErrorToast(error: HttpErrorResponse): void {
     const body = error.error as ApiErrorResponse | null;
     const message =
-      body?.detail ?? error.message ?? 'Une erreur est survenue.';
+      body?.message ?? error.message ?? 'Une erreur est survenue.';
 
     this.messageService.add({
       key: 'global',
@@ -157,7 +156,7 @@ export class HttpRequesterService {
       this.showErrorToast(error);
     }
 
-    return EMPTY;
+    return throwError(() => error);
   }
 
   private handleSuccess<T>(

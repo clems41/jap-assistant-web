@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import {Injectable, inject, signal} from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import {HttpRequesterOptions, HttpRequesterService} from './http-requester.service';
 
@@ -56,46 +56,27 @@ export class AuthService {
    * Registers a new user account.
    * POST /auth/register
    */
-  register(
-    email: string,
-    password: string,
-    firstName: string,
-    lastName: string,
-  ): Observable<RegisterResponse> {
-    const body: RegisterRequest = {
-      email,
-      password,
-      first_name: firstName,
-      last_name: lastName,
-    };
-    return this.http.post<RegisterResponse>('/auth/register', body);
+  register(input: RegisterRequest): Observable<RegisterResponse> {
+    return this.http.post<RegisterResponse>('/auth/register', input);
   }
 
   /**
    * Changes the authenticated user's password.
    * POST /auth/change-password
    */
-  changePassword(
-    oldPassword: string,
-    newPassword: string,
-  ): Observable<ChangePasswordResponse> {
-    const body: ChangePasswordRequest = {
-      old_password: oldPassword,
-      new_password: newPassword,
-    };
-    return this.http.post<ChangePasswordResponse>('/auth/change-password', body);
+  changePassword(input: ChangePasswordRequest): Observable<ChangePasswordResponse> {
+    return this.http.post<ChangePasswordResponse>('/auth/change-password', input);
   }
 
   /**
    * Authenticates a user and returns JWT access + refresh tokens.
    * POST /auth/token
    */
-  login(email: string, password: string): Observable<LoginResponse> {
-    const body: LoginRequest = { email, password };
+  login(input: LoginRequest): Observable<LoginResponse> {
     const options: HttpRequesterOptions = {
       enable_retry: false,
     }
-    return this.http.post<LoginResponse>('/auth/token', body, options).pipe(
+    return this.http.post<LoginResponse>('/auth/token', input, options).pipe(
       tap((res) => {
         this.http.saveTokens(res.access, res.refresh);
         this._isAuthenticated.set(true);

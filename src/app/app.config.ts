@@ -10,6 +10,7 @@ import { MyPreset } from './preset';
 import { ENVIRONMENT } from './core/tokens/environment.token';
 import { environment } from '../environments/environment';
 import {MessageService} from 'primeng/api';
+import {fr} from "primelocale/js/fr.js";
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -21,6 +22,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withFetch(), withInterceptorsFromDi()),
     { provide: ENVIRONMENT, useValue: environment },
     providePrimeNG({
+      translation: fr,
       theme: {
         preset: MyPreset,
         options: {

@@ -39,35 +39,36 @@ describe('AuthService', () => {
   // ---------------------------------------------------------------------------
 
   describe('register()', () => {
-    const email = 'alice@example.com';
-    const password = 'secret123';
-    const firstName = 'Alice';
-    const lastName = 'Dupont';
+    const input = {
+      email: 'alice@example.com',
+      password: 'secret123',
+      first_name: 'Alice',
+      last_name: 'Dupont',
+    };
 
     const mockResponse: RegisterResponse = {
       id: 1,
-      email,
-      first_name: firstName,
-      last_name: lastName,
+      email: input.email,
+      first_name: input.first_name,
+      last_name: input.last_name,
     };
 
     it('should call POST /auth/register with the correct body', () => {
       httpRequesterSpy.post.and.returnValue(of(mockResponse));
 
-      service.register(email, password, firstName, lastName).subscribe();
+      service.register(input).subscribe();
 
-      expect(httpRequesterSpy.post).toHaveBeenCalledOnceWith('/auth/register', {
-        email,
-        password,
-        first_name: firstName,
-        last_name: lastName,
-      });
+      expect(httpRequesterSpy.post).toHaveBeenCalledOnceWith(
+        '/auth/register',
+        input,
+        jasmine.objectContaining({ succes_message: jasmine.any(String) }),
+      );
     });
 
     it('should return the server response on success', (done) => {
       httpRequesterSpy.post.and.returnValue(of(mockResponse));
 
-      service.register(email, password, firstName, lastName).subscribe((res) => {
+      service.register(input).subscribe((res) => {
         expect(res).toEqual(mockResponse);
         done();
       });
@@ -77,7 +78,7 @@ describe('AuthService', () => {
       const error = new Error('400 Bad Request');
       httpRequesterSpy.post.and.returnValue(throwError(() => error));
 
-      service.register(email, password, firstName, lastName).subscribe({
+      service.register(input).subscribe({
         error: (err) => {
           expect(err).toBe(error);
           done();
@@ -85,10 +86,10 @@ describe('AuthService', () => {
       });
     });
 
-    it('should map firstName / lastName to snake_case fields', () => {
+    it('should forward first_name and last_name as-is to the API', () => {
       httpRequesterSpy.post.and.returnValue(of(mockResponse));
 
-      service.register('b@b.com', 'pwd', 'Bob', 'Martin').subscribe();
+      service.register({ email: 'b@b.com', password: 'pwd', first_name: 'Bob', last_name: 'Martin' }).subscribe();
 
       const body = httpRequesterSpy.post.calls.mostRecent().args[1] as {
         first_name: string;
@@ -104,34 +105,33 @@ describe('AuthService', () => {
   // ---------------------------------------------------------------------------
 
   describe('changePassword()', () => {
-    const oldPassword = 'oldPass1';
-    const newPassword = 'newPass2';
+    const input = { old_password: 'oldPass1', new_password: 'newPass2' };
     const mockResponse: ChangePasswordResponse = { detail: 'Password updated.' };
 
     it('should call POST /auth/change-password with the correct body', () => {
       httpRequesterSpy.post.and.returnValue(of(mockResponse));
 
-      service.changePassword(oldPassword, newPassword).subscribe();
+      service.changePassword(input).subscribe();
 
       expect(httpRequesterSpy.post).toHaveBeenCalledOnceWith(
         '/auth/change-password',
-        { old_password: oldPassword, new_password: newPassword },
+        input,
       );
     });
 
     it('should return the server response on success', (done) => {
       httpRequesterSpy.post.and.returnValue(of(mockResponse));
 
-      service.changePassword(oldPassword, newPassword).subscribe((res) => {
+      service.changePassword(input).subscribe((res) => {
         expect(res).toEqual(mockResponse);
         done();
       });
     });
 
-    it('should map oldPassword / newPassword to snake_case fields', () => {
+    it('should forward old_password and new_password as-is to the API', () => {
       httpRequesterSpy.post.and.returnValue(of(mockResponse));
 
-      service.changePassword('aaa', 'bbb').subscribe();
+      service.changePassword({ old_password: 'aaa', new_password: 'bbb' }).subscribe();
 
       const body = httpRequesterSpy.post.calls.mostRecent().args[1] as {
         old_password: string;
@@ -145,7 +145,7 @@ describe('AuthService', () => {
       const error = new Error('403 Forbidden');
       httpRequesterSpy.post.and.returnValue(throwError(() => error));
 
-      service.changePassword(oldPassword, newPassword).subscribe({
+      service.changePassword(input).subscribe({
         error: (err) => {
           expect(err).toBe(error);
           done();
@@ -159,8 +159,7 @@ describe('AuthService', () => {
   // ---------------------------------------------------------------------------
 
   describe('login()', () => {
-    const email = 'jap@padel.fr';
-    const password = 'password';
+    const input = { email: 'jap@padel.fr', password: 'password' };
     const mockTokens: LoginResponse = {
       access: 'access-jwt-token',
       refresh: 'refresh-jwt-token',
@@ -169,18 +168,19 @@ describe('AuthService', () => {
     it('should call POST /auth/token with the correct body', () => {
       httpRequesterSpy.post.and.returnValue(of(mockTokens));
 
-      service.login(email, password).subscribe();
+      service.login(input).subscribe();
 
-      expect(httpRequesterSpy.post).toHaveBeenCalledOnceWith('/auth/token', {
-        email,
-        password,
-      });
+      expect(httpRequesterSpy.post).toHaveBeenCalledOnceWith(
+        '/auth/token',
+        input,
+        jasmine.objectContaining({ enable_retry: false }),
+      );
     });
 
     it('should return access and refresh tokens on success', (done) => {
       httpRequesterSpy.post.and.returnValue(of(mockTokens));
 
-      service.login(email, password).subscribe((res) => {
+      service.login(input).subscribe((res) => {
         expect(res.access).toBe('access-jwt-token');
         expect(res.refresh).toBe('refresh-jwt-token');
         done();
@@ -190,7 +190,7 @@ describe('AuthService', () => {
     it('should save tokens in storage after a successful login', (done) => {
       httpRequesterSpy.post.and.returnValue(of(mockTokens));
 
-      service.login(email, password).subscribe(() => {
+      service.login(input).subscribe(() => {
         expect(httpRequesterSpy.saveTokens).toHaveBeenCalledOnceWith(
           'access-jwt-token',
           'refresh-jwt-token',
@@ -203,7 +203,7 @@ describe('AuthService', () => {
       const error = new Error('401 Unauthorized');
       httpRequesterSpy.post.and.returnValue(throwError(() => error));
 
-      service.login(email, 'wrong-password').subscribe({
+      service.login({ email: input.email, password: 'wrong-password' }).subscribe({
         error: () => {
           expect(httpRequesterSpy.saveTokens).not.toHaveBeenCalled();
           done();
@@ -215,7 +215,7 @@ describe('AuthService', () => {
       const error = new Error('401 Unauthorized');
       httpRequesterSpy.post.and.returnValue(throwError(() => error));
 
-      service.login(email, 'wrong-password').subscribe({
+      service.login({ email: input.email, password: 'wrong-password' }).subscribe({
         error: (err) => {
           expect(err).toBe(error);
           done();
@@ -227,7 +227,7 @@ describe('AuthService', () => {
       const error = new Error('500 Internal Server Error');
       httpRequesterSpy.post.and.returnValue(throwError(() => error));
 
-      service.login(email, password).subscribe({
+      service.login(input).subscribe({
         error: (err) => {
           expect(err).toBe(error);
           done();

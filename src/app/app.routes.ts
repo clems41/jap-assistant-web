@@ -80,6 +80,19 @@ export const routes: Routes = [
             (m) => m.UserProfileComponent,
           ),
       },
+      {
+        path: 'tournaments',
+        children: [
+          {
+            path: 'setup/:id',
+            data: {title: 'Configuration de tournoi'},
+            loadComponent: () =>
+              import('./pages/tournaments/setup/setup.component').then(
+                (m) => m.SetupComponent,
+              ),
+          },
+        ],
+      },
     ],
   },
 

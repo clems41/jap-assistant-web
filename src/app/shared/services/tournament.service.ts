@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpRequesterService } from './http-requester.service';
 import {
-  EnumChoice,
+  EnumChoice, LastLeagueResponse,
   PaginatedTournamentList,
   Tournament,
   TournamentRequest,
@@ -16,7 +16,7 @@ export class TournamentService {
 
   /** GET /api/v1/tournaments/ */
   getTournaments(page?: number): Observable<PaginatedTournamentList> {
-    return this.http.get<PaginatedTournamentList>('/tournaments');
+    return this.http.get<PaginatedTournamentList>('/tournaments', page !== undefined ? { page } : undefined);
   }
 
   /** POST /api/v1/tournaments/ */
@@ -52,5 +52,10 @@ export class TournamentService {
   /** GET /api/v1/tournaments/enums/leagues/ */
   getLeagues(): Observable<EnumChoice[]> {
     return this.http.get<EnumChoice[]>('/tournaments/enums/leagues');
+  }
+
+  /** GET /api/v1/tournaments/enums/leagues/ */
+  getLastLeague(): Observable<LastLeagueResponse> {
+    return this.http.get<LastLeagueResponse>('/tournaments/last-league');
   }
 }

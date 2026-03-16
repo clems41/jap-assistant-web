@@ -103,7 +103,6 @@ export const MyPreset = definePreset(Aura, {
         colorScheme: {
           light: {
             root: {
-              headerPadding: '0px',
               color: 'var(--color-primary-100)',
               background: 'var(--color-blanc-100)',
             }

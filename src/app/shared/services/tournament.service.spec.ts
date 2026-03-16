@@ -92,7 +92,7 @@ describe('TournamentService', () => {
 
       service.getTournaments().subscribe();
 
-      expect(httpSpy.get).toHaveBeenCalledOnceWith('/api/v1/tournaments');
+      expect(httpSpy.get).toHaveBeenCalledOnceWith('/tournaments', undefined);
     });
 
     it('should return the paginated list on success', (done) => {
@@ -128,7 +128,7 @@ describe('TournamentService', () => {
 
       service.createTournament(mockRequest).subscribe();
 
-      expect(httpSpy.post).toHaveBeenCalledOnceWith('/api/v1/tournaments', mockRequest);
+      expect(httpSpy.post).toHaveBeenCalledOnceWith('/tournaments', mockRequest);
     });
 
     it('should return the created tournament on success', (done) => {
@@ -163,7 +163,7 @@ describe('TournamentService', () => {
 
       service.getTournament(1).subscribe();
 
-      expect(httpSpy.get).toHaveBeenCalledOnceWith('/api/v1/tournaments/1');
+      expect(httpSpy.get).toHaveBeenCalledOnceWith('/tournaments/1');
     });
 
     it('should return the tournament on success', (done) => {
@@ -198,7 +198,7 @@ describe('TournamentService', () => {
 
       service.updateTournament(1, mockRequest).subscribe();
 
-      expect(httpSpy.put).toHaveBeenCalledOnceWith('/api/v1/tournaments/1', mockRequest);
+      expect(httpSpy.put).toHaveBeenCalledOnceWith('/tournaments/1', mockRequest);
     });
 
     it('should return the updated tournament on success', (done) => {
@@ -233,7 +233,7 @@ describe('TournamentService', () => {
 
       service.deleteTournament(1).subscribe();
 
-      expect(httpSpy.delete).toHaveBeenCalledOnceWith('/api/v1/tournaments/1');
+      expect(httpSpy.delete).toHaveBeenCalledOnceWith('/tournaments/1');
     });
 
     it('should complete without a value on success', (done) => {
@@ -270,7 +270,7 @@ describe('TournamentService', () => {
 
       service.getCategories().subscribe();
 
-      expect(httpSpy.get).toHaveBeenCalledOnceWith('/api/v1/tournaments/enums/categories');
+      expect(httpSpy.get).toHaveBeenCalledOnceWith('/tournaments/enums/categories');
     });
 
     it('should return the list of category choices', (done) => {
@@ -305,7 +305,7 @@ describe('TournamentService', () => {
 
       service.getGenders().subscribe();
 
-      expect(httpSpy.get).toHaveBeenCalledOnceWith('/api/v1/tournaments/enums/genders');
+      expect(httpSpy.get).toHaveBeenCalledOnceWith('/tournaments/enums/genders');
     });
 
     it('should return the list of gender choices', (done) => {
@@ -340,7 +340,7 @@ describe('TournamentService', () => {
 
       service.getLeagues().subscribe();
 
-      expect(httpSpy.get).toHaveBeenCalledOnceWith('/api/v1/tournaments/enums/leagues');
+      expect(httpSpy.get).toHaveBeenCalledOnceWith('/tournaments/enums/leagues');
     });
 
     it('should return the list of league choices', (done) => {

@@ -31,3 +31,7 @@ export interface PaginatedTournamentList {
   previous: string | null;
   results: Tournament[];
 }
+
+export interface LastLeagueResponse {
+  league: string;
+}

@@ -6,7 +6,7 @@
  */
 
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import {Observable, EMPTY, throwError, switchMap, catchError, take, tap} from 'rxjs';
@@ -71,6 +71,14 @@ export class HttpRequesterService {
       localStorage.setItem('access_token', access);
       localStorage.setItem('refresh_token', refresh);
     }
+  }
+
+  private buildParams(params?: Record<string, string | number | boolean>): HttpParams {
+    if (!params) return new HttpParams();
+    return Object.entries(params).reduce(
+      (acc, [key, value]) => acc.set(key, String(value)),
+      new HttpParams()
+    );
   }
 
   private buildHeaders(): HttpHeaders {
@@ -169,10 +177,17 @@ export class HttpRequesterService {
   // Public HTTP methods
   // ---------------------------------------------------------------------------
 
-  get<T>(path: string, options?: HttpRequesterOptions): Observable<T> {
+  get<T>(
+    path: string,
+    params?: Record<string, string | number | boolean>,
+    options?: HttpRequesterOptions
+  ): Observable<T> {
     const call = (): Observable<T> =>
       this.http
-        .get<T>(`${this.baseUrl}${path}/`, { headers: this.buildHeaders() })
+        .get<T>(`${this.baseUrl}${path}/`, {
+          headers: this.buildHeaders(),
+          params: this.buildParams(params),
+        })
         .pipe(
           tap(() => this.handleSuccess(options)),
           catchError((err: HttpErrorResponse) => this.handleError(err, call, options))

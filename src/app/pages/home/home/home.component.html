@@ -1,3 +1,68 @@
-<p-paginator (onPageChange)="onPageChange($event)"
-             [first]="first" [rows]="rows"
-             [totalRecords]="120" [rowsPerPageOptions]="[10, 20, 30]" />
+@if (tournaments.length === 0) {
+  <div
+    class="p-4 rounded-xl border border-gris-80 text-gris-80 flex flex-col gap-3 items-center justify-center w-fit justify-self-center">
+    <i class="text-3xl bi bi-search"></i>
+    <span>Vous n'avez pas encore de tournoi prévus ou passés.</span>
+    <p-button label="Créer votre premier tournoi" icon="bi bi-plus-circle"
+              outlined="true" (click)="showCreateDialog()"
+    ></p-button>
+  </div>
+} @else {
+  <p-button label="Créer votre premier tournoi" icon="bi bi-plus-circle"
+            outlined="true" (click)="showCreateDialog()"
+  ></p-button>
+  @for (tournament of tournaments; track tournament.id) {
+
+  }
+
+  <p-paginator (onPageChange)="onPageChange($event)"
+               [first]="first" [rows]="rows"
+               [totalRecords]="120" [rowsPerPageOptions]="[10, 20, 30]"/>
+}
+
+<p-dialog header="Nouveau tournoi" [modal]="true" [(visible)]="createDialogVisible" [style]="{ width: '50%' }">
+  <form [formGroup]="createForm" class="flex flex-col gap-5 w-full items-center p-4" (ngSubmit)="createTournament()">
+
+    <div class="flex flex-col w-full">
+      <label for="name">Nom du tournoi</label>
+      <input pInputText id="name" type="text" autocomplete="off" formControlName="name"/>
+    </div>
+
+    <div class="flex flex-col w-full">
+      <label for="location">Lieu</label>
+      <input pInputText id="location" type="text" autocomplete="off" formControlName="location"/>
+    </div>
+
+    <div class="flex flex-row w-full justify-between gap-3">
+      <div class="flex flex-col w-full">
+        <label for="category">Catégorie</label>
+        <p-select [options]="availableCategories" formControlName="category" optionLabel="label" placeholder="Catégorie"
+                  optionValue="value" inputId="category" appendTo="body"/>
+      </div>
+
+      <div class="flex flex-col w-full">
+        <label for="gender">Genre</label>
+        <p-select [options]="availableGenders" formControlName="gender" optionLabel="label" placeholder="Genre"
+                  optionValue="value" inputId="gender" appendTo="body"/>
+      </div>
+    </div>
+
+    <div class="flex flex-row w-full justify-between gap-3">
+      <div class="flex flex-col w-full">
+        <label for="league">Ligue</label>
+        <p-select [options]="availableLeagues" formControlName="league" optionLabel="label" placeholder="Ligue"
+                  optionValue="value" inputId="league" appendTo="body"/>
+      </div>
+
+      <div class="flex flex-col w-full">
+        <label for="start_date">Date</label>
+        <p-datepicker fluid="" inputId="start_date" formControlName="start_date" dateFormat="dd/mm/yy"
+                      [minDate]="minDate" appendTo="body"></p-datepicker>
+      </div>
+    </div>
+
+    <p-button label="Créer le tournoi" icon="bi bi-plus-circle" type="submit" fluid=""
+              [disabled]="createForm.invalid" [loading]="loading()"/>
+
+  </form>
+</p-dialog>

@@ -76,7 +76,7 @@ describe('HttpRequesterService', () => {
       });
 
       const req = httpMock.expectOne(
-        `${mockEnvironment.apiBaseUrl}/tournaments/1`,
+        `${mockEnvironment.apiBaseUrl}/tournaments/1/`,
       );
       expect(req.request.method).toBe('GET');
       req.flush(mockData);
@@ -88,7 +88,7 @@ describe('HttpRequesterService', () => {
       service.get('/tournaments').subscribe();
 
       const req = httpMock.expectOne(
-        `${mockEnvironment.apiBaseUrl}/tournaments`,
+        `${mockEnvironment.apiBaseUrl}/tournaments/`,
       );
       expect(req.request.headers.get('Authorization')).toBe(
         'Bearer my-jwt-token',
@@ -100,7 +100,7 @@ describe('HttpRequesterService', () => {
       service.get('/tournaments').subscribe();
 
       const req = httpMock.expectOne(
-        `${mockEnvironment.apiBaseUrl}/tournaments`,
+        `${mockEnvironment.apiBaseUrl}/tournaments/`,
       );
       expect(req.request.headers.has('Authorization')).toBeFalse();
       req.flush([]);
@@ -112,8 +112,31 @@ describe('HttpRequesterService', () => {
       });
 
       const req = httpMock.expectOne(
-        `${mockEnvironment.apiBaseUrl}/tournaments`,
+        `${mockEnvironment.apiBaseUrl}/tournaments/`,
       );
+      req.flush([]);
+    });
+
+    it('should include query params in the request when params are provided', () => {
+      service.get('/tournaments', { page: 1 }).subscribe();
+
+      const req = httpMock.expectOne(
+        (r) => r.url === `${mockEnvironment.apiBaseUrl}/tournaments/` && r.params.get('page') === '1'
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush([]);
+    });
+
+    it('should handle multiple params of different types (string, number, boolean)', () => {
+      service.get('/tournaments', { page: 2, limit: 20, active: true }).subscribe();
+
+      const req = httpMock.expectOne((r) =>
+        r.url === `${mockEnvironment.apiBaseUrl}/tournaments/` &&
+        r.params.get('page') === '2' &&
+        r.params.get('limit') === '20' &&
+        r.params.get('active') === 'true'
+      );
+      expect(req.request.method).toBe('GET');
       req.flush([]);
     });
   });
@@ -134,7 +157,7 @@ describe('HttpRequesterService', () => {
         });
 
       const req = httpMock.expectOne(
-        `${mockEnvironment.apiBaseUrl}/tournaments`,
+        `${mockEnvironment.apiBaseUrl}/tournaments/`,
       );
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(payload);
@@ -147,7 +170,7 @@ describe('HttpRequesterService', () => {
       service.post('/tournaments', {}).subscribe();
 
       const req = httpMock.expectOne(
-        `${mockEnvironment.apiBaseUrl}/tournaments`,
+        `${mockEnvironment.apiBaseUrl}/tournaments/`,
       );
       expect(req.request.headers.get('Authorization')).toBe('Bearer token-abc');
       req.flush({});
@@ -168,7 +191,7 @@ describe('HttpRequesterService', () => {
       });
 
       const req = httpMock.expectOne(
-        `${mockEnvironment.apiBaseUrl}/tournaments/1`,
+        `${mockEnvironment.apiBaseUrl}/tournaments/1/`,
       );
       expect(req.request.method).toBe('PUT');
       expect(req.request.body).toEqual(payload);
@@ -192,7 +215,7 @@ describe('HttpRequesterService', () => {
         });
 
       const req = httpMock.expectOne(
-        `${mockEnvironment.apiBaseUrl}/tournaments/1`,
+        `${mockEnvironment.apiBaseUrl}/tournaments/1/`,
       );
       expect(req.request.method).toBe('PATCH');
       expect(req.request.body).toEqual(payload);
@@ -209,7 +232,7 @@ describe('HttpRequesterService', () => {
       service.delete<void>('/tournaments/1').subscribe();
 
       const req = httpMock.expectOne(
-        `${mockEnvironment.apiBaseUrl}/tournaments/1`,
+        `${mockEnvironment.apiBaseUrl}/tournaments/1/`,
       );
       expect(req.request.method).toBe('DELETE');
       req.flush(null);
@@ -221,7 +244,7 @@ describe('HttpRequesterService', () => {
       service.delete('/tournaments/1').subscribe();
 
       const req = httpMock.expectOne(
-        `${mockEnvironment.apiBaseUrl}/tournaments/1`,
+        `${mockEnvironment.apiBaseUrl}/tournaments/1/`,
       );
       expect(req.request.headers.get('Authorization')).toBe(
         'Bearer delete-token',
@@ -248,7 +271,7 @@ describe('HttpRequesterService', () => {
 
       // First attempt — returns 401
       const firstReq = httpMock.expectOne(
-        `${mockEnvironment.apiBaseUrl}/protected`,
+        `${mockEnvironment.apiBaseUrl}/protected/`,
       );
       expect(firstReq.request.headers.get('Authorization')).toBe(
         'Bearer expired-token',
@@ -271,7 +294,7 @@ describe('HttpRequesterService', () => {
 
       // Retry with new token
       const retryReq = httpMock.expectOne(
-        `${mockEnvironment.apiBaseUrl}/protected`,
+        `${mockEnvironment.apiBaseUrl}/protected/`,
       );
       expect(retryReq.request.headers.get('Authorization')).toBe(
         'Bearer new-access-token',
@@ -293,7 +316,7 @@ describe('HttpRequesterService', () => {
 
       // First attempt — 401
       const firstReq = httpMock.expectOne(
-        `${mockEnvironment.apiBaseUrl}/protected`,
+        `${mockEnvironment.apiBaseUrl}/protected/`,
       );
       firstReq.flush({}, { status: 401, statusText: 'Unauthorized' });
 
@@ -307,7 +330,7 @@ describe('HttpRequesterService', () => {
 
       tick();
 
-      expect(router.navigate).toHaveBeenCalledWith(['/login']);
+      expect(router.navigate).toHaveBeenCalledWith(['/auth/login']);
     }));
 
     it('should redirect to /login immediately when no refresh_token is stored', fakeAsync(() => {
@@ -317,13 +340,13 @@ describe('HttpRequesterService', () => {
       service.get('/protected').subscribe();
 
       const firstReq = httpMock.expectOne(
-        `${mockEnvironment.apiBaseUrl}/protected`,
+        `${mockEnvironment.apiBaseUrl}/protected/`,
       );
       firstReq.flush({}, { status: 401, statusText: 'Unauthorized' });
 
       tick();
 
-      expect(router.navigate).toHaveBeenCalledWith(['/login']);
+      expect(router.navigate).toHaveBeenCalledWith(['/auth/login']);
       // No refresh request should have been sent
       httpMock.expectNone(`${mockEnvironment.apiBaseUrl}/auth/refresh`);
     }));
@@ -335,7 +358,7 @@ describe('HttpRequesterService', () => {
       service.get('/protected').subscribe();
 
       const firstReq = httpMock.expectOne(
-        `${mockEnvironment.apiBaseUrl}/protected`,
+        `${mockEnvironment.apiBaseUrl}/protected/`,
       );
       firstReq.flush({}, { status: 401, statusText: 'Unauthorized' });
 
@@ -351,7 +374,7 @@ describe('HttpRequesterService', () => {
 
       tick();
 
-      expect(router.navigate).toHaveBeenCalledWith(['/login']);
+      expect(router.navigate).toHaveBeenCalledWith(['/auth/login']);
     }));
   });
 
@@ -361,10 +384,10 @@ describe('HttpRequesterService', () => {
 
   describe('non-401 error handling', () => {
     it('should show error toast with API message on 400', fakeAsync(() => {
-      service.get('/bad-request').subscribe();
+      service.get('/bad-request').subscribe({ error: () => {} });
 
       const req = httpMock.expectOne(
-        `${mockEnvironment.apiBaseUrl}/bad-request`,
+        `${mockEnvironment.apiBaseUrl}/bad-request/`,
       );
       req.flush(
         { message: 'Données invalides' },
@@ -384,10 +407,10 @@ describe('HttpRequesterService', () => {
     }));
 
     it('should show error toast with API message on 404', fakeAsync(() => {
-      service.get('/not-found').subscribe();
+      service.get('/not-found').subscribe({ error: () => {} });
 
       const req = httpMock.expectOne(
-        `${mockEnvironment.apiBaseUrl}/not-found`,
+        `${mockEnvironment.apiBaseUrl}/not-found/`,
       );
       req.flush(
         { message: 'Ressource introuvable' },
@@ -405,9 +428,9 @@ describe('HttpRequesterService', () => {
     }));
 
     it('should show error toast with fallback message when no message field in body', fakeAsync(() => {
-      service.get('/error').subscribe();
+      service.get('/error').subscribe({ error: () => {} });
 
-      const req = httpMock.expectOne(`${mockEnvironment.apiBaseUrl}/error`);
+      const req = httpMock.expectOne(`${mockEnvironment.apiBaseUrl}/error/`);
       req.flush({}, { status: 500, statusText: 'Internal Server Error' });
 
       tick();
@@ -421,9 +444,9 @@ describe('HttpRequesterService', () => {
     }));
 
     it('should show error toast on 403', fakeAsync(() => {
-      service.post('/admin', {}).subscribe();
+      service.post('/admin', {}).subscribe({ error: () => {} });
 
-      const req = httpMock.expectOne(`${mockEnvironment.apiBaseUrl}/admin`);
+      const req = httpMock.expectOne(`${mockEnvironment.apiBaseUrl}/admin/`);
       req.flush(
         { message: 'Accès refusé' },
         { status: 403, statusText: 'Forbidden' },
@@ -440,9 +463,9 @@ describe('HttpRequesterService', () => {
     }));
 
     it('should show error toast on 422', fakeAsync(() => {
-      service.post('/validate', { field: null }).subscribe();
+      service.post('/validate', { field: null }).subscribe({ error: () => {} });
 
-      const req = httpMock.expectOne(`${mockEnvironment.apiBaseUrl}/validate`);
+      const req = httpMock.expectOne(`${mockEnvironment.apiBaseUrl}/validate/`);
       req.flush(
         { message: 'Validation échouée' },
         { status: 422, statusText: 'Unprocessable Entity' },
@@ -459,9 +482,9 @@ describe('HttpRequesterService', () => {
     }));
 
     it('should show error toast on 503', fakeAsync(() => {
-      service.get('/health').subscribe();
+      service.get('/health').subscribe({ error: () => {} });
 
-      const req = httpMock.expectOne(`${mockEnvironment.apiBaseUrl}/health`);
+      const req = httpMock.expectOne(`${mockEnvironment.apiBaseUrl}/health/`);
       req.flush(
         { message: 'Service indisponible' },
         { status: 503, statusText: 'Service Unavailable' },
@@ -478,9 +501,9 @@ describe('HttpRequesterService', () => {
     }));
 
     it('should not redirect to /login on non-401 errors', fakeAsync(() => {
-      service.get('/error').subscribe();
+      service.get('/error').subscribe({ error: () => {} });
 
-      const req = httpMock.expectOne(`${mockEnvironment.apiBaseUrl}/error`);
+      const req = httpMock.expectOne(`${mockEnvironment.apiBaseUrl}/error/`);
       req.flush(
         { message: 'Erreur serveur' },
         { status: 500, statusText: 'Internal Server Error' },
@@ -522,7 +545,7 @@ describe('HttpRequesterService', () => {
       // Functional check: request without stored token should have no Auth header
       service.get('/public').subscribe();
 
-      const req = httpMock.expectOne(`${mockEnvironment.apiBaseUrl}/public`);
+      const req = httpMock.expectOne(`${mockEnvironment.apiBaseUrl}/public/`);
       expect(req.request.headers.has('Authorization')).toBeFalse();
       req.flush({});
     });

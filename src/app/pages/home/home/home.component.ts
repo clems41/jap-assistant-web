@@ -1,33 +1,85 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, inject, OnInit, signal} from '@angular/core';
 import {ButtonModule} from 'primeng/button';
-import {Tournament, TournamentService} from '../../../shared/services/tournament.service';
+import {
+  EnumChoice,
+  Tournament, TournamentRequest,
+  TournamentService
+} from '../../../shared/services/tournament.service';
 import {PaginatorModule, PaginatorState} from 'primeng/paginator';
+import {DialogModule} from 'primeng/dialog';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {Router} from '@angular/router';
+import {toISODate} from '../../../shared/utils/date.utils';
+import {InputTextModule} from 'primeng/inputtext';
+import {SelectModule} from 'primeng/select';
+import {DatePickerModule} from 'primeng/datepicker';
 
 @Component({
   selector: 'app-home',
   imports: [
     ButtonModule,
-    PaginatorModule
+    PaginatorModule,
+    DialogModule,
+    ReactiveFormsModule,
+    InputTextModule,
+    SelectModule,
+    DatePickerModule
   ],
   templateUrl: './home.component.html'
 })
 export class HomeComponent implements OnInit {
+  private readonly formBuilder = inject(FormBuilder);
   private readonly tournamentService = inject(TournamentService);
+  private readonly router = inject(Router);
   tournaments: Tournament[] = [];
   first: number = 0;
   rows: number = 10;
   totalRecords: number = 0;
+  createDialogVisible: boolean = false;
+  createForm: FormGroup = this.buildForm();
+  loading = signal(false);
+  availableGenders: EnumChoice[] = [];
+  availableCategories: EnumChoice[] = [];
+  availableLeagues: EnumChoice[] = [];
+  minDate: Date = new Date();
 
   ngOnInit() {
     this.refreshItems();
+    this.getLastLeagueValue();
+    this.getEnumData();
+  }
+
+  private buildForm(): FormGroup {
+    return this.formBuilder.group({
+      name: ['', [Validators.required]],
+      category: [null, [Validators.required]],
+      start_date: [null, [Validators.required]],
+      location: [null, [Validators.required]],
+      league: [null, [Validators.required]],
+      gender: [null, [Validators.required]],
+    })
+  }
+
+  private getLastLeagueValue(): void {
+    this.tournamentService.getLastLeague().subscribe(res => {
+      this.createForm.patchValue({
+        league: res?.league
+      })
+    });
   }
 
   private refreshItems(): void {
-    this.tournamentService.getTournaments(this.first * this.rows)
+    this.tournamentService.getTournaments(this.first / this.rows + 1)
       .subscribe(response => {
         this.totalRecords = response.count
         this.tournaments = response.results;
       });
+  }
+
+  private getEnumData(): void {
+    this.tournamentService.getCategories().subscribe(res => {this.availableCategories = res});
+    this.tournamentService.getGenders().subscribe(res => {this.availableGenders = res});
+    this.tournamentService.getLeagues().subscribe(res => {this.availableLeagues = res});
   }
 
   onPageChange(event: PaginatorState) {
@@ -36,5 +88,34 @@ export class HomeComponent implements OnInit {
     this.refreshItems();
   }
 
+  showCreateDialog(): void {
+    this.createDialogVisible = true;
+  }
+
+  createTournament(): void {
+    if (this.createForm.invalid) return
+    this.loading.set(true);
+    const {name, category, start_date, location, league, gender} = this.createForm.value;
+    const input: TournamentRequest = {
+      name: name,
+      category: category,
+      start_date: toISODate(start_date),
+      location: location,
+      league: league,
+      gender: gender
+    };
+    this.tournamentService.createTournament(input).subscribe({
+      next: (response) => {
+        this.loading.set(false);
+        this.createDialogVisible = false;
+        this.router.navigate([`/tournaments/setup/${response.id}`]).then();
+      },
+      error: () => {
+        this.loading.set(false);
+        this.createDialogVisible = false;
+        this.createForm.reset();
+      }
+    })
+  }
 
 }

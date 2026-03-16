@@ -1,56 +1,27 @@
-import {Injectable, inject, signal} from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
-import {HttpRequesterOptions, HttpRequesterService} from './http-requester.service';
+import { HttpRequesterOptions, HttpRequesterService } from './http-requester.service';
+import {
+  ChangePasswordRequest,
+  ChangePasswordResponse,
+  LoginRequest,
+  LoginResponse,
+  RegisterRequest,
+  RegisterResponse,
+  ResetPasswordConfirmRequest,
+  ResetPasswordRequest,
+} from '../models/auth.models';
 
-// ---------------------------------------------------------------------------
-// Request / Response interfaces
-// ---------------------------------------------------------------------------
-
-export interface RegisterRequest {
-  email: string;
-  password: string;
-  first_name: string;
-  last_name: string;
-}
-
-export interface RegisterResponse {
-  id: number;
-  email: string;
-  first_name: string;
-  last_name: string;
-}
-
-export interface ChangePasswordRequest {
-  old_password: string;
-  new_password: string;
-}
-
-export interface ChangePasswordResponse {
-  detail: string;
-}
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-export interface LoginResponse {
-  access: string;
-  refresh: string;
-}
-
-export interface ResetPasswordRequest {
-  email: string;
-}
-
-export interface ResetPasswordConfirmRequest {
-  token: string;
-  new_password: string;
-}
-
-// ---------------------------------------------------------------------------
-// Service
-// ---------------------------------------------------------------------------
+export type {
+  ChangePasswordRequest,
+  ChangePasswordResponse,
+  LoginRequest,
+  LoginResponse,
+  RegisterRequest,
+  RegisterResponse,
+  ResetPasswordConfirmRequest,
+  ResetPasswordRequest,
+};
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -69,7 +40,7 @@ export class AuthService {
     const options: HttpRequesterOptions = {
       succes_message: `Votre compte a été correctement créée, vous allez être redirigé vers la page d'accueil.`,
     }
-    return this.http.post<RegisterResponse>('/auth/register', input,options);
+    return this.http.post<RegisterResponse>('/auth/register', input, options);
   }
 
   /**
@@ -123,5 +94,4 @@ export class AuthService {
     }
     this._isAuthenticated.set(false);
   }
-
 }

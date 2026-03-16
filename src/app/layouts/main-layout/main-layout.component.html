@@ -1,1 +1,49 @@
-<router-outlet />
+<div class="flex flex-col min-h-screen bg-contrast-5">
+
+  <!-- Top bar -->
+  <header class="sticky top-0 z-10 bg-contrast-100 shadow-md px-60">
+    <div class="flex items-center justify-between py-3">
+
+      <!-- Logo / Nom de l'app -->
+      <a
+        routerLink="/home"
+        class="flex items-center gap-2 min-h-12 min-w-12 no-underline"
+        aria-label="Accueil JAP Assistant"
+      >
+        <div class="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center shrink-0">
+          <i class="bi bi-trophy text-blanc-100 text-sm"></i>
+        </div>
+        <span class="text-body-bold text-blanc-100 hidden sm:block">JAP Assistant</span>
+      </a>
+
+      <!-- Titre de page dynamique -->
+      <div class="flex-1 text-center px-4">
+        @if (pageTitle()) {
+          <span class="text-body-bold text-blanc-100 truncate">{{ pageTitle() }}</span>
+        }
+      </div>
+
+      <div class="flex flex-row gap-3">
+        <button
+          class="w-9 h-9 bg-primary-15 rounded-full flex items-center justify-center hover:cursor-pointer hover:border border-primary-80"
+          (click)="userProfile()">
+          <i class="bi bi-person text-2xl text-primary-100"></i>
+        </button>
+
+        <button
+          class="w-9 h-9 bg-primary-15 rounded-full flex items-center justify-center hover:cursor-pointer hover:border border-primary-80"
+          (click)="logout()">
+          <i class="bi bi-box-arrow-right text-primary-100"></i>
+        </button>
+
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Contenu principal -->
+  <main class="flex-1 overflow-y-auto px-60 py-6">
+    <router-outlet/>
+  </main>
+
+</div>

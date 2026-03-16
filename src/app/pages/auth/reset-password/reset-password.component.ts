@@ -58,7 +58,10 @@ export class ResetPasswordComponent implements OnInit {
       },
       error: () => {
         this.loading.set(false);
-        this.form.reset();
+        this.form.patchValue({
+          password: null,
+          password_confirm: null,
+        });
       }
     })
   }

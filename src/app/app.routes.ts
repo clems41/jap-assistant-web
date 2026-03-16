@@ -66,9 +66,18 @@ export const routes: Routes = [
     children: [
       {
         path: 'home',
+        data: {title: 'Accueil'},
         loadComponent: () =>
           import('./pages/home/home/home.component').then(
             (m) => m.HomeComponent,
+          ),
+      },
+      {
+        path: 'user-profile',
+        data: {title: 'Profil utilisateur'},
+        loadComponent: () =>
+          import('./pages/user-profile/user-profile.component').then(
+            (m) => m.UserProfileComponent,
           ),
       },
     ],

@@ -12,13 +12,15 @@
     <input pInputText id="password" type="password" autocomplete="off" formControlName="password"/>
   </div>
 
+  <a routerLink="/auth/password-forgotten" class="text-sm text-contrast-80 font-medium underline">Mot de passe oublié ?</a>
+
   <div class="w-full">
     <p-button label="Connexion" icon="bi bi-check-circle" type="submit" fluid=""
               [disabled]="form.invalid" [loading]="loading()"/>
   </div>
 
   <p class="text-body-light text-gris-100">
-    Pas encore de compte ?
+    Pas encore de compte >
     <a routerLink="/auth/register" class="text-primary-100 font-medium hover:underline">S'inscrire</a>
   </p>
 

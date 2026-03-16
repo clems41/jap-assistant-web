@@ -1,7 +1,8 @@
 import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
 import {FieldErrorComponent} from '../../../shared/components/field-error/field-error.component';
 import {AuthService, LoginRequest, RegisterRequest} from '../../../shared/services/auth.service';
-import {AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators} from '@angular/forms';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {passwordMatchValidator} from '../../../shared/validators/form.validators';
 import {ButtonModule} from 'primeng/button';
 import {InputTextModule} from 'primeng/inputtext';
 import {Router, RouterLink} from '@angular/router';
@@ -28,12 +29,6 @@ export class RegisterComponent {
   form: FormGroup = this.buildForm();
   loading = signal(false);
 
-  private passwordMatchValidator(group: AbstractControl): ValidationErrors | null {
-    const password = group.get('password')?.value;
-    const confirm = group.get('password_confirm')?.value;
-    return password === confirm ? null : { passwordMismatch: true };
-  }
-
   private buildForm(): FormGroup {
     return this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
@@ -41,7 +36,7 @@ export class RegisterComponent {
       password_confirm: ['', [Validators.required]],
       first_name: ['', [Validators.required]],
       last_name: ['', [Validators.required]],
-    }, { validators: this.passwordMatchValidator })
+    }, { validators: passwordMatchValidator })
   }
 
   register(): void {

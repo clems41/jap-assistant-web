@@ -39,6 +39,15 @@ export interface LoginResponse {
   refresh: string;
 }
 
+export interface ResetPasswordRequest {
+  email: string;
+}
+
+export interface ResetPasswordConfirmRequest {
+  token: string;
+  new_password: string;
+}
+
 // ---------------------------------------------------------------------------
 // Service
 // ---------------------------------------------------------------------------
@@ -69,6 +78,26 @@ export class AuthService {
    */
   changePassword(input: ChangePasswordRequest): Observable<ChangePasswordResponse> {
     return this.http.post<ChangePasswordResponse>('/auth/change-password', input);
+  }
+
+  /**
+   * Send email with url to reset password
+   * POST /auth/password-reset
+   */
+  resetPassword(input: ResetPasswordRequest): Observable<void> {
+    return this.http.post<void>('/auth/password-reset', input);
+  }
+
+  /**
+   * Reset password based on token and new_password
+   * POST /auth/password-reset/confirm
+   */
+  resetPasswordConfirm(input: ResetPasswordConfirmRequest): Observable<void> {
+    const options: HttpRequesterOptions = {
+      succes_message: `Votre mot de passe a bien été réinitialisé.\n
+      Vous allez être redirigé vers la page de connexion.`,
+    }
+    return this.http.post<void>('/auth/password-reset/confirm', input, options);
   }
 
   /**

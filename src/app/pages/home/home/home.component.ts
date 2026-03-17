@@ -8,7 +8,7 @@ import {
 import {PaginatorModule, PaginatorState} from 'primeng/paginator';
 import {DialogModule} from 'primeng/dialog';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {Router} from '@angular/router';
+import {Router, RouterLink} from '@angular/router';
 import {toISODate} from '../../../shared/utils/date.utils';
 import {InputTextModule} from 'primeng/inputtext';
 import {SelectModule} from 'primeng/select';
@@ -23,7 +23,8 @@ import {DatePickerModule} from 'primeng/datepicker';
     ReactiveFormsModule,
     InputTextModule,
     SelectModule,
-    DatePickerModule
+    DatePickerModule,
+    RouterLink
   ],
   templateUrl: './home.component.html'
 })
@@ -36,12 +37,14 @@ export class HomeComponent implements OnInit {
   rows: number = 10;
   totalRecords: number = 0;
   createDialogVisible: boolean = false;
-  createForm: FormGroup = this.buildForm();
+  createForm: FormGroup = this.buildCreateForm();
   loading = signal(false);
   availableGenders: EnumChoice[] = [];
   availableCategories: EnumChoice[] = [];
   availableLeagues: EnumChoice[] = [];
   minDate: Date = new Date();
+  filterDialogVisible: boolean = false;
+  filterForm: FormGroup = this.buildFilterForm();
 
   ngOnInit() {
     this.refreshItems();
@@ -49,7 +52,7 @@ export class HomeComponent implements OnInit {
     this.getEnumData();
   }
 
-  private buildForm(): FormGroup {
+  private buildCreateForm(): FormGroup {
     return this.formBuilder.group({
       name: ['', [Validators.required]],
       category: [null, [Validators.required]],
@@ -57,6 +60,15 @@ export class HomeComponent implements OnInit {
       location: [null, [Validators.required]],
       league: [null, [Validators.required]],
       gender: [null, [Validators.required]],
+    })
+  }
+
+  private buildFilterForm(): FormGroup {
+    return this.formBuilder.group({
+      category: [null, []],
+      gender: [null, []],
+      start_date: [null, []],
+      end_date: [null, []],
     })
   }
 
@@ -82,6 +94,8 @@ export class HomeComponent implements OnInit {
     this.tournamentService.getLeagues().subscribe(res => {this.availableLeagues = res});
   }
 
+  filterTournaments(): void {}
+
   onPageChange(event: PaginatorState) {
     this.first = event.first ?? 0;
     this.rows = event.rows ?? 10;
@@ -89,6 +103,10 @@ export class HomeComponent implements OnInit {
   }
 
   showCreateDialog(): void {
+    this.createDialogVisible = true;
+  }
+
+  showFilterDialog(): void {
     this.createDialogVisible = true;
   }
 

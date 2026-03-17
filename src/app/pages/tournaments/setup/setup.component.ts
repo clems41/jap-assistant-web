@@ -15,7 +15,8 @@ export class SetupComponent implements OnInit {
   tournament: Tournament | undefined;
 
   ngOnInit() {
-    this.tournamentService.getTournament(this.tournamentId).subscribe(tournament => {this.tournament = tournament});
+    this.tournamentService.getTournament(this.tournamentId)
+      .subscribe(tournament => {this.tournament = tournament});
   }
 
 }

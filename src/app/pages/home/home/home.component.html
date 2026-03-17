@@ -8,16 +8,26 @@
     ></p-button>
   </div>
 } @else {
-  <p-button label="Créer votre premier tournoi" icon="bi bi-plus-circle"
-            outlined="true" (click)="showCreateDialog()"
-  ></p-button>
-  @for (tournament of tournaments; track tournament.id) {
+  <div class="flex flex-col w-full gap-3">
+    <div class="flex flex-row self-end gap-3">
+      <p-button label="Filtrer" icon="bi bi-filter"
+                outlined="true" (click)="showFilterDialog()"
+      ></p-button>
+      <p-button label="Créer un tournoi" icon="bi bi-plus-circle"
+                (click)="showCreateDialog()"
+      ></p-button>
+    </div>
+    @for (tournament of tournaments; track tournament.id) {
+      <a class="rounded-xl p-4 bg-primary-80"
+         [routerLink]="`/tournaments/setup/${tournament.id}`">
 
-  }
+      </a>
+    }
+  </div>
 
   <p-paginator (onPageChange)="onPageChange($event)"
                [first]="first" [rows]="rows"
-               [totalRecords]="120" [rowsPerPageOptions]="[10, 20, 30]"/>
+               [totalRecords]="totalRecords"/>
 }
 
 <p-dialog header="Nouveau tournoi" [modal]="true" [(visible)]="createDialogVisible" [style]="{ width: '50%' }">
@@ -63,6 +73,14 @@
 
     <p-button label="Créer le tournoi" icon="bi bi-plus-circle" type="submit" fluid=""
               [disabled]="createForm.invalid" [loading]="loading()"/>
+
+  </form>
+</p-dialog>
+
+<p-dialog header="Filtrer" [modal]="true" [(visible)]="filterDialogVisible" [style]="{ width: '50%' }">
+  <form [formGroup]="filterForm" class="flex flex-col gap-5 w-full items-center p-4" (ngSubmit)="filterTournaments()">
+    <p-button label="Filtrer" icon="bi bi-filter" type="submit" fluid=""
+              [disabled]="filterForm.invalid" [loading]="loading()"/>
 
   </form>
 </p-dialog>

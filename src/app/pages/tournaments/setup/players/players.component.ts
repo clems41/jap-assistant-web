@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, model} from '@angular/core';
+import {ChangeDetectionStrategy, Component, input, model} from '@angular/core';
 import {Tournament} from '../../../../shared/models/tournament.models';
 
 @Component({
@@ -8,7 +8,7 @@ import {Tournament} from '../../../../shared/models/tournament.models';
   templateUrl: './players.component.html'
 })
 export class PlayersComponent {
-  tournament = model.required<Tournament>();
+  tournament = input.required<Tournament>();
   loading = model.required<boolean>();
 
 }

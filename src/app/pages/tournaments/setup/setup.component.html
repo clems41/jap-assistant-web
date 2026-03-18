@@ -21,7 +21,6 @@
       <p-tabpanel value="players">
         <app-players
           [tournament]="t"
-          (tournamentChange)="tournament.set($event)"
           [loading]="loading()"
           (loadingChange)="loading.set($event)"
         ></app-players>
@@ -29,7 +28,6 @@
       <p-tabpanel value="settings">
         <app-settings
           [tournament]="t"
-          (tournamentChange)="tournament.set($event)"
           [loading]="loading()"
           (loadingChange)="loading.set($event)"
         ></app-settings>

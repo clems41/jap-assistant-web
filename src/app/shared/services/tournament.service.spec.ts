@@ -1,14 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
-
-import {
-  TournamentService,
-  Tournament,
-  TournamentRequest,
-  PaginatedTournamentList,
-  EnumChoice,
-} from './tournament.service';
 import { HttpRequesterService } from './http-requester.service';
+import {Tournament, TournamentRequest} from '../models/tournament.models';
+import {EnumChoice, PaginatedResponse} from '../models/base.models';
+import {TournamentService} from './tournament.service';
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -36,7 +31,7 @@ const mockRequest: TournamentRequest = {
   gender: 'Homme',
 };
 
-const mockPaginatedList: PaginatedTournamentList = {
+const mockPaginatedList: PaginatedResponse<Tournament> = {
   count: 1,
   next: null,
   previous: null,
@@ -56,20 +51,28 @@ describe('TournamentService', () => {
   let service: TournamentService;
   let httpSpy: jasmine.SpyObj<HttpRequesterService>;
 
-  beforeEach(() => {
-    httpSpy = jasmine.createSpyObj<HttpRequesterService>(
-      'HttpRequesterService',
-      ['get', 'post', 'put', 'delete'],
-    );
-
+  /**
+   * Crée un nouveau module de test et injecte TournamentService.
+   * `enumReturnValue` est retourné par httpSpy.get pour les 4 observables
+   * cachés créés à la construction du service.
+   */
+  function buildService(enumReturnValue = of(mockEnumChoices)): { service: TournamentService; spy: jasmine.SpyObj<HttpRequesterService> } {
+    const spy = jasmine.createSpyObj<HttpRequesterService>('HttpRequesterService', ['get', 'post', 'put', 'delete']);
+    spy.get.and.returnValue(enumReturnValue);
     TestBed.configureTestingModule({
-      providers: [
-        TournamentService,
-        { provide: HttpRequesterService, useValue: httpSpy },
-      ],
+      providers: [TournamentService, { provide: HttpRequesterService, useValue: spy }],
     });
+    return { service: TestBed.inject(TournamentService), spy };
+  }
 
-    service = TestBed.inject(TournamentService);
+  beforeEach(() => {
+    // Le spy doit retourner un Observable AVANT l'injection car les 4 méthodes
+    // cachées (categories, genders, leagues, lastLeague) appellent httpSpy.get
+    // à la construction du service via les class fields.
+    ({ service, spy: httpSpy } = buildService());
+    // Remet le compteur d'appels à zéro pour ne pas polluer les assertions
+    // des tests qui vérifient toHaveBeenCalledOnceWith.
+    httpSpy.get.calls.reset();
   });
 
   // -------------------------------------------------------------------------
@@ -265,32 +268,28 @@ describe('TournamentService', () => {
   // -------------------------------------------------------------------------
 
   describe('getCategories()', () => {
-    it('should call GET /api/v1/tournaments/enums/categories', () => {
-      httpSpy.get.and.returnValue(of(mockEnumChoices));
-
-      service.getCategories().subscribe();
-
-      expect(httpSpy.get).toHaveBeenCalledOnceWith('/tournaments/enums/categories');
+    it('should call GET /api/v1/tournaments/enums/categories at service creation', () => {
+      // L'appel HTTP se fait à la construction du service (class field),
+      // pas lors de la souscription (shareReplay cache le résultat).
+      // On recrée un service pour vérifier l'URL avant le calls.reset().
+      TestBed.resetTestingModule();
+      const { spy } = buildService();
+      expect(spy.get).toHaveBeenCalledWith('/tournaments/enums/categories');
     });
 
-    it('should return the list of category choices', (done) => {
-      httpSpy.get.and.returnValue(of(mockEnumChoices));
-
+    it('should return the cached list of category choices', (done) => {
       service.getCategories().subscribe((res) => {
         expect(res).toEqual(mockEnumChoices);
         done();
       });
     });
 
-    it('should propagate HTTP errors', (done) => {
+    it('should propagate HTTP errors to subscribers', (done) => {
       const error = new Error('500 Internal Server Error');
-      httpSpy.get.and.returnValue(throwError(() => error));
-
-      service.getCategories().subscribe({
-        error: (err) => {
-          expect(err).toBe(error);
-          done();
-        },
+      TestBed.resetTestingModule();
+      const { service: errorService } = buildService(throwError(() => error));
+      errorService.getCategories().subscribe({
+        error: (err) => { expect(err).toBe(error); done(); },
       });
     });
   });
@@ -300,32 +299,25 @@ describe('TournamentService', () => {
   // -------------------------------------------------------------------------
 
   describe('getGenders()', () => {
-    it('should call GET /api/v1/tournaments/enums/genders', () => {
-      httpSpy.get.and.returnValue(of(mockEnumChoices));
-
-      service.getGenders().subscribe();
-
-      expect(httpSpy.get).toHaveBeenCalledOnceWith('/tournaments/enums/genders');
+    it('should call GET /api/v1/tournaments/enums/genders at service creation', () => {
+      TestBed.resetTestingModule();
+      const { spy } = buildService();
+      expect(spy.get).toHaveBeenCalledWith('/tournaments/enums/genders');
     });
 
-    it('should return the list of gender choices', (done) => {
-      httpSpy.get.and.returnValue(of(mockEnumChoices));
-
+    it('should return the cached list of gender choices', (done) => {
       service.getGenders().subscribe((res) => {
         expect(res).toEqual(mockEnumChoices);
         done();
       });
     });
 
-    it('should propagate HTTP errors', (done) => {
+    it('should propagate HTTP errors to subscribers', (done) => {
       const error = new Error('500 Internal Server Error');
-      httpSpy.get.and.returnValue(throwError(() => error));
-
-      service.getGenders().subscribe({
-        error: (err) => {
-          expect(err).toBe(error);
-          done();
-        },
+      TestBed.resetTestingModule();
+      const { service: errorService } = buildService(throwError(() => error));
+      errorService.getGenders().subscribe({
+        error: (err) => { expect(err).toBe(error); done(); },
       });
     });
   });
@@ -335,32 +327,25 @@ describe('TournamentService', () => {
   // -------------------------------------------------------------------------
 
   describe('getLeagues()', () => {
-    it('should call GET /api/v1/tournaments/enums/leagues', () => {
-      httpSpy.get.and.returnValue(of(mockEnumChoices));
-
-      service.getLeagues().subscribe();
-
-      expect(httpSpy.get).toHaveBeenCalledOnceWith('/tournaments/enums/leagues');
+    it('should call GET /api/v1/tournaments/enums/leagues at service creation', () => {
+      TestBed.resetTestingModule();
+      const { spy } = buildService();
+      expect(spy.get).toHaveBeenCalledWith('/tournaments/enums/leagues');
     });
 
-    it('should return the list of league choices', (done) => {
-      httpSpy.get.and.returnValue(of(mockEnumChoices));
-
+    it('should return the cached list of league choices', (done) => {
       service.getLeagues().subscribe((res) => {
         expect(res).toEqual(mockEnumChoices);
         done();
       });
     });
 
-    it('should propagate HTTP errors', (done) => {
+    it('should propagate HTTP errors to subscribers', (done) => {
       const error = new Error('500 Internal Server Error');
-      httpSpy.get.and.returnValue(throwError(() => error));
-
-      service.getLeagues().subscribe({
-        error: (err) => {
-          expect(err).toBe(error);
-          done();
-        },
+      TestBed.resetTestingModule();
+      const { service: errorService } = buildService(throwError(() => error));
+      errorService.getLeagues().subscribe({
+        error: (err) => { expect(err).toBe(error); done(); },
       });
     });
   });

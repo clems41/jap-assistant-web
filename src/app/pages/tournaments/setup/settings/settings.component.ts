@@ -9,5 +9,6 @@ import {Tournament} from '../../../../shared/models/tournament.models';
 })
 export class SettingsComponent {
   tournament = model.required<Tournament>();
+  loading = model.required<boolean>();
 
 }

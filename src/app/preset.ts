@@ -259,13 +259,14 @@ export const MyPreset = definePreset(Aura, {
           light: {
             root: {
               tablistBackground: 'transparent',
-              tablistBorderColor: 'transparent',
+              tabpanelBackground: 'transparent',
+              tablistBorderColor: 'var(--color-gris-15)',
               tabBorderColor: 'transparent',
-              tabHoverBorderColor: 'var(--color-blanc-80)',
-              tabBorderWidth: '0px 0px 4px 0px',
-              tabActiveBorderColor: 'var(--color-contrast-100)',
-              tabColor: 'var(--color-blanc-80)',
-              tabActiveColor: 'var(--color-blanc-100)',
+              tabHoverBorderColor: 'var(--color-primary-50)',
+              tabBorderWidth: '0px 0px 3px 0px',
+              tabActiveBorderColor: 'var(--color-primary-100)',
+              tabColor: 'var(--color-gris-80)',
+              tabActiveColor: 'var(--color-contrast-100)',
             }
           }
         }

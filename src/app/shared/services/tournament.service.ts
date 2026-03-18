@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, shareReplay } from 'rxjs';
 import { HttpRequesterService } from './http-requester.service';
 import {
   LastLeagueResponse,
@@ -12,6 +12,11 @@ import {EnumChoice, PaginatedResponse} from '../models/base.models';
 @Injectable({ providedIn: 'root' })
 export class TournamentService {
   private http = inject(HttpRequesterService);
+
+  private categories$ = this.http.get<EnumChoice[]>('/tournaments/enums/categories').pipe(shareReplay(1));
+  private genders$ = this.http.get<EnumChoice[]>('/tournaments/enums/genders').pipe(shareReplay(1));
+  private leagues$ = this.http.get<EnumChoice[]>('/tournaments/enums/leagues').pipe(shareReplay(1));
+  private lastLeague$ = this.http.get<LastLeagueResponse>('/tournaments/last-league').pipe(shareReplay(1));
 
   /** GET /api/v1/tournaments/ */
   getTournaments(filters?: PaginatedTournamentRequest): Observable<PaginatedResponse<Tournament>> {
@@ -40,21 +45,21 @@ export class TournamentService {
 
   /** GET /api/v1/tournaments/enums/categories/ */
   getCategories(): Observable<EnumChoice[]> {
-    return this.http.get<EnumChoice[]>('/tournaments/enums/categories');
+    return this.categories$;
   }
 
   /** GET /api/v1/tournaments/enums/genders/ */
   getGenders(): Observable<EnumChoice[]> {
-    return this.http.get<EnumChoice[]>('/tournaments/enums/genders');
+    return this.genders$;
   }
 
   /** GET /api/v1/tournaments/enums/leagues/ */
   getLeagues(): Observable<EnumChoice[]> {
-    return this.http.get<EnumChoice[]>('/tournaments/enums/leagues');
+    return this.leagues$;
   }
 
-  /** GET /api/v1/tournaments/enums/leagues/ */
+  /** GET /api/v1/tournaments/last-league/ */
   getLastLeague(): Observable<LastLeagueResponse> {
-    return this.http.get<LastLeagueResponse>('/tournaments/last-league');
+    return this.lastLeague$;
   }
 }

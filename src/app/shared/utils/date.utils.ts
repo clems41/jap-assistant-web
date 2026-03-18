@@ -20,3 +20,7 @@ export function toFrenchDate(dateString: string): string {
   const day = String(date.getDate()).padStart(2, '0');
   return `${day}/${month}/${year}`;
 }
+
+export function fromBackendToDate(dateString: string): Date {
+  return new Date(dateString);
+}

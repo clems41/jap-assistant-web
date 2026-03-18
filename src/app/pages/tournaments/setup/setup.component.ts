@@ -6,6 +6,8 @@ import {TabsModule} from 'primeng/tabs';
 import {InfosComponent} from './infos/infos.component';
 import {PlayersComponent} from './players/players.component';
 import {SettingsComponent} from './settings/settings.component';
+import {toSignal} from '@angular/core/rxjs-interop';
+import {LoadingSpinnerComponent} from '../../../shared/components/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-setup',
@@ -14,6 +16,7 @@ import {SettingsComponent} from './settings/settings.component';
     InfosComponent,
     PlayersComponent,
     SettingsComponent,
+    LoadingSpinnerComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './setup.component.html'
@@ -24,9 +27,21 @@ export class SetupComponent implements OnInit {
 
   readonly tournamentId: number = Number(this.route.snapshot.paramMap.get('id'));
   tournament = signal<Tournament | null>(null);
+  loading = signal<boolean>(false);
+
+  genders = toSignal(this.tournamentService.getGenders(), {initialValue: []});
+  categories = toSignal(this.tournamentService.getCategories(), {initialValue: []});
+  leagues = toSignal(this.tournamentService.getLeagues(), {initialValue: []});
 
   ngOnInit() {
+    this.loading.set(true);
     this.tournamentService.getTournament(this.tournamentId)
-      .subscribe(t => this.tournament.set(t));
+      .subscribe({
+        next: t => {
+          this.tournament.set(t);
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false)
+      });
   }
 }

@@ -1,3 +1,4 @@
+<p-confirmdialog />
 <form [formGroup]="updateForm" class="flex flex-col gap-5 w-full items-center p-4" (ngSubmit)="updateTournament()">
 
   <div class="flex flex-col w-full">
@@ -38,7 +39,15 @@
     </div>
   </div>
 
-  <p-button label="Sauvegarder" icon="bi bi-check-circle" type="submit" fluid=""
-            [disabled]="updateForm.invalid" [loading]="loading()"/>
+  <div class="flex flex-row gap-3">
+    <p-button label="Annuler" outlined="true" icon="bi bi-check-circle" fluid=""
+              [loading]="loading()" (click)="cancel()"/>
+
+    <p-button label="Sauvegarder" icon="bi bi-check-circle" type="submit" fluid=""
+              [disabled]="updateForm.invalid || updateForm.untouched" [loading]="loading()"/>
+
+    <p-button label="Supprimer" icon="bi bi-trash" fluid="" severity="danger"
+              [loading]="loading()" (click)="deleteTournament($event)"/>
+  </div>
 
 </form>

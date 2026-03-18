@@ -8,6 +8,9 @@ import {TournamentService} from '../../../../shared/services/tournament.service'
 import {EnumChoice} from '../../../../shared/models/base.models';
 import {InputTextModule} from 'primeng/inputtext';
 import {fromBackendToDate, toISODate} from '../../../../shared/utils/date.utils';
+import {Router} from '@angular/router';
+import {ConfirmationService} from 'primeng/api';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
 
 @Component({
   selector: 'app-infos',
@@ -17,15 +20,18 @@ import {fromBackendToDate, toISODate} from '../../../../shared/utils/date.utils'
     DatePickerModule,
     ButtonModule,
     InputTextModule,
+    ConfirmDialogModule
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './infos.component.html'
 })
 export class InfosComponent {
-  tournament = model.required<Tournament>();
-  loading = model.required<boolean>();
   private readonly formBuilder = inject(FormBuilder);
   private readonly tournamentService = inject(TournamentService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly router = inject(Router);
+  tournament = model.required<Tournament>();
+  loading = model.required<boolean>();
   availableGenders = input.required<EnumChoice[]>();
   availableCategories = input.required<EnumChoice[]>();
   availableLeagues = input.required<EnumChoice[]>();
@@ -35,15 +41,20 @@ export class InfosComponent {
   constructor() {
     effect(() => {
       const t = this.tournament();
-      this.updateForm.patchValue({
-        name: t.name,
-        category: t.category,
-        start_date: fromBackendToDate(t.start_date),
-        location: t.location,
-        league: t.league,
-        gender: t.gender,
-      });
+      this.resetForm(t);
     });
+  }
+
+  private resetForm(tournament: Tournament): void {
+    this.updateForm.patchValue({
+      name: tournament.name,
+      category: tournament.category,
+      start_date: fromBackendToDate(tournament.start_date),
+      location: tournament.location,
+      league: tournament.league,
+      gender: tournament.gender,
+    });
+    this.updateForm.markAsUntouched();
   }
 
   private buildUpdateForm(): FormGroup {
@@ -78,6 +89,46 @@ export class InfosComponent {
         this.loading.set(false);
       }
     })
+  }
+
+  cancel(): void {
+    const t = this.tournament();
+    this.resetForm(t);
+  }
+
+  deleteTournament(event: Event): void {
+
+
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: `Êtes-vous sûr de vouloir supprimer le tournoi '${this.tournament().name}' ?`,
+      header: 'Confirmation',
+      closable: true,
+      closeOnEscape: true,
+      icon: 'pi pi-exclamation-triangle',
+      rejectButtonProps: {
+        label: 'Annuler',
+        severity: 'danger',
+        outlined: true,
+      },
+      acceptButtonProps: {
+        label: 'Supprimer',
+        severity: 'danger',
+      },
+      accept: () => {
+        this.loading.set(true);
+        this.tournamentService.deleteTournament(this.tournament().id).subscribe({
+          next: () => {
+            this.loading.set(false);
+            this.router.navigate(['/home']).then();
+          },
+          error: () => {
+            this.loading.set(false);
+          }
+        })
+      },
+    });
+
   }
 
 }

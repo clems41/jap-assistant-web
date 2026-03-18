@@ -9,7 +9,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { MyPreset } from './preset';
 import { ENVIRONMENT } from './core/tokens/environment.token';
 import { environment } from '../environments/environment';
-import {MessageService} from 'primeng/api';
+import {ConfirmationService, MessageService} from 'primeng/api';
 import {fr} from "primelocale/js/fr.js";
 
 export const appConfig: ApplicationConfig = {
@@ -19,6 +19,7 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(withEventReplay()),
     provideAnimationsAsync(),
     MessageService,
+    ConfirmationService,
     provideHttpClient(withFetch(), withInterceptorsFromDi()),
     { provide: ENVIRONMENT, useValue: environment },
     providePrimeNG({

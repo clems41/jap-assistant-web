@@ -17,18 +17,28 @@
                 (click)="showCreateDialog()"
       ></p-button>
     </div>
-    <div class="grid grid-cols-4 gap-3">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       @for (tournament of tournaments; track tournament.id) {
-        <a class="text-contrast-100 rounded-xl p-4 border border-primary-100 bg-primary-50 backdrop-blur-lg shadow-contrast-30 shadow-md"
-           [routerLink]="`/tournaments/setup/${tournament.id}`">
-          <div class="flex flex-col gap-3 justify-center items-center">
-            <span>{{tournament.name}}</span>
-            <div class="flex flex-row justify-between gap-3 items-center w-full">
-              <span class="rounded-full bg-contrast-50 py-2 px-4 text-blanc-100">{{tournament.category}}</span>
-              <span class="rounded-full bg-contrast-50 py-2 px-4 text-blanc-100">{{tournament.gender}}</span>
-              <span>{{toFrenchDate(tournament.start_date)}}</span>
+        <a
+          class="flex flex-col no-underline rounded-xl overflow-hidden bg-blanc-100 border border-contrast-15 shadow-sm hover:shadow-md hover:border-primary-100 transition-all duration-200 cursor-pointer"
+          [routerLink]="'/tournaments/setup/' + tournament.id"
+        >
+          <div class="h-1 w-full bg-primary-100"></div>
+          <div class="flex flex-col gap-3 p-4">
+            <span class="text-title-4 text-contrast-100 font-poppins line-clamp-2">{{ tournament.name }}</span>
+            <div class="flex flex-row items-center gap-2 text-body-light text-gris-100">
+              <i class="bi bi-calendar3 text-primary-100"></i>
+              <span>{{ toFrenchDate(tournament.start_date) }}</span>
             </div>
-            <span>{{tournament.location}}</span>
+            <div class="flex flex-row items-center gap-2 text-body-light text-gris-100">
+              <i class="bi bi-pin-map text-primary-100"></i>
+              <span>{{ tournament.location }}</span>
+            </div>
+            <div class="flex flex-row flex-wrap gap-2 pt-1">
+              <p-tag [value]="tournament.category" severity="warn"></p-tag>
+              <p-tag [value]="tournament.gender" severity="info"></p-tag>
+              <p-tag [value]="tournament.league" severity="secondary"></p-tag>
+            </div>
           </div>
         </a>
       }

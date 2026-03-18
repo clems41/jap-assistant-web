@@ -11,6 +11,7 @@ import {toFrenchDate, toISODate} from '../../../shared/utils/date.utils';
 import {InputTextModule} from 'primeng/inputtext';
 import {SelectModule} from 'primeng/select';
 import {DatePickerModule} from 'primeng/datepicker';
+import {TagModule} from 'primeng/tag';
 import {PaginatedTournamentRequest, Tournament, TournamentRequest} from '../../../shared/models/tournament.models';
 import {EnumChoice} from '../../../shared/models/base.models';
 
@@ -24,7 +25,8 @@ import {EnumChoice} from '../../../shared/models/base.models';
     InputTextModule,
     SelectModule,
     DatePickerModule,
-    RouterLink
+    RouterLink,
+    TagModule
   ],
   templateUrl: './home.component.html'
 })

@@ -1,1 +1,30 @@
-<p>setup works! {{tournament?.name}}</p>
+@if (tournament(); as t) {
+  <p-tabs value="0">
+    <p-tablist>
+      <p-tab value="infos">Informations</p-tab>
+      <p-tab value="players">Joueurs</p-tab>
+      <p-tab value="settings">Configuration</p-tab>
+    </p-tablist>
+    <p-tabpanels>
+      <p-tabpanel value="infos">
+        <app-infos
+          [tournament]="t"
+          (tournamentChange)="tournament.set($event)">
+        </app-infos>
+      </p-tabpanel>
+      <p-tabpanel value="players">
+        <app-players
+          [tournament]="t"
+          (tournamentChange)="tournament.set($event)"
+        ></app-players>
+      </p-tabpanel>
+      <p-tabpanel value="settings">
+        <app-settings
+          [tournament]="t"
+          (tournamentChange)="tournament.set($event)"
+        ></app-settings>
+      </p-tabpanel>
+
+    </p-tabpanels>
+  </p-tabs>
+}

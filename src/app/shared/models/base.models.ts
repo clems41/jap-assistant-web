@@ -7,6 +7,8 @@ export interface PaginatedResponse<T> {
 
 export interface PaginatedRequest {
   page?: number;
+  page_size?: number;
+  ordering?: string;
 }
 
 export interface EnumChoice {

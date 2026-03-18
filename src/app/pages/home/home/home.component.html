@@ -1,4 +1,6 @@
-@if (noRecords() && !loading()) {
+@if (loading()) {
+  <app-loading-spinner [loading]="loading()"></app-loading-spinner>
+} @else if (noRecords()) {
   <div
     class="p-4 rounded-xl border border-gris-80 text-gris-80 flex flex-col gap-3 items-center justify-center w-fit justify-self-center">
     <i class="text-3xl bi bi-search"></i>
@@ -9,12 +11,12 @@
   </div>
 } @else {
   <div class="flex flex-col w-full gap-3">
-    <div class="flex flex-row self-end gap-3">
-      <p-button label="Filtrer" icon="bi bi-filter"
-                outlined="true" (click)="showFilterDialog()"
-      ></p-button>
+    <div class="flex flex-col sm:flex-row justify-between gap-3">
       <p-button label="Créer un tournoi" icon="bi bi-plus-circle"
                 (click)="showCreateDialog()"
+      ></p-button>
+      <p-button label="Filtrer" icon="bi bi-filter" [badge]="nbFilters"
+                outlined="true" (click)="showFilterDialog()"
       ></p-button>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -43,13 +45,14 @@
         </a>
       }
     </div>
-  </div>
 
-  @if (totalRecords > 0) {
-    <p-paginator (onPageChange)="onPageChange($event)"
-                 [first]="first" [rows]="rows"
-                 [totalRecords]="totalRecords"/>
-  }
+    @if (totalRecords > 0) {
+      <p-paginator (onPageChange)="onPageChange($event)"
+                   [first]="first" [rows]="rows"
+                   [totalRecords]="totalRecords"/>
+    }
+
+  </div>
 }
 
 <p-dialog header="Nouveau tournoi" [modal]="true" [(visible)]="createDialogVisible" [style]="{ width: '50%' }">

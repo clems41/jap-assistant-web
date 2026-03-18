@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
 import {ButtonModule} from 'primeng/button';
 import {
   TournamentService
@@ -14,6 +14,9 @@ import {DatePickerModule} from 'primeng/datepicker';
 import {TagModule} from 'primeng/tag';
 import {PaginatedTournamentRequest, Tournament, TournamentRequest} from '../../../shared/models/tournament.models';
 import {EnumChoice} from '../../../shared/models/base.models';
+import {TabsModule} from 'primeng/tabs';
+import {LoadingSpinnerComponent} from '../../../shared/components/loading-spinner/loading-spinner.component';
+import {nbFiltersApplied} from '../../../shared/utils/data.utils';
 
 @Component({
   selector: 'app-home',
@@ -26,8 +29,11 @@ import {EnumChoice} from '../../../shared/models/base.models';
     SelectModule,
     DatePickerModule,
     RouterLink,
-    TagModule
+    TagModule,
+    TabsModule,
+    LoadingSpinnerComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './home.component.html'
 })
 export class HomeComponent implements OnInit {
@@ -48,6 +54,7 @@ export class HomeComponent implements OnInit {
   minDate: Date = new Date();
   filterDialogVisible: boolean = false;
   filterForm: FormGroup = this.buildFilterForm();
+  nbFilters: string = '0';
 
   ngOnInit() {
     this.refreshItems(true);
@@ -88,7 +95,9 @@ export class HomeComponent implements OnInit {
     const {category, gender, start_date, end_date} = this.filterForm.value;
     const page = this.first / this.rows + 1;
     const filters: PaginatedTournamentRequest = {
+      ordering: 'start_date',
       page: page,
+      page_size: 18,
       category: category,
       start_date: start_date ? toISODate(start_date) : undefined,
       end_date: end_date ? toISODate(end_date) : undefined,
@@ -122,6 +131,7 @@ export class HomeComponent implements OnInit {
   }
 
   filterTournaments(): void {
+    this.nbFilters = nbFiltersApplied(this.filterForm.value).toString();
     this.refreshItems();
   }
 
@@ -166,6 +176,7 @@ export class HomeComponent implements OnInit {
   }
 
   reinitialiserFiltres(): void {
+    this.nbFilters = '0';
     this.filterForm.reset();
   }
 

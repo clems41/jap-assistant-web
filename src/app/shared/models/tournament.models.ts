@@ -1,7 +1,4 @@
-export interface EnumChoice {
-  value: string;
-  label: string;
-}
+import {PaginatedRequest} from './base.models';
 
 export interface Tournament {
   id: number;
@@ -25,13 +22,22 @@ export interface TournamentRequest {
   gender: string;
 }
 
-export interface PaginatedTournamentList {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: Tournament[];
+export interface TournamentRequest {
+  name: string;
+  category: string;
+  start_date: string;
+  location: string;
+  league: string;
+  gender: string;
 }
 
 export interface LastLeagueResponse {
   league: string;
+}
+
+export interface PaginatedTournamentRequest extends PaginatedRequest {
+  category?: string;
+  start_date?: string;
+  end_date?: string;
+  gender?: string;
 }

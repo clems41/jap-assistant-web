@@ -2,21 +2,20 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpRequesterService } from './http-requester.service';
 import {
-  EnumChoice, LastLeagueResponse,
-  PaginatedTournamentList,
+  LastLeagueResponse,
+  PaginatedTournamentRequest,
   Tournament,
   TournamentRequest,
 } from '../models/tournament.models';
-
-export type { EnumChoice, PaginatedTournamentList, Tournament, TournamentRequest };
+import {EnumChoice, PaginatedResponse} from '../models/base.models';
 
 @Injectable({ providedIn: 'root' })
 export class TournamentService {
   private http = inject(HttpRequesterService);
 
   /** GET /api/v1/tournaments/ */
-  getTournaments(page?: number): Observable<PaginatedTournamentList> {
-    return this.http.get<PaginatedTournamentList>('/tournaments', page !== undefined ? { page } : undefined);
+  getTournaments(filters?: PaginatedTournamentRequest): Observable<PaginatedResponse<Tournament>> {
+    return this.http.get<PaginatedResponse<Tournament>>('/tournaments', filters);
   }
 
   /** POST /api/v1/tournaments/ */

@@ -73,12 +73,11 @@ export class HttpRequesterService {
     }
   }
 
-  private buildParams(params?: Record<string, string | number | boolean>): HttpParams {
+  private buildParams(params?: object): HttpParams {
     if (!params) return new HttpParams();
-    return Object.entries(params).reduce(
-      (acc, [key, value]) => acc.set(key, String(value)),
-      new HttpParams()
-    );
+    return Object.entries(params)
+      .filter(([, v]) => v !== undefined && v !== null)
+      .reduce((acc, [k, v]) => acc.set(k, String(v)), new HttpParams());
   }
 
   private buildHeaders(): HttpHeaders {
@@ -179,7 +178,7 @@ export class HttpRequesterService {
 
   get<T>(
     path: string,
-    params?: Record<string, string | number | boolean>,
+    params?: object,
     options?: HttpRequesterOptions
   ): Observable<T> {
     const call = (): Observable<T> =>

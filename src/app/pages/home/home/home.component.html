@@ -1,4 +1,4 @@
-@if (tournaments.length === 0) {
+@if (noRecords() && !loading()) {
   <div
     class="p-4 rounded-xl border border-gris-80 text-gris-80 flex flex-col gap-3 items-center justify-center w-fit justify-self-center">
     <i class="text-3xl bi bi-search"></i>
@@ -17,17 +17,29 @@
                 (click)="showCreateDialog()"
       ></p-button>
     </div>
-    @for (tournament of tournaments; track tournament.id) {
-      <a class="rounded-xl p-4 bg-primary-80"
-         [routerLink]="`/tournaments/setup/${tournament.id}`">
-
-      </a>
-    }
+    <div class="grid grid-cols-4 gap-3">
+      @for (tournament of tournaments; track tournament.id) {
+        <a class="text-contrast-100 rounded-xl p-4 border border-primary-100 bg-primary-50 backdrop-blur-lg shadow-contrast-30 shadow-md"
+           [routerLink]="`/tournaments/setup/${tournament.id}`">
+          <div class="flex flex-col gap-3 justify-center items-center">
+            <span>{{tournament.name}}</span>
+            <div class="flex flex-row justify-between gap-3 items-center w-full">
+              <span class="rounded-full bg-contrast-50 py-2 px-4 text-blanc-100">{{tournament.category}}</span>
+              <span class="rounded-full bg-contrast-50 py-2 px-4 text-blanc-100">{{tournament.gender}}</span>
+              <span>{{toFrenchDate(tournament.start_date)}}</span>
+            </div>
+            <span>{{tournament.location}}</span>
+          </div>
+        </a>
+      }
+    </div>
   </div>
 
-  <p-paginator (onPageChange)="onPageChange($event)"
-               [first]="first" [rows]="rows"
-               [totalRecords]="totalRecords"/>
+  @if (totalRecords > 0) {
+    <p-paginator (onPageChange)="onPageChange($event)"
+                 [first]="first" [rows]="rows"
+                 [totalRecords]="totalRecords"/>
+  }
 }
 
 <p-dialog header="Nouveau tournoi" [modal]="true" [(visible)]="createDialogVisible" [style]="{ width: '50%' }">
@@ -79,8 +91,40 @@
 
 <p-dialog header="Filtrer" [modal]="true" [(visible)]="filterDialogVisible" [style]="{ width: '50%' }">
   <form [formGroup]="filterForm" class="flex flex-col gap-5 w-full items-center p-4" (ngSubmit)="filterTournaments()">
-    <p-button label="Filtrer" icon="bi bi-filter" type="submit" fluid=""
-              [disabled]="filterForm.invalid" [loading]="loading()"/>
+    <div class="flex flex-row w-full justify-between gap-3">
+      <div class="flex flex-col w-full">
+        <label for="category">Catégorie</label>
+        <p-select [options]="availableCategories" formControlName="category" optionLabel="label" placeholder="Catégorie"
+                  optionValue="value" inputId="category" appendTo="body"/>
+      </div>
+
+      <div class="flex flex-col w-full">
+        <label for="gender">Genre</label>
+        <p-select [options]="availableGenders" formControlName="gender" optionLabel="label" placeholder="Genre"
+                  optionValue="value" inputId="gender" appendTo="body"/>
+      </div>
+    </div>
+
+    <div class="flex flex-row w-full justify-between gap-3">
+      <div class="flex flex-col w-full">
+        <label for="start_date">Date de début après le :</label>
+        <p-datepicker fluid="" inputId="start_date" formControlName="start_date" dateFormat="dd/mm/yy"
+                      appendTo="body" showClear="true"></p-datepicker>
+      </div>
+
+      <div class="flex flex-col w-full">
+        <label for="end_date">Date de début avant le :</label>
+        <p-datepicker fluid="" inputId="end_date" formControlName="end_date" dateFormat="dd/mm/yy"
+                      appendTo="body" showClear="true"></p-datepicker>
+      </div>
+    </div>
+
+    <div class="flex flex-row gap-3">
+      <p-button label="Réinitialiser les filtres" icon="bi bi-x-circle" fluid=""
+                outlined="true" [loading]="loading()" (click)="reinitialiserFiltres()"/>
+      <p-button label="Valider" icon="bi bi-check-circle" type="submit" fluid=""
+                [disabled]="filterForm.invalid" [loading]="loading()"/>
+    </div>
 
   </form>
 </p-dialog>

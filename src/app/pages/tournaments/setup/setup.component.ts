@@ -1,6 +1,7 @@
 import {Component, inject, OnInit} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import {Tournament, TournamentService} from '../../../shared/services/tournament.service';
+import {TournamentService} from '../../../shared/services/tournament.service';
+import {Tournament} from '../../../shared/models/tournament.models';
 
 @Component({
   selector: 'app-setup',

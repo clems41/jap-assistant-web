@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, input, model} from '@angular/core';
+import {ChangeDetectionStrategy, Component, input, signal} from '@angular/core';
 import {Tournament} from '../../../../shared/models/tournament.models';
 
 @Component({
@@ -9,6 +9,6 @@ import {Tournament} from '../../../../shared/models/tournament.models';
 })
 export class SettingsComponent {
   tournament = input.required<Tournament>();
-  loading = model.required<boolean>();
 
-}
+  loading = signal<boolean>(false);
+  }

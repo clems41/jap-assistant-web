@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, effect, inject, input, model} from '@angular/core';
+import {ChangeDetectionStrategy, Component, effect, inject, input, model, signal} from '@angular/core';
 import {Tournament, TournamentRequest} from '../../../../shared/models/tournament.models';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {SelectModule} from 'primeng/select';
@@ -11,6 +11,7 @@ import {fromBackendToDate, toISODate} from '../../../../shared/utils/date.utils'
 import {Router} from '@angular/router';
 import {ConfirmationService} from 'primeng/api';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
+import {LoadingSpinnerComponent} from '../../../../shared/components/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-infos',
@@ -20,7 +21,8 @@ import {ConfirmDialogModule} from 'primeng/confirmdialog';
     DatePickerModule,
     ButtonModule,
     InputTextModule,
-    ConfirmDialogModule
+    ConfirmDialogModule,
+    LoadingSpinnerComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './infos.component.html'
@@ -31,10 +33,10 @@ export class InfosComponent {
   private readonly confirmationService = inject(ConfirmationService);
   private readonly router = inject(Router);
   tournament = model.required<Tournament>();
-  loading = model.required<boolean>();
   availableGenders = input.required<EnumChoice[]>();
   availableCategories = input.required<EnumChoice[]>();
   availableLeagues = input.required<EnumChoice[]>();
+  loading = signal<boolean>(false);
   updateForm: FormGroup = this.buildUpdateForm();
   minDate: Date = new Date();
 

@@ -1,1 +1,82 @@
-<p>players works!</p>
+<app-loading-spinner [loading]="loading()"></app-loading-spinner>
+
+<div [class.hidden]="loading()" class="flex flex-col gap-3 w-full items-center justify-center">
+
+  <div class="flex flex-row justify-between items-center w-full">
+    <div class="flex flex-row gap-3 items-center">
+      <h3>Nombre de paires inscrites </h3>
+      <span
+        class="w-10 h-10 text-body-bold text-2xl flex items-center justify-center bg-contrast-100 text-blanc-100 rounded-full">{{ pairs().length }}</span>
+    </div>
+    <p-button label="Ajouter une paire" icon="bi bi-plus-circle"
+              (click)="showAddPairDialog()" [loading]="loading()"
+    ></p-button>
+  </div>
+
+
+</div>
+
+<p-dialog header="Ajouter une paire" [modal]="true" [(visible)]="addPairDialogVisible" [style]="{ width: '50%' }">
+  <form [formGroup]="addPairForm" class="flex flex-col gap-5 w-full items-center p-4" (ngSubmit)="addPair()">
+
+    <h3>Joueur 1</h3>
+
+    <div class="flex flex-row w-full justify-between gap-3">
+      <div class="flex flex-col w-full">
+        <label for="player1_last_name">Nom *</label>
+        <input pInputText id="player1_last_name" type="text" autocomplete="off" formControlName="player1_last_name"/>
+      </div>
+
+      <div class="flex flex-col w-full">
+        <label for="player1_first_name">Prénom *</label>
+        <input pInputText id="player1_first_name" type="text" autocomplete="off" formControlName="player1_first_name"/>
+      </div>
+    </div>
+
+    <div class="flex flex-row w-full justify-between gap-3">
+      <div class="flex flex-col w-full">
+        <label for="player1_license_number">Numéro de licence *</label>
+        <p-inputmask styleClass="w-full" slotChar="" mask="9999999a" inputId="player1_license_number" formControlName="player1_license_number"/>
+        <app-field-error [control]="addPairForm.get('player1_license_number')"></app-field-error>
+      </div>
+
+      <div class="flex flex-col w-full">
+        <label for="player1_phone_number">Numéro de téléphone</label>
+        <input pInputText id="player1_phone_number" type="text" autocomplete="off"
+               formControlName="player1_phone_number"/>
+      </div>
+    </div>
+
+    <h3>Joueur 2</h3>
+
+    <div class="flex flex-row w-full justify-between gap-3">
+      <div class="flex flex-col w-full">
+        <label for="player2_last_name">Nom *</label>
+        <input pInputText id="player2_last_name" type="text" autocomplete="off" formControlName="player2_last_name"/>
+      </div>
+
+      <div class="flex flex-col w-full">
+        <label for="player2_first_name">Prénom *</label>
+        <input pInputText id="player2_first_name" type="text" autocomplete="off" formControlName="player2_first_name"/>
+      </div>
+    </div>
+
+    <div class="flex flex-row w-full justify-between gap-3">
+      <div class="flex flex-col w-full">
+        <label for="player2_license_number">Numéro de licence *</label>
+        <p-inputmask styleClass="w-full" mask="9999999a" inputId="player2_license_number" formControlName="player2_license_number"/>
+        <app-field-error [control]="addPairForm.get('player2_license_number')"></app-field-error>
+      </div>
+
+      <div class="flex flex-col w-full">
+        <label for="player2_phone_number">Numéro de téléphone</label>
+        <input pInputText id="player2_phone_number" type="text" autocomplete="off"
+               formControlName="player2_phone_number"/>
+      </div>
+    </div>
+
+    <p-button label="Valider" icon="bi bi-check-circle" type="submit" fluid=""
+              [disabled]="addPairForm.invalid" [loading]="loading()"/>
+
+  </form>
+</p-dialog>

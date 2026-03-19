@@ -1,5 +1,9 @@
 <p-confirmdialog />
-<form [formGroup]="updateForm" class="flex flex-col gap-5 w-full items-center p-4" (ngSubmit)="updateTournament()">
+<app-loading-spinner [loading]="loading()"></app-loading-spinner>
+<form [class.hidden]="loading()"
+      [formGroup]="updateForm"
+      class="flex flex-col gap-5 w-full items-center p-4"
+      (ngSubmit)="updateTournament()">
 
   <div class="flex flex-col w-full">
     <label for="name">Nom du tournoi</label>

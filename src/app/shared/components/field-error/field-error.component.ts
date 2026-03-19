@@ -1,5 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, effect, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { AbstractControl } from '@angular/forms';
+import { format } from "date-fns";
+import { EMPTY, merge, of, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-field-error',
@@ -11,23 +14,17 @@ import { AbstractControl } from '@angular/forms';
 export class FieldErrorComponent {
   control = input<AbstractControl | null>(null);
 
-  private readonly _status = signal<string | null>(null);
-
-  constructor() {
-    effect((onCleanup) => {
-      const ctrl = this.control();
-      if (!ctrl) return;
-
-      this._status.set(ctrl.status);
-      const sub = ctrl.statusChanges.subscribe(() => this._status.set(ctrl.status));
-      onCleanup(() => sub.unsubscribe());
-    });
-  }
+  private readonly _trigger = toSignal(
+    toObservable(this.control).pipe(
+      switchMap(ctrl => ctrl ? merge(of(null), ctrl.statusChanges, ctrl.valueChanges) : EMPTY)
+    ),
+    { initialValue: null }
+  );
 
   errorMessage = computed<string | null>(() => {
-    this._status();
+    this._trigger();
     const ctrl = this.control();
-    if (!ctrl || ctrl.valid || !ctrl.dirty) return null;
+    if (!ctrl || ctrl.valid || (!ctrl.dirty && !ctrl.touched)) return null;
 
     const errors = ctrl.errors;
     if (!errors) return null;
@@ -37,6 +34,9 @@ export class FieldErrorComponent {
     if (errors['minlength']) return `Minimum ${errors['minlength'].requiredLength} caractères.`;
     if (errors['maxlength']) return `Maximum ${errors['maxlength'].requiredLength} caractères.`;
     if (errors['pattern']) return 'Format invalide.';
+    if (errors['isNotLicenseNumber']) return 'Numéro de licence incorrecte : 7 chiffres et 1 lettres majuscules.';
+    if (errors['minDate']) return `La date doit être après le : ${errors['minDate']?.minDate ? format(errors['minDate'].minDate, 'dd/MM/yyyy') : 'XXX'}.`;
+    if (errors['maxDate']) return `La date doit être avant le : ${errors['maxDate']?.maxDate ? format(errors['maxDate'].maxDate, 'dd/MM/yyyy') : 'XXX'}.`;
 
     return 'Valeur invalide.';
   });

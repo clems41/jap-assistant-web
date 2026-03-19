@@ -2,15 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpRequesterService } from './http-requester.service';
 import { Pair, PairRequest } from '../models/pair.models';
-import { PaginatedRequest, PaginatedResponse } from '../models/base.models';
 
 @Injectable({ providedIn: 'root' })
 export class PairService {
   private http = inject(HttpRequesterService);
 
   /** GET /api/v1/tournaments/{tournamentId}/pairs/ */
-  getPairs(tournamentId: number, filters?: PaginatedRequest): Observable<PaginatedResponse<Pair>> {
-    return this.http.get<PaginatedResponse<Pair>>(`/tournaments/${tournamentId}/pairs`, filters);
+  getPairs(tournamentId: number): Observable<Pair[]> {
+    return this.http.get<Pair[]>(`/tournaments/${tournamentId}/pairs`);
   }
 
   /** POST /api/v1/tournaments/{tournamentId}/pairs/ */

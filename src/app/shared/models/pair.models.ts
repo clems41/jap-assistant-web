@@ -19,11 +19,9 @@ export interface PlayerInPairRequest {
   first_name: string;
   license_number: string;
   phone?: string;
-  ranking?: number | null;
 }
 
 export interface PairRequest {
   player1: PlayerInPairRequest;
   player2: PlayerInPairRequest;
-  weight?: number | null;
 }

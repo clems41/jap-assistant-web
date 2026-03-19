@@ -7,7 +7,6 @@ import {InfosComponent} from './infos/infos.component';
 import {PlayersComponent} from './players/players.component';
 import {SettingsComponent} from './settings/settings.component';
 import {toSignal} from '@angular/core/rxjs-interop';
-import {LoadingSpinnerComponent} from '../../../shared/components/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-setup',
@@ -16,7 +15,6 @@ import {LoadingSpinnerComponent} from '../../../shared/components/loading-spinne
     InfosComponent,
     PlayersComponent,
     SettingsComponent,
-    LoadingSpinnerComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './setup.component.html'

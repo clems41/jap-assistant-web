@@ -6,30 +6,23 @@
       <p-tab value="settings">Configuration</p-tab>
     </p-tablist>
     <p-tabpanels>
-      <app-loading-spinner [loading]="loading()"></app-loading-spinner>
       <p-tabpanel value="infos">
         <app-infos
           [tournament]="t"
           (tournamentChange)="tournament.set($event)"
           [availableCategories]="categories()"
           [availableGenders]="genders()"
-          [availableLeagues]="leagues()"
-          [loading]="loading()"
-          (loadingChange)="loading.set($event)">
+          [availableLeagues]="leagues()">
         </app-infos>
       </p-tabpanel>
       <p-tabpanel value="players">
         <app-players
           [tournament]="t"
-          [loading]="loading()"
-          (loadingChange)="loading.set($event)"
         ></app-players>
       </p-tabpanel>
       <p-tabpanel value="settings">
         <app-settings
           [tournament]="t"
-          [loading]="loading()"
-          (loadingChange)="loading.set($event)"
         ></app-settings>
       </p-tabpanel>
     </p-tabpanels>

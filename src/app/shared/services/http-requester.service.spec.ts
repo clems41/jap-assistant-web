@@ -286,7 +286,7 @@ describe('HttpRequesterService', () => {
       );
       expect(refreshReq.request.method).toBe('POST');
       expect(refreshReq.request.body).toEqual({
-        refresh_token: 'valid-refresh-token',
+        refresh: 'valid-refresh-token',
       });
       refreshReq.flush({ access_token: 'new-access-token' });
 

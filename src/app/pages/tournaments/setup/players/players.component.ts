@@ -40,17 +40,27 @@ export class PlayersComponent {
   private readonly confirmationService = inject(ConfirmationService);
   pairs = signal<Pair[]>([]);
   loading = signal<boolean>(false);
+  matchRankingLoading = signal<boolean>(false);
   importPairsDialogVisible: boolean = false;
-  addPairForm: FormGroup = this.buildAddPairForm();
-  editPairForm: FormGroup = this.buildEditPairForm();
+  addPairForm: FormGroup = this.buildPairForm();
+  editPairForm: FormGroup = this.buildPairForm();
   addPairDialogVisible: boolean = false;
   editPairDialogVisible: boolean = false;
+  allPairDataIsComplete = signal<boolean>(false);
 
   constructor() {
     effect(() => {
       this.loading.set(true);
       const tournament = this.tournament();
       this.refreshPairs(tournament);
+    });
+    effect(() => {
+      const pairs = this.pairs();
+      this.allPairDataIsComplete.set(false);
+      for (const pair of pairs) {
+        if (!this.pairDataIsComplete(pair)) return
+      }
+      this.allPairDataIsComplete.set(true);
     });
   }
 
@@ -66,32 +76,19 @@ export class PlayersComponent {
     });
   }
 
-  private buildAddPairForm(): FormGroup {
+  private buildPairForm(): FormGroup {
     return this.formBuilder.group({
+      pair_id: [null, []],
       player1_first_name: ['', Validators.required],
       player1_last_name: ['', Validators.required],
       player1_license_number: ['', [Validators.required, isLicenseNumber]],
       player1_phone_number: ['', []],
+      player1_ranking: [null, [Validators.min(1)]],
       player2_first_name: ['', Validators.required],
       player2_last_name: ['', Validators.required],
       player2_license_number: ['', [Validators.required, isLicenseNumber]],
       player2_phone_number: ['', []],
-    })
-  }
-
-  private buildEditPairForm(): FormGroup {
-    return this.formBuilder.group({
-      pair_id: [null, Validators.required],
-      player1_first_name: ['', Validators.required],
-      player1_last_name: ['', Validators.required],
-      player1_license_number: ['', [Validators.required, isLicenseNumber]],
-      player1_phone_number: ['', []],
-      player1_ranking: [null, [Validators.required, Validators.min(1)]],
-      player2_first_name: ['', Validators.required],
-      player2_last_name: ['', Validators.required],
-      player2_license_number: ['', [Validators.required, isLicenseNumber]],
-      player2_phone_number: ['', []],
-      player2_ranking: [null, [Validators.required, Validators.min(1)]],
+      player2_ranking: [null, [Validators.min(1)]],
     })
   }
 
@@ -218,15 +215,15 @@ export class PlayersComponent {
   }
 
   matchRanking(): void {
-    this.loading.set(true);
+    this.matchRankingLoading.set(true);
     const tournament = this.tournament();
     this.pairService.matchRanking(tournament.id).subscribe({
       next: response => {
         this.pairs.set(response.sort((a, b) => (a.weight ?? 0) - (b.weight ?? 0)));
-        this.loading.set(false);
+        this.matchRankingLoading.set(false);
       },
       error: () => {
-        this.loading.set(false);
+        this.matchRankingLoading.set(false);
       }
     })
   }

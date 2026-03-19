@@ -128,7 +128,7 @@ export class HttpRequesterService {
 
     return this.http
       .post<RefreshResponse>(`${this.baseUrl}/auth/token/refresh/`, {
-        refresh_token: refreshToken,
+        refresh: refreshToken,
       })
       .pipe(
         take(1),

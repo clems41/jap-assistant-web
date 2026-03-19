@@ -282,7 +282,7 @@ describe('HttpRequesterService', () => {
 
       // Refresh call
       const refreshReq = httpMock.expectOne(
-        `${mockEnvironment.apiBaseUrl}/auth/refresh/`,
+        `${mockEnvironment.apiBaseUrl}/auth/token/refresh/`,
       );
       expect(refreshReq.request.method).toBe('POST');
       expect(refreshReq.request.body).toEqual({
@@ -324,7 +324,7 @@ describe('HttpRequesterService', () => {
 
       // Refresh call — also fails
       const refreshReq = httpMock.expectOne(
-        `${mockEnvironment.apiBaseUrl}/auth/refresh/`,
+        `${mockEnvironment.apiBaseUrl}/auth/token/refresh/`,
       );
       refreshReq.flush({}, { status: 401, statusText: 'Unauthorized' });
 
@@ -348,7 +348,7 @@ describe('HttpRequesterService', () => {
 
       expect(router.navigate).toHaveBeenCalledWith(['/auth/login']);
       // No refresh request should have been sent
-      httpMock.expectNone(`${mockEnvironment.apiBaseUrl}/auth/refresh/`);
+      httpMock.expectNone(`${mockEnvironment.apiBaseUrl}/auth/token/refresh/`);
     }));
 
     it('should redirect to /login when refresh call returns 500', fakeAsync(() => {
@@ -365,7 +365,7 @@ describe('HttpRequesterService', () => {
       tick();
 
       const refreshReq = httpMock.expectOne(
-        `${mockEnvironment.apiBaseUrl}/auth/refresh/`,
+        `${mockEnvironment.apiBaseUrl}/auth/token/refresh/`,
       );
       refreshReq.flush(
         { message: 'Server error' },

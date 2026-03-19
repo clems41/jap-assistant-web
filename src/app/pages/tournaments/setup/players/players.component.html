@@ -9,6 +9,11 @@
         class="w-10 h-10 text-body-bold text-2xl flex items-center justify-center bg-contrast-100 text-blanc-100 rounded-full">{{ pairs().length }}</span>
     </div>
     <div class="flex flex-row gap-3">
+      @if (pairs().length > 0) {
+        <p-button label="Récupérer les classements" icon="bi bi-search" outlined="true"
+                  (click)="matchRanking()" [loading]="loading()"
+        ></p-button>
+      }
       <p-button label="Importer" icon="bi bi-upload" outlined="true"
                 (click)="showImportPairsDialog()" [loading]="loading()"
       ></p-button>
@@ -202,4 +207,26 @@
 </p-dialog>
 
 <p-dialog header="Importer des paires" [modal]="true" [(visible)]="importPairsDialogVisible" [style]="{ width: '50%' }">
+
+  <p class="text-body-medium text-gris-100 mb-1">
+    <i class="bi bi-exclamation-triangle"></i>
+    Le fichier CSV doit contenir les colonnes suivantes dans cet ordre :
+  </p>
+  <code class="block text-body-light bg-gris-5 text-gris-120 rounded px-3 py-2 mb-3">
+    Nom J1, Prénom J1, Licence J1, Téléphone J1, Nom J2, Prénom J2, Licence J2, Téléphone J2
+  </code>
+
+
+  <p class="text-body-light text-gris-100 py-1">
+    Les paires déjà enregistrées seront mises à jour avec les données du CSV. <br>
+    Cependant, les paires déjà enregistrées, non présentes dans le CSV seront conservées.
+  </p>
+
+  <div class="flex flex-row gap-3 pt-4 justify-center">
+    <p-button label="Télécharger le modèle CSV" icon="bi bi-download" fluid="" severity="contrast" outlined="true"
+              (click)="downloadExampleCsv()" />
+    <p-fileupload mode="basic" chooseLabel="Importer un CSV" chooseIcon="pi pi-upload" accept=".csv"
+                  maxFileSize="1000000" [auto]="true" [customUpload]="true"
+                  (uploadHandler)="importPairs($event)" [multiple]="false" />
+  </div>
 </p-dialog>

@@ -2,7 +2,6 @@ import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { HttpRequesterService } from './http-requester.service';
 import { Pair, PairRequest, Player } from '../models/pair.models';
-import { PaginatedResponse } from '../models/base.models';
 import { PairService } from './pair.service';
 
 // ---------------------------------------------------------------------------
@@ -47,15 +46,9 @@ const mockPairRequest: PairRequest = {
     license_number: 'LIC002',
     ranking: null,
   },
-  weight: null,
 };
 
-const mockPaginatedPairs: PaginatedResponse<Pair> = {
-  count: 1,
-  next: null,
-  previous: null,
-  results: [mockPair],
-};
+const mockPaginatedPairs: Pair[] = [mockPair];
 
 const TOURNAMENT_ID = 5;
 
@@ -96,16 +89,15 @@ describe('PairService', () => {
 
       service.getPairs(TOURNAMENT_ID).subscribe();
 
-      expect(httpSpy.get).toHaveBeenCalledOnceWith('/tournaments/5/pairs', undefined);
+      expect(httpSpy.get).toHaveBeenCalledOnceWith('/tournaments/5/pairs');
     });
 
     it('should forward filters as params', () => {
       httpSpy.get.and.returnValue(of(mockPaginatedPairs));
-      const filters = { page: 2, page_size: 10 };
 
-      service.getPairs(TOURNAMENT_ID, filters).subscribe();
+      service.getPairs(TOURNAMENT_ID).subscribe();
 
-      expect(httpSpy.get).toHaveBeenCalledOnceWith('/tournaments/5/pairs', filters);
+      expect(httpSpy.get).toHaveBeenCalledOnceWith('/tournaments/5/pairs');
     });
 
     it('should return the paginated list on success', (done) => {
@@ -113,7 +105,7 @@ describe('PairService', () => {
 
       service.getPairs(TOURNAMENT_ID).subscribe((res) => {
         expect(res).toEqual(mockPaginatedPairs);
-        expect(res.results.length).toBe(1);
+        expect(res.length).toBe(1);
         done();
       });
     });

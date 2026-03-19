@@ -27,6 +27,11 @@ export class PairService {
     return this.http.put<Pair>(`/tournaments/${tournamentId}/pairs/${id}`, input);
   }
 
+  /** GET /api/v1/tournaments/{tournamentId}/pairs/ranking-matching/ */
+  matchRanking(tournamentId: number): Observable<Pair[]> {
+    return this.http.get<Pair[]>(`/tournaments/${tournamentId}/pairs/ranking-matching`);
+  }
+
   /** DELETE /api/v1/tournaments/{tournamentId}/pairs/{id}/ */
   deletePair(tournamentId: number, id: number): Observable<void> {
     return this.http.delete<void>(`/tournaments/${tournamentId}/pairs/${id}`);

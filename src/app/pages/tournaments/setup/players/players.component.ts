@@ -13,6 +13,7 @@ import {InputMaskModule} from 'primeng/inputmask';
 import {NgClass, NgTemplateOutlet} from '@angular/common';
 import {ConfirmationService} from 'primeng/api';
 import {InputNumberModule} from 'primeng/inputnumber';
+import {FileUploadHandlerEvent, FileUploadModule} from 'primeng/fileupload';
 
 @Component({
   selector: 'app-players',
@@ -26,7 +27,8 @@ import {InputNumberModule} from 'primeng/inputnumber';
     InputMaskModule,
     NgClass,
     NgTemplateOutlet,
-    InputNumberModule
+    InputNumberModule,
+    FileUploadModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './players.component.html'
@@ -56,7 +58,7 @@ export class PlayersComponent {
     this.pairService.getPairs(tournament.id).subscribe({
       next: result => {
         this.loading.set(false);
-        this.pairs.set(result);
+        this.pairs.set(result.sort((a, b) => (a.weight ?? 0) - (b.weight ?? 0)));
       },
       error: () => {
         this.loading.set(false);
@@ -101,6 +103,13 @@ export class PlayersComponent {
     this.importPairsDialogVisible = true;
   }
 
+  downloadExampleCsv(): void {
+    const link = document.createElement('a');
+    link.href = 'assets/example-paires.csv';
+    link.download = 'example-paires.csv';
+    link.click();
+  }
+
   showAddPairDialog(): void {
     this.addPairDialogVisible = true;
   }
@@ -129,6 +138,23 @@ export class PlayersComponent {
   closeEditPairDialog(): void {
     this.editPairDialogVisible = false;
     this.editPairForm.reset();
+  }
+
+  importPairs(event: FileUploadHandlerEvent): void {
+    if (event.files.length === 0) return
+    const file = event.files[0];
+    this.loading.set(true);
+    const tournament = this.tournament();
+    this.pairService.importPairs(tournament.id, file).subscribe({
+      next: () => {
+        this.refreshPairs(tournament);
+        this.importPairsDialogVisible = false;
+      },
+      error: () => {
+        this.loading.set(false);
+        this.importPairsDialogVisible = false;
+      }
+    })
   }
 
   addPair(): void {
@@ -185,6 +211,20 @@ export class PlayersComponent {
     const tournament = this.tournament();
     this.pairService.updatePair(tournament.id, pair_id, input).subscribe({
       next: () => this.refreshPairs(tournament),
+      error: () => {
+        this.loading.set(false);
+      }
+    })
+  }
+
+  matchRanking(): void {
+    this.loading.set(true);
+    const tournament = this.tournament();
+    this.pairService.matchRanking(tournament.id).subscribe({
+      next: response => {
+        this.pairs.set(response.sort((a, b) => (a.weight ?? 0) - (b.weight ?? 0)));
+        this.loading.set(false);
+      },
       error: () => {
         this.loading.set(false);
       }

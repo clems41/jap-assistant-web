@@ -437,8 +437,8 @@ export const MyPreset = definePreset(Aura, {
                 color: 'var(--color-info-120)',
               },
               contrast: {
-                hoverBackground: 'var(--color-primary-80)',
-                activeBackground: 'var(--color-primary-100)',
+                hoverBackground: 'var(--color-blanc-80)',
+                activeBackground: 'var(--color-blanc-80)',
                 borderColor: 'var(--color-contrast-100)',
                 color: 'var(--color-contrast-100)',
               },

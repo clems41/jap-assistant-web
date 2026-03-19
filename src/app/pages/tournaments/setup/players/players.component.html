@@ -3,21 +3,111 @@
 <div [class.hidden]="loading()" class="flex flex-col gap-3 w-full items-center justify-center">
 
   <div class="flex flex-row justify-between items-center w-full">
-    <div class="flex flex-row gap-3 items-center">
-      <h3>Nombre de paires inscrites </h3>
+    <div class="flex flex-row gap-2 items-center">
+      <h3>Paires inscrites : </h3>
       <span
         class="w-10 h-10 text-body-bold text-2xl flex items-center justify-center bg-contrast-100 text-blanc-100 rounded-full">{{ pairs().length }}</span>
     </div>
-    <p-button label="Ajouter une paire" icon="bi bi-plus-circle"
-              (click)="showAddPairDialog()" [loading]="loading()"
-    ></p-button>
+    <div class="flex flex-row gap-3">
+      <p-button label="Importer" icon="bi bi-upload" outlined="true"
+                (click)="showImportPairsDialog()" [loading]="loading()"
+      ></p-button>
+      <p-button label="Ajouter une paire" icon="bi bi-plus-circle"
+                (click)="showAddPairDialog()" [loading]="loading()"
+      ></p-button>
+    </div>
   </div>
+
+  @for (pair of pairs(); track pair.id) {
+    <div [ngClass]="pairDataIsComplete(pair) ?
+      'bg-blanc-100 border-contrast-15 hover:border-primary-100' :
+      'bg-error-5 border-error-50 hover:border-error-100'"
+      class="w-full flex flex-col rounded-xl overflow-hidden border shadow-sm hover:shadow-md transition-all duration-200">
+
+      <!-- Barre colorée -->
+      <div [ngClass]="pairDataIsComplete(pair) ? 'bg-primary-100' : 'bg-error-100'" class="h-1 w-full"></div>
+
+      <!-- Bandeau alerte (paire incomplète) -->
+      @if (!pairDataIsComplete(pair)) {
+        <div class="bg-error-15 text-error-120 px-3 py-2 flex items-center gap-2 text-body-light">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <span>Données manquantes — correction requise</span>
+        </div>
+      }
+
+      <!-- Corps -->
+      <div class="p-3 flex flex-col gap-3">
+
+        <!-- Joueurs côte à côte -->
+        <div class="flex flex-row gap-4">
+
+          <!-- Joueur 1 -->
+          <div class="flex-1 flex flex-col gap-1">
+            <span class="text-body-bold text-contrast-100">{{pair.player1.last_name.toUpperCase()}} {{pair.player1.first_name}}</span>
+            <div class="flex items-center gap-1 text-body-light text-gris-100">
+              <i class="bi bi-card-text text-primary-100 text-xs"></i>
+              <span>{{pair.player1.license_number}}</span>
+            </div>
+            @if (pair.player1.phone) {
+              <div class="flex items-center gap-1 text-body-light text-gris-100">
+                <i class="bi bi-telephone text-primary-100 text-xs"></i>
+                <span>{{pair.player1.phone}}</span>
+              </div>
+            }
+            <div class="flex items-center gap-1 text-body-light text-gris-100">
+              <i class="bi bi-trophy text-primary-100 text-xs"></i>
+              <span>{{pair.player1.ranking?.toLocaleString('fr-FR') ?? '—'}}</span>
+            </div>
+          </div>
+
+          <!-- Séparateur vertical -->
+          <div class="w-px bg-contrast-15"></div>
+
+          <!-- Joueur 2 -->
+          <div class="flex-1 flex flex-col gap-1">
+            <span class="text-body-bold text-contrast-100">{{pair.player2.last_name.toUpperCase()}} {{pair.player2.first_name}}</span>
+            <div class="flex items-center gap-1 text-body-light text-gris-100">
+              <i class="bi bi-card-text text-primary-100 text-xs"></i>
+              <span>{{pair.player2.license_number}}</span>
+            </div>
+            @if (pair.player2.phone) {
+              <div class="flex items-center gap-1 text-body-light text-gris-100">
+                <i class="bi bi-telephone text-primary-100 text-xs"></i>
+                <span>{{pair.player2.phone}}</span>
+              </div>
+            }
+            <div class="flex items-center gap-1 text-body-light text-gris-100">
+              <i class="bi bi-trophy text-primary-100 text-xs"></i>
+              <span>{{pair.player2.ranking?.toLocaleString('fr-FR') ?? '—'}}</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Footer : poids + supprimer -->
+        <div class="flex flex-row items-center justify-between pt-1 border-t border-contrast-15">
+          <div class="flex items-center gap-2 text-body-light text-gris-100">
+            <i class="bi bi-speedometer2 text-primary-100"></i>
+            <span>Poids : {{pair.weight ?? '—'}}</span>
+          </div>
+          <div class="flex flex-row gap-3 items-center">
+            <p-button icon="bi bi-pencil" severity="info" label="Modifier" size="small"
+                      (click)="showEditPairDialog(pair)"></p-button>
+            <p-button icon="bi bi-trash" severity="danger" label="Supprimer" size="small" [outlined]="true"
+                      (click)="deletePair(pair, $event)"></p-button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  }
 
 
 </div>
 
-<p-dialog header="Ajouter une paire" [modal]="true" [(visible)]="addPairDialogVisible" [style]="{ width: '50%' }">
-  <form [formGroup]="addPairForm" class="flex flex-col gap-5 w-full items-center p-4" (ngSubmit)="addPair()">
+<ng-template #pairFormTemplate let-form="form" let-onSubmit="onSubmit" let-edit="edit"
+             let-cancel="cancel">
+  <form [formGroup]="form" class="flex flex-col gap-5 w-full items-center p-4" (ngSubmit)="onSubmit()">
 
     <h3>Joueur 1</h3>
 
@@ -37,7 +127,7 @@
       <div class="flex flex-col w-full">
         <label for="player1_license_number">Numéro de licence *</label>
         <p-inputmask styleClass="w-full" slotChar="" mask="9999999a" inputId="player1_license_number" formControlName="player1_license_number"/>
-        <app-field-error [control]="addPairForm.get('player1_license_number')"></app-field-error>
+        <app-field-error [control]="form.get('player1_license_number')"></app-field-error>
       </div>
 
       <div class="flex flex-col w-full">
@@ -46,6 +136,13 @@
                formControlName="player1_phone_number"/>
       </div>
     </div>
+
+    @if (edit) {
+      <div class="flex flex-col w-full">
+        <label for="player1_ranking">Classement *</label>
+        <p-inputnumber locale="fr-FR" fluid="" inputId="player1_ranking" formControlName="player1_ranking"/>
+      </div>
+    }
 
     <h3>Joueur 2</h3>
 
@@ -64,8 +161,8 @@
     <div class="flex flex-row w-full justify-between gap-3">
       <div class="flex flex-col w-full">
         <label for="player2_license_number">Numéro de licence *</label>
-        <p-inputmask styleClass="w-full" mask="9999999a" inputId="player2_license_number" formControlName="player2_license_number"/>
-        <app-field-error [control]="addPairForm.get('player2_license_number')"></app-field-error>
+        <p-inputmask styleClass="w-full" slotChar="" mask="9999999a" inputId="player2_license_number" formControlName="player2_license_number"/>
+        <app-field-error [control]="form.get('player2_license_number')"></app-field-error>
       </div>
 
       <div class="flex flex-col w-full">
@@ -75,8 +172,34 @@
       </div>
     </div>
 
-    <p-button label="Valider" icon="bi bi-check-circle" type="submit" fluid=""
-              [disabled]="addPairForm.invalid" [loading]="loading()"/>
+    @if (edit) {
+      <div class="flex flex-col w-full">
+        <label for="player2_ranking">Classement *</label>
+        <p-inputnumber locale="fr-FR" fluid="" inputId="player2_ranking" formControlName="player2_ranking"/>
+      </div>
+    }
+
+    <div class="flex flex-row gap-3">
+      <p-button label="Annuler" icon="bi bi-x-circle" fluid=""
+                [loading]="loading()" (click)="cancel()" outlined="true"/>
+      <p-button label="Valider" icon="bi bi-check-circle" type="submit" fluid=""
+                [disabled]="form.invalid" [loading]="loading()"/>
+    </div>
 
   </form>
+</ng-template>
+
+<p-dialog header="Ajouter une paire" [modal]="true" [(visible)]="addPairDialogVisible" [style]="{ width: '50%' }">
+  <ng-container [ngTemplateOutlet]="pairFormTemplate"
+                [ngTemplateOutletContext]="{ form: addPairForm, onSubmit: addPair.bind(this),
+                edit: false, cancel: closeAddPairDialog.bind(this)}"/>
+</p-dialog>
+
+<p-dialog header="Modifier une paire" [modal]="true" [(visible)]="editPairDialogVisible" [style]="{ width: '50%' }">
+  <ng-container [ngTemplateOutlet]="pairFormTemplate"
+                [ngTemplateOutletContext]="{ form: editPairForm, onSubmit: editPair.bind(this),
+                edit: true, cancel: closeEditPairDialog.bind(this) }"/>
+</p-dialog>
+
+<p-dialog header="Importer des paires" [modal]="true" [(visible)]="importPairsDialogVisible" [style]="{ width: '50%' }">
 </p-dialog>

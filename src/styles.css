@@ -58,14 +58,14 @@
   --color-error-15:  #fadede;
   --color-error-5:   #fdf4f4;
 
-  /* ─── Warn — Orange vif ──────────────────────────────── */
-  --color-warn-120: #bb460a;
-  --color-warn-100: #ea580c;
-  --color-warn-80:  #ee793d;
-  --color-warn-50:  #f5ac86;
-  --color-warn-30:  #f9cdb6;
-  --color-warn-15:  #fce6db;
-  --color-warn-5:   #fef7f3;
+  /* ─── Warn — Ambre/jaune ─────────────────────────────── */
+  --color-warn-120: #a16207;
+  --color-warn-100: #ca8a04;
+  --color-warn-80:  #d4a347;
+  --color-warn-50:  #e2c07b;
+  --color-warn-30:  #edd9ad;
+  --color-warn-15:  #f6ecd3;
+  --color-warn-5:   #fdf8ec;
 
   /* ─── Gris — Gris chaud neutre ───────────────────────── */
   --color-gris-120: #56504d;

@@ -10,7 +10,6 @@ import {InputTextModule} from 'primeng/inputtext';
 import {fromBackendToDate, toISODate} from '../../../../shared/utils/date.utils';
 import {Router} from '@angular/router';
 import {ConfirmationService} from 'primeng/api';
-import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {LoadingSpinnerComponent} from '../../../../shared/components/loading-spinner/loading-spinner.component';
 
 @Component({
@@ -21,7 +20,6 @@ import {LoadingSpinnerComponent} from '../../../../shared/components/loading-spi
     DatePickerModule,
     ButtonModule,
     InputTextModule,
-    ConfirmDialogModule,
     LoadingSpinnerComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -99,8 +97,6 @@ export class InfosComponent {
   }
 
   deleteTournament(event: Event): void {
-
-
     this.confirmationService.confirm({
       target: event.target as EventTarget,
       message: `Êtes-vous sûr de vouloir supprimer le tournoi '${this.tournament().name}' ?`,

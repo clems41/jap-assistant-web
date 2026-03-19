@@ -9,11 +9,6 @@
         class="w-10 h-10 text-body-bold text-2xl flex items-center justify-center bg-contrast-100 text-blanc-100 rounded-full">{{ pairs().length }}</span>
     </div>
     <div class="flex flex-row gap-3">
-      @if (pairs().length > 0 && !allPairDataIsComplete() && !loading()) {
-        <p-button label="Récupérer les classements" icon="bi bi-search" outlined="true"
-                  (click)="matchRanking()" [loading]="matchRankingLoading()"
-        ></p-button>
-      }
       <p-button label="Importer" icon="bi bi-upload" outlined="true"
                 (click)="showImportPairsDialog()" [loading]="loading()"
       ></p-button>

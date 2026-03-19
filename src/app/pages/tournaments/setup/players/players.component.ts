@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, effect, inject, input, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, effect, inject, input, signal} from '@angular/core';
 import {Tournament} from '../../../../shared/models/tournament.models';
 import {PairService} from '../../../../shared/services/pair.service';
 import {Pair, PairRequest} from '../../../../shared/models/pair.models';
@@ -40,13 +40,11 @@ export class PlayersComponent {
   private readonly confirmationService = inject(ConfirmationService);
   pairs = signal<Pair[]>([]);
   loading = signal<boolean>(false);
-  matchRankingLoading = signal<boolean>(false);
   importPairsDialogVisible = signal<boolean>(false);
   addPairForm: FormGroup = this.buildPairForm();
   editPairForm: FormGroup = this.buildPairForm();
   addPairDialogVisible = signal<boolean>(false);
   editPairDialogVisible = signal<boolean>(false);
-  allPairDataIsComplete = computed(() => this.pairs().every(p => this.pairDataIsComplete(p)));
 
   constructor() {
     effect(() => {
@@ -203,20 +201,6 @@ export class PlayersComponent {
       next: () => this.refreshPairs(tournament),
       error: () => {
         this.loading.set(false);
-      }
-    })
-  }
-
-  matchRanking(): void {
-    this.matchRankingLoading.set(true);
-    const tournament = this.tournament();
-    this.pairService.matchRanking(tournament.id).subscribe({
-      next: response => {
-        this.pairs.set(response.sort((a, b) => (a.weight ?? 0) - (b.weight ?? 0)));
-        this.matchRankingLoading.set(false);
-      },
-      error: () => {
-        this.matchRankingLoading.set(false);
       }
     })
   }

@@ -9,7 +9,6 @@
         class="w-10 h-10 text-body-bold text-2xl flex items-center justify-center bg-contrast-100 text-blanc-100 rounded-full">{{ pairs().length }}</span>
     </div>
     <div class="flex flex-row gap-3">
-      {{allPairDataIsComplete()}}
       @if (pairs().length > 0 && !allPairDataIsComplete() && !loading()) {
         <p-button label="Récupérer les classements" icon="bi bi-search" outlined="true"
                   (click)="matchRanking()" [loading]="matchRankingLoading()"
@@ -195,19 +194,19 @@
   </form>
 </ng-template>
 
-<p-dialog header="Ajouter une paire" [modal]="true" [(visible)]="addPairDialogVisible" [style]="{ width: '50%' }">
+<p-dialog header="Ajouter une paire" [modal]="true" [visible]="addPairDialogVisible()" (visibleChange)="addPairDialogVisible.set($event)" [style]="{ width: '50%' }">
   <ng-container [ngTemplateOutlet]="pairFormTemplate"
                 [ngTemplateOutletContext]="{ form: addPairForm, onSubmit: addPair.bind(this),
                 edit: false, cancel: closeAddPairDialog.bind(this)}"/>
 </p-dialog>
 
-<p-dialog header="Modifier une paire" [modal]="true" [(visible)]="editPairDialogVisible" [style]="{ width: '50%' }">
+<p-dialog header="Modifier une paire" [modal]="true" [visible]="editPairDialogVisible()" (visibleChange)="editPairDialogVisible.set($event)" [style]="{ width: '50%' }">
   <ng-container [ngTemplateOutlet]="pairFormTemplate"
                 [ngTemplateOutletContext]="{ form: editPairForm, onSubmit: editPair.bind(this),
                 edit: true, cancel: closeEditPairDialog.bind(this) }"/>
 </p-dialog>
 
-<p-dialog header="Importer des paires" [modal]="true" [(visible)]="importPairsDialogVisible" [style]="{ width: '50%' }">
+<p-dialog header="Importer des paires" [modal]="true" [visible]="importPairsDialogVisible()" (visibleChange)="importPairsDialogVisible.set($event)" [style]="{ width: '50%' }">
 
   <p class="text-body-medium text-gris-100 mb-1">
     <i class="bi bi-exclamation-triangle"></i>

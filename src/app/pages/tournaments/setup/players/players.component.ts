@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, effect, inject, input, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, effect, inject, input, signal} from '@angular/core';
 import {Tournament} from '../../../../shared/models/tournament.models';
 import {PairService} from '../../../../shared/services/pair.service';
 import {Pair, PairRequest} from '../../../../shared/models/pair.models';
@@ -41,26 +41,18 @@ export class PlayersComponent {
   pairs = signal<Pair[]>([]);
   loading = signal<boolean>(false);
   matchRankingLoading = signal<boolean>(false);
-  importPairsDialogVisible: boolean = false;
+  importPairsDialogVisible = signal<boolean>(false);
   addPairForm: FormGroup = this.buildPairForm();
   editPairForm: FormGroup = this.buildPairForm();
-  addPairDialogVisible: boolean = false;
-  editPairDialogVisible: boolean = false;
-  allPairDataIsComplete = signal<boolean>(false);
+  addPairDialogVisible = signal<boolean>(false);
+  editPairDialogVisible = signal<boolean>(false);
+  allPairDataIsComplete = computed(() => this.pairs().every(p => this.pairDataIsComplete(p)));
 
   constructor() {
     effect(() => {
       this.loading.set(true);
       const tournament = this.tournament();
       this.refreshPairs(tournament);
-    });
-    effect(() => {
-      const pairs = this.pairs();
-      this.allPairDataIsComplete.set(false);
-      for (const pair of pairs) {
-        if (!this.pairDataIsComplete(pair)) return
-      }
-      this.allPairDataIsComplete.set(true);
     });
   }
 
@@ -97,7 +89,7 @@ export class PlayersComponent {
   }
 
   showImportPairsDialog(): void {
-    this.importPairsDialogVisible = true;
+    this.importPairsDialogVisible.set(true);
   }
 
   downloadExampleCsv(): void {
@@ -108,15 +100,15 @@ export class PlayersComponent {
   }
 
   showAddPairDialog(): void {
-    this.addPairDialogVisible = true;
+    this.addPairDialogVisible.set(true);
   }
 
   closeAddPairDialog(): void {
-    this.addPairDialogVisible = false;
+    this.addPairDialogVisible.set(false);
   }
 
   showEditPairDialog(pair: Pair): void {
-    this.editPairDialogVisible = true;
+    this.editPairDialogVisible.set(true);
     this.editPairForm.patchValue({
       pair_id: pair.id,
       player1_first_name: pair.player1.first_name,
@@ -133,7 +125,7 @@ export class PlayersComponent {
   }
 
   closeEditPairDialog(): void {
-    this.editPairDialogVisible = false;
+    this.editPairDialogVisible.set(false);
     this.editPairForm.reset();
   }
 
@@ -145,11 +137,11 @@ export class PlayersComponent {
     this.pairService.importPairs(tournament.id, file).subscribe({
       next: () => {
         this.refreshPairs(tournament);
-        this.importPairsDialogVisible = false;
+        this.importPairsDialogVisible.set(false);
       },
       error: () => {
         this.loading.set(false);
-        this.importPairsDialogVisible = false;
+        this.importPairsDialogVisible.set(false);
       }
     })
   }
@@ -172,7 +164,8 @@ export class PlayersComponent {
         license_number: player2_license_number
       }
     };
-    this.addPairDialogVisible = false;
+    this.addPairDialogVisible.set(false);
+    this.addPairForm.reset();
     this.loading.set(true);
     const tournament = this.tournament();
     this.pairService.createPair(tournament.id, input).subscribe({
@@ -203,7 +196,7 @@ export class PlayersComponent {
         ranking: player2_ranking
       }
     };
-    this.editPairDialogVisible = false;
+    this.editPairDialogVisible.set(false);
     this.loading.set(true);
     const tournament = this.tournament();
     this.pairService.updatePair(tournament.id, pair_id, input).subscribe({

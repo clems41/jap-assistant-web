@@ -1,6 +1,7 @@
-<app-loading-spinner [loading]="loading()"></app-loading-spinner>
-
-<div [class.hidden]="loading()" class="flex flex-col gap-5 w-full items-center p-4">
+@if (loading()) {
+  <app-loading-spinner [loading]="true"></app-loading-spinner>
+} @else {
+<div class="flex flex-col gap-5 w-full items-center p-4">
   <form class="flex flex-col gap-5 w-full items-center"
         [formGroup]="configurationForm"
         (ngSubmit)="saveConfiguration()">
@@ -37,7 +38,7 @@
 
     <div class="flex flex-row gap-3 border-b border-gris-50 pb-4 w-full justify-center">
 
-      <p-button label="Sauvegarder" icon="bi bi-check-circle" type="submit" fluid=""
+      <p-button label="Sauvegarder" icon="bi bi-check-circle" type="submit" [fluid]="true"
                 [disabled]="configurationForm.invalid || configurationForm.untouched" [loading]="loading()"/>
     </div>
   </form>
@@ -50,6 +51,4 @@
 
   }
 </div>
-
-
-
+}

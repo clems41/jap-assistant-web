@@ -1,8 +1,8 @@
-import {ChangeDetectionStrategy, Component, effect, inject, model, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, effect, inject, model, signal, untracked} from '@angular/core';
 import {Tournament, TournamentRequest} from '../../../../shared/models/tournament.models';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {SelectModule} from 'primeng/select';
-import {toSignal} from '@angular/core/rxjs-interop';
+import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {TournamentService} from '../../../../shared/services/tournament.service';
 import {ButtonModule} from 'primeng/button';
 import {InputNumberModule} from 'primeng/inputnumber';
@@ -34,7 +34,7 @@ export class SettingsComponent {
   gameFormatDurations = toSignal(this.tournamentService.getGameFormatDurations(), {initialValue: []});
 
   constructor() {
-    this.configurationForm.get('game_format')?.valueChanges.subscribe(format => {
+    this.configurationForm.get('game_format')?.valueChanges.pipe(takeUntilDestroyed()).subscribe(format => {
       const gameFormatDuration = this.gameFormatDurations()
         .find(item => item.format === format);
       if (gameFormatDuration) {
@@ -45,7 +45,7 @@ export class SettingsComponent {
     })
     effect(() => {
       const t = this.tournament();
-      this.resetForm(t);
+      untracked(() => this.resetForm(t));
     });
   }
 

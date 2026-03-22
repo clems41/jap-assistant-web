@@ -1,1 +1,55 @@
-<p>settings works!</p>
+<app-loading-spinner [loading]="loading()"></app-loading-spinner>
+
+<div [class.hidden]="loading()" class="flex flex-col gap-5 w-full items-center p-4">
+  <form class="flex flex-col gap-5 w-full items-center"
+        [formGroup]="configurationForm"
+        (ngSubmit)="saveConfiguration()">
+
+    <div class="flex flex-col w-full">
+      <label for="configuration">Configuration</label>
+      <p-select [options]="availableConfigurations()" formControlName="configuration" optionLabel="label"
+                optionValue="value" inputId="configuration" appendTo="body"/>
+    </div>
+
+    <div class="flex flex-row w-full justify-between gap-3">
+
+      <div class="flex flex-col w-4/5">
+        <label for="game_format">Format de jeu</label>
+        <p-select [options]="availableGameFormats()" formControlName="game_format" optionLabel="label"
+                  optionValue="value" inputId="game_format" appendTo="body"/>
+      </div>
+
+      <div class="flex flex-col grow">
+        <label for="estimated_match_duration">Durée de match estimée</label>
+        <p-inputnumber formControlName="estimated_match_duration" [showButtons]="true"
+                       buttonLayout="horizontal" inputId="estimated_match_duration" spinnerMode="horizontal"
+                       [step]="5" suffix="  minutes">
+          <ng-template #incrementbuttonicon>
+            <span class="pi pi-plus"></span>
+          </ng-template>
+          <ng-template #decrementbuttonicon>
+            <span class="pi pi-minus"></span>
+          </ng-template>
+        </p-inputnumber>
+      </div>
+
+    </div>
+
+    <div class="flex flex-row gap-3 border-b border-gris-50 pb-4 w-full justify-center">
+
+      <p-button label="Sauvegarder" icon="bi bi-check-circle" type="submit" fluid=""
+                [disabled]="configurationForm.invalid || configurationForm.untouched" [loading]="loading()"/>
+    </div>
+  </form>
+
+  <h2>Gestion des terrains</h2>
+
+  @if (tournament(); as t) {
+
+    <app-time-slots [tournament]="t"></app-time-slots>
+
+  }
+</div>
+
+
+

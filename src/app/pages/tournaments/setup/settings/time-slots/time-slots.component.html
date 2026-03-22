@@ -1,0 +1,11 @@
+@for (timeSlot of timeSlots(); track timeSlot.id) {
+  <div class="flex flex-row w-full justify-between gap-2">
+    <span>{{timeSlot.start_time}}</span>
+    <span>{{timeSlot.end_time}}</span>
+    <span>{{timeSlot.courts_available}}</span>
+  </div>
+}
+
+<form [formGroup]="timeSlotForm" (ngSubmit)="addTimeSlot()">
+
+</form>

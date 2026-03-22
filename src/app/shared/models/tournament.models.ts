@@ -9,8 +9,29 @@ export interface Tournament {
   location: string;
   league: string;
   gender: string;
+  game_format: string;
+  configuration: string;
+  estimated_match_duration: number;
   created_at: string;
   updated_at: string;
+}
+
+export interface DurationByGameFormat {
+  format: string;
+  duration: number;
+}
+
+export interface TimeSlot {
+  id: number;
+  start_time: string;
+  end_time: string;
+  courts_available: number;
+}
+
+export interface TimeSlotRequest {
+  start_time: string;
+  end_time: string;
+  courts_available: number;
 }
 
 export interface TournamentRequest {
@@ -20,6 +41,9 @@ export interface TournamentRequest {
   location: string;
   league: string;
   gender: string;
+  game_format?: string;
+  configuration?: string;
+  estimated_match_duration?: number;
 }
 
 export interface LastLeagueResponse {

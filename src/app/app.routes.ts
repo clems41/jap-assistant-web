@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './guards/auth.guard';
-import { guestGuard } from './guards/guest.guard';
+import {guestGuard} from './shared/guards/guest.guard';
+import {authGuard} from './shared/guards/auth.guard';
 
 export const routes: Routes = [
   // Redirect root to /home (authGuard on /home will redirect to /auth/login if needed)

@@ -7,10 +7,10 @@ import { provideClientHydration, withEventReplay } from '@angular/platform-brows
 import { providePrimeNG } from 'primeng/config';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { MyPreset } from './preset';
-import { ENVIRONMENT } from './core/tokens/environment.token';
 import { environment } from '../environments/environment';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {fr} from "primelocale/js/fr.js";
+import {ENVIRONMENT} from './shared/core/tokens/environment.token';
 
 export const appConfig: ApplicationConfig = {
   providers: [

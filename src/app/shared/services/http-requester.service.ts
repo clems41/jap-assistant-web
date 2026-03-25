@@ -10,9 +10,9 @@ import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import {Observable, EMPTY, throwError, switchMap, catchError, take, tap} from 'rxjs';
-import { ENVIRONMENT } from '../../core/tokens/environment.token';
 import { Environment } from '../../../environments/environment.model';
 import { AuthService } from './auth.service';
+import {ENVIRONMENT} from '../core/tokens/environment.token';
 
 export interface HttpRequesterOptions {
   succes_message?: string;

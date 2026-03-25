@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { AuthService } from '../shared/services/auth.service';
+import {AuthService} from '../services/auth.service';
 
 /**
  * Prevents authenticated users from accessing guest-only routes (login, register…).

@@ -1,22 +1,68 @@
-import {Component, inject, input} from '@angular/core';
-import {FormBuilder} from '@angular/forms';
-import {TournamentService} from '../../../../shared/services/tournament.service';
-import {ConfirmationService} from 'primeng/api';
-import {Router} from '@angular/router';
+import {Component, input} from '@angular/core';
 import {Tournament} from '../../../../shared/models/tournament.models';
 import {Pair} from '../../../../shared/models/pair.models';
+import {TreeNode} from 'primeng/api';
+import {OrganizationChartModule} from 'primeng/organizationchart';
 
 @Component({
   selector: 'app-brackets',
-  imports: [],
+  imports: [
+    OrganizationChartModule,
+  ],
   templateUrl: './brackets.component.html'
 })
 export class BracketsComponent {
   tournament = input.required<Tournament>();
   pairs = input.required<Pair[]>();
-  private readonly formBuilder = inject(FormBuilder);
-  private readonly tournamentService = inject(TournamentService);
-  private readonly confirmationService = inject(ConfirmationService);
-  private readonly router = inject(Router);
-
+  data: TreeNode[] = [
+    {
+      expanded: true,
+      type: 'person',
+      styleClass: '',
+      data: {
+        name: 'Amy Elsner',
+        title: 'CEO',
+      },
+      children: [
+        {
+          expanded: true,
+          type: 'person',
+          styleClass: '',
+          data: {
+            name: 'Anna Fali',
+            title: 'CMO',
+          },
+          children: [
+            {
+              label: 'Sales',
+              styleClass: '',
+            },
+            {
+              label: 'Marketing',
+              styleClass: '',
+            },
+          ],
+        },
+        {
+          expanded: true,
+          type: 'person',
+          styleClass: '',
+          data: {
+            name: 'Stephen Shaw',
+            title: 'CTO',
+          },
+          children: [
+            {
+              label: 'Development',
+              styleClass: '',
+            },
+            {
+              label: 'UI/UX Design',
+              styleClass: '',
+            },
+          ],
+        },
+      ],
+    },
+  ];
 }

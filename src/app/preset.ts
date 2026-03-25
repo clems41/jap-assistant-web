@@ -284,6 +284,17 @@ export const MyPreset = definePreset(Aura, {
           }
         }
       },
+      organizationchart: {
+        colorScheme: {
+          light: {
+            root: {
+              connectorColor: 'var(--color-gris-80)',
+              nodeBorderColor: 'var(--color-gris-80)',
+              nodeBackground: 'var(--color-blanc-100)',
+            }
+          }
+        }
+      },
       toast: {
         success: {
           background: 'var(--color-success-5) !important',

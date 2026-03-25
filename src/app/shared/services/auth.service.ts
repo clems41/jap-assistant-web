@@ -28,7 +28,8 @@ export class AuthService {
   private http = inject(HttpRequesterService);
 
   private readonly _isAuthenticated = signal<boolean>(
-    typeof localStorage !== 'undefined' && !!localStorage.getItem('access_token'),
+    typeof localStorage !== 'undefined' &&
+    !!localStorage.getItem('access_token'),
   );
   readonly isAuthenticated = this._isAuthenticated.asReadonly();
 

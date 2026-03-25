@@ -5,13 +5,14 @@
  * pour que les toasts d'erreur s'affichent correctement.
  */
 
-import { Injectable, inject } from '@angular/core';
+import { Injectable, Injector, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import {Observable, EMPTY, throwError, switchMap, catchError, take, tap} from 'rxjs';
 import { ENVIRONMENT } from '../../core/tokens/environment.token';
 import { Environment } from '../../../environments/environment.model';
+import { AuthService } from './auth.service';
 
 export interface HttpRequesterOptions {
   succes_message?: string;
@@ -35,6 +36,7 @@ export class HttpRequesterService {
   private defaultEnableRetry: boolean = true;
   private http = inject(HttpClient);
   private router = inject(Router);
+  private injector = inject(Injector);
   private messageService = inject(MessageService);
   private environment = inject<Environment>(ENVIRONMENT);
 
@@ -120,8 +122,10 @@ export class HttpRequesterService {
     retryFn: () => Observable<T>,
   ): Observable<T> {
     const refreshToken = this.getRefreshToken();
+    console.log('refreshAndRetry : ', refreshToken);
 
     if (!refreshToken) {
+      this.injector.get(AuthService).logout();
       this.router.navigate(['/auth/login']);
       return EMPTY;
     }
@@ -137,10 +141,7 @@ export class HttpRequesterService {
           return retryFn();
         }),
         catchError(() => {
-          if (typeof localStorage !== 'undefined') {
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('refresh_token');
-          }
+          this.injector.get(AuthService).logout();
           this.router.navigate(['/auth/login']);
           return EMPTY;
         }),

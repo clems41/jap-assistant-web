@@ -1,42 +1,155 @@
-<div>
-  <div class="-mb-40 flex flex-col justify-end w-fit">
-    <form [formGroup]="form" class="rounded-xl bg-contrast-80 text-blanc-100 flex flex-col gap-2 p-3 z-10 relative">
-      <span>Nombre de paires (N) : <strong>{{ pairs().length }}</strong></span>
+<div class="flex flex-col gap-4 md:flex-row md:gap-6 md:justify-center md:items-start">
+
+  <!-- ── Panneau latéral droit : config + paires ────────────────────── -->
+  <aside class="flex flex-col gap-4 shrink-0">
+
+    <!-- Formulaire de configuration -->
+    <div class="rounded-xl bg-contrast-100 text-blanc-100 flex flex-col gap-3 p-4 shadow-md">
       <div class="flex flex-row justify-between gap-2 items-center">
-        <label class="text-blanc-100!" for="bracketDimension">Dimension du tableau (D) : </label>
-        <p-select [options]="[4, 8, 16, 32, 64]" formControlName="bracketDimension" inputId="bracketDimension"
-                  appendTo="body" size="small"/>
+        <span class="text-body-light text-contrast-15">Paires inscrites</span>
+        <span class="text-body-bold text-blanc-100">{{ pairs().length }}</span>
       </div>
-      <div class="flex flex-row justify-between gap-2 items-center">
-        <label class="text-blanc-100!" for="nbTopSeeds">Nombre de Tête de Séries (TS) : </label>
-        <p-select [options]="availableNumberOfTopSeeds()" formControlName="nbTopSeeds" inputId="nbTopSeeds"
-                  appendTo="body" size="small"/>
+
+      <form [formGroup]="form" class="flex flex-col gap-3">
+        <div class="flex flex-col gap-1">
+          <label class="text-floatlabel text-contrast-15!" for="bracketDimension">Dimension (D)</label>
+          <p-select
+            [options]="[4, 8, 16, 32, 64]"
+            formControlName="bracketDimension"
+            inputId="bracketDimension"
+            appendTo="body"
+            size="small"
+            styleClass="w-full"
+          />
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-floatlabel text-contrast-15!" for="nbTopSeeds">Têtes de série (TS)</label>
+          <p-select
+            [options]="availableNumberOfTopSeeds()"
+            formControlName="nbTopSeeds"
+            inputId="nbTopSeeds"
+            appendTo="body"
+            size="small"
+            styleClass="w-full"
+          />
+        </div>
+      </form>
+    </div>
+
+    <!-- Liste des paires restantes à placer -->
+    <div class="flex flex-col gap-2">
+      <div class="flex items-center justify-between">
+        <h3 class="text-body-medium text-gris-100">Paires à placer</h3>
+        <span class="text-body-light text-gris-80">
+          {{ remainingPairsToBePlaced().length }} / {{ pairs().length }}
+        </span>
       </div>
-    </form>
-    <div class="flex flex-col gap-1">
-      @for (pair of remainingPairsToBePlaced(); track pair.id) {
-        <div class="p-2 rounded-xl border border-b-contrast-100 shadow-sm"
-             pDraggable
-             (onDragStart)="dragStart(pair)"
-             (onDragEnd)="dragEnd()"
-        >
-          <span>{{ getPairName(pair) }}</span>
+
+      @if (remainingPairsToBePlaced().length === 0) {
+        <div class="rounded-xl border border-dashed border-success-50 bg-success-5 p-4 text-center">
+          <i class="bi bi-check-circle text-success-100 text-xl"></i>
+          <p class="text-body-light text-success-100 mt-1">Toutes les paires sont placées</p>
+        </div>
+      } @else {
+        <div class="flex flex-col gap-2">
+          @for (pair of remainingPairsToBePlaced(); track pair.id) {
+            <div
+              class="group flex flex-row items-center gap-2 p-2 rounded-xl border bg-blanc-100 shadow-sm cursor-grab active:cursor-grabbing transition-all duration-150 select-none"
+              [class.border-primary-50]="selectedPair()?.id !== pair.id"
+              [class.border-primary-100]="selectedPair()?.id === pair.id"
+              [class.bg-primary-5]="selectedPair()?.id !== pair.id"
+              [class.bg-primary-15]="selectedPair()?.id === pair.id"
+              [class.ring-2]="selectedPair()?.id === pair.id"
+              [class.ring-primary-100]="selectedPair()?.id === pair.id"
+              pDraggable
+              (onDragStart)="dragStart(pair)"
+              (onDragEnd)="dragEnd()"
+            >
+              <i class="bi bi-grip-vertical text-gris-50 group-hover:text-gris-100 transition-colors shrink-0"></i>
+              <span class="text-body-medium text-gris-120 truncate w-64">{{ getPairName(pair) }}</span>
+              <span class="text-body-light text-gris-80 w-16">{{ pair.weight }}</span>
+              <span *ngIf="getSeedNumber(pair) !== null"
+                    class="ml-auto p-2 bg-contrast-100 text-blanc-100 text-xs rounded-xl shrink-0">TS{{ getSeedNumber(pair) }}</span>
+            </div>
+          }
         </div>
       }
     </div>
-  </div>
-  <div class="relative" [style.height.px]="containerHeight()">
-    <div #chartContainer class="rotate-90 origin-center"
-         [style.margin-top.px]="chartMargin()"
-         [style.margin-bottom.px]="chartMargin()">
+
+  </aside>
+
+  <!-- ── Zone du tableau (organization chart) ───────────────────────── -->
+  <div class="relative flex-1 overflow-x-auto" [style.height.px]="containerHeight()">
+    <div
+      #chartContainer
+      class="rotate-90 origin-center"
+      [style.margin-top.px]="chartMargin()"
+      [style.margin-bottom.px]="chartMargin()"
+    >
       <p-organization-chart [value]="bracketData()">
         <ng-template let-node pTemplate="match">
-          <div class="-rotate-90 flex flex-col items-center h-48 shadow-2xl drop-column" pDroppable
-               (onDrop)="drop(node.data)">
-            <span class="font-bold mb-2">{{ node.data.title }}</span>
-            <span>{{ getPairName(node.data.pair1) }}</span>
-            <span>vs.</span>
-            <span>{{ getPairName(node.data.pair2) }}</span>
+          <div class="-rotate-90">
+            <div
+              class="relative flex flex-col items-center justify-center w-36 h-36 rounded-xl"
+              [class.opacity-50]="isDragging() && isMatchFull(node.data)"
+            >
+            <div class="relative z-10 flex flex-col items-center gap-1 px-2 w-full">
+                <span class="text-floatlabel font-semibold text-contrast-100 truncate w-full text-center">
+                  {{ node.data.title }}
+                </span>
+              <div class="h-px w-full bg-gris-15 my-1"></div>
+
+              <!-- Slot paire 1 -->
+              <div class="w-full px-2 py-1 rounded-lg min-h-7 flex items-center justify-center transition-all duration-150"
+                   pDroppable
+                   (onDrop)="dropOnSlot(node.data, 'pair1')"
+                   (onDragEnter)="dragEnterSlot(node.data, 'pair1')"
+                   (onDragLeave)="dragLeaveSlot()"
+                   [class.bg-contrast-5]="!node.data.pair1.id && !isDragging()"
+                   [class.bg-success-5]="!!node.data.pair1.id"
+                   [class.bg-primary-5]="isDragging() && !node.data.pair1.id && !isSlotHovered(node.data, 'pair1')"
+                   [class.ring-1]="isDragging() && !node.data.pair1.id && !isSlotHovered(node.data, 'pair1')"
+                   [class.ring-primary-50]="isDragging() && !node.data.pair1.id && !isSlotHovered(node.data, 'pair1')"
+                   [class.bg-primary-30]="isSlotHovered(node.data, 'pair1')"
+                   [class.ring-2]="isSlotHovered(node.data, 'pair1')"
+                   [class.ring-primary-100]="isSlotHovered(node.data, 'pair1')"
+                   [class.scale-105]="isSlotHovered(node.data, 'pair1')">
+                @if (node.data.pair1.id) {
+                  <span class="text-body-light text-success-120 font-medium truncate w-full text-center">
+                      {{ getPairName(node.data.pair1) }}
+                    </span>
+                } @else {
+                  <span class="text-body-light text-gris-50 italic">–</span>
+                }
+              </div>
+
+              <span class="text-body-light text-gris-80 font-bold">vs</span>
+
+              <!-- Slot paire 2 -->
+              <div class="w-full px-2 py-1 rounded-lg min-h-7 flex items-center justify-center transition-all duration-150"
+                   pDroppable
+                   (onDrop)="dropOnSlot(node.data, 'pair2')"
+                   (onDragEnter)="dragEnterSlot(node.data, 'pair2')"
+                   (onDragLeave)="dragLeaveSlot()"
+                   [class.bg-contrast-5]="!node.data.pair2.id && !isDragging()"
+                   [class.bg-success-5]="!!node.data.pair2.id"
+                   [class.bg-primary-5]="isDragging() && !node.data.pair2.id && !isSlotHovered(node.data, 'pair2')"
+                   [class.ring-1]="isDragging() && !node.data.pair2.id && !isSlotHovered(node.data, 'pair2')"
+                   [class.ring-primary-50]="isDragging() && !node.data.pair2.id && !isSlotHovered(node.data, 'pair2')"
+                   [class.bg-primary-30]="isSlotHovered(node.data, 'pair2')"
+                   [class.ring-2]="isSlotHovered(node.data, 'pair2')"
+                   [class.ring-primary-100]="isSlotHovered(node.data, 'pair2')"
+                   [class.scale-105]="isSlotHovered(node.data, 'pair2')">
+                @if (node.data.pair2.id) {
+                  <span class="text-body-light text-success-120 font-medium truncate w-full text-center">
+                      {{ getPairName(node.data.pair2) }}
+                    </span>
+                } @else {
+                  <span class="text-body-light text-gris-50 italic">–</span>
+                }
+              </div>
+            </div>
+            </div>
           </div>
         </ng-template>
       </p-organization-chart>

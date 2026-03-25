@@ -288,9 +288,15 @@ export const MyPreset = definePreset(Aura, {
         colorScheme: {
           light: {
             root: {
-              connectorColor: 'var(--color-gris-80)',
-              nodeBorderColor: 'var(--color-gris-80)',
-              nodeBackground: 'var(--color-blanc-100)',
+              gutter: '0.5rem',
+              node: {
+                padding: '0px',
+                borderColor: 'var(--color-gris-80)',
+                background: 'var(--color-blanc-100)',
+              },
+              connector: {
+                color: 'var(--color-gris-80)',
+              }
             }
           }
         }

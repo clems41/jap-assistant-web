@@ -4,6 +4,7 @@
       <p-tab value="infos">Informations</p-tab>
       <p-tab value="players">Joueurs</p-tab>
       <p-tab value="settings">Configuration</p-tab>
+      <p-tab value="brackets" *ngIf="tournamentContainsBracket">Tableaux</p-tab>
     </p-tablist>
     <p-tabpanels>
       <p-tabpanel value="infos">
@@ -18,6 +19,8 @@
       <p-tabpanel value="players">
         <app-players
           [tournament]="t"
+          [pairs]="pairs()"
+          (refreshPairs)="refreshPairs()"
         ></app-players>
       </p-tabpanel>
       <p-tabpanel value="settings">
@@ -25,6 +28,12 @@
           [tournament]="t"
           (tournamentChange)="tournament.set($event)"
         ></app-settings>
+      </p-tabpanel>
+      <p-tabpanel value="brackets">
+        <app-brackets
+          [tournament]="t"
+          [pairs]="pairs()"
+        ></app-brackets>
       </p-tabpanel>
     </p-tabpanels>
   </p-tabs>

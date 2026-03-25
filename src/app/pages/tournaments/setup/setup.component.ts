@@ -7,6 +7,10 @@ import {InfosComponent} from './infos/infos.component';
 import {PlayersComponent} from './players/players.component';
 import {SettingsComponent} from './settings/settings.component';
 import {toSignal} from '@angular/core/rxjs-interop';
+import {NgIf} from '@angular/common';
+import {BracketsComponent} from './brackets/brackets.component';
+import {PairService} from '../../../shared/services/pair.service';
+import {Pair} from '../../../shared/models/pair.models';
 
 @Component({
   selector: 'app-setup',
@@ -15,6 +19,8 @@ import {toSignal} from '@angular/core/rxjs-interop';
     InfosComponent,
     PlayersComponent,
     SettingsComponent,
+    NgIf,
+    BracketsComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './setup.component.html'
@@ -22,9 +28,11 @@ import {toSignal} from '@angular/core/rxjs-interop';
 export class SetupComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly tournamentService = inject(TournamentService);
+  private readonly pairService = inject(PairService);
 
   readonly tournamentId: number = Number(this.route.snapshot.paramMap.get('id'));
   tournament = signal<Tournament | null>(null);
+  pairs = signal<Pair[]>([]);
   loading = signal<boolean>(false);
 
   genders = toSignal(this.tournamentService.getGenders(), {initialValue: []});
@@ -37,9 +45,29 @@ export class SetupComponent implements OnInit {
       .subscribe({
         next: t => {
           this.tournament.set(t);
-          this.loading.set(false);
+          this.refreshPairs();
         },
         error: () => this.loading.set(false)
       });
+  }
+
+  refreshPairs(): void {
+    const tournament = this.tournament();
+    if (!tournament) return
+    this.loading.set(true);
+    this.pairService.getPairs(tournament.id).subscribe({
+      next: result => {
+        this.loading.set(false);
+        this.pairs.set(result.sort((a, b) => (a.weight ?? 0) - (b.weight ?? 0)));
+      },
+      error: () => {
+        this.loading.set(false);
+      }
+    });
+  }
+
+  get tournamentContainsBracket(): boolean {
+    return ['TMC'].includes(this.tournament()?.configuration ?? '') &&
+      this.pairs()?.length > 0;
   }
 }

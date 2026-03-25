@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, effect, inject, input, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, input, output, signal} from '@angular/core';
 import {Tournament} from '../../../../shared/models/tournament.models';
 import {PairService} from '../../../../shared/services/pair.service';
 import {Pair, PairRequest} from '../../../../shared/models/pair.models';
@@ -35,36 +35,17 @@ import {FileUploadHandlerEvent, FileUploadModule} from 'primeng/fileupload';
 })
 export class PlayersComponent {
   tournament = input.required<Tournament>();
+  pairs = input.required<Pair[]>();
+  refreshPairs = output<void>();
   private readonly pairService = inject(PairService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly confirmationService = inject(ConfirmationService);
-  pairs = signal<Pair[]>([]);
   loading = signal<boolean>(false);
   importPairsDialogVisible = signal<boolean>(false);
   addPairForm: FormGroup = this.buildPairForm();
   editPairForm: FormGroup = this.buildPairForm();
   addPairDialogVisible = signal<boolean>(false);
   editPairDialogVisible = signal<boolean>(false);
-
-  constructor() {
-    effect(() => {
-      this.loading.set(true);
-      const tournament = this.tournament();
-      this.refreshPairs(tournament);
-    });
-  }
-
-  private refreshPairs(tournament: Tournament): void {
-    this.pairService.getPairs(tournament.id).subscribe({
-      next: result => {
-        this.loading.set(false);
-        this.pairs.set(result.sort((a, b) => (a.weight ?? 0) - (b.weight ?? 0)));
-      },
-      error: () => {
-        this.loading.set(false);
-      }
-    });
-  }
 
   private buildPairForm(): FormGroup {
     return this.formBuilder.group({
@@ -134,7 +115,8 @@ export class PlayersComponent {
     const tournament = this.tournament();
     this.pairService.importPairs(tournament.id, file).subscribe({
       next: () => {
-        this.refreshPairs(tournament);
+        this.refreshPairs.emit();
+        this.loading.set(false);
         this.importPairsDialogVisible.set(false);
       },
       error: () => {
@@ -167,7 +149,10 @@ export class PlayersComponent {
     this.loading.set(true);
     const tournament = this.tournament();
     this.pairService.createPair(tournament.id, input).subscribe({
-      next: () => this.refreshPairs(tournament),
+      next: () => {
+        this.refreshPairs.emit();
+        this.loading.set(false);
+      },
       error: () => {
         this.loading.set(false);
       }
@@ -198,7 +183,10 @@ export class PlayersComponent {
     this.loading.set(true);
     const tournament = this.tournament();
     this.pairService.updatePair(tournament.id, pair_id, input).subscribe({
-      next: () => this.refreshPairs(tournament),
+      next: () => {
+        this.refreshPairs.emit();
+        this.loading.set(false);
+      },
       error: () => {
         this.loading.set(false);
       }
@@ -227,7 +215,10 @@ export class PlayersComponent {
         this.loading.set(true);
         const tournament = this.tournament();
         this.pairService.deletePair(tournament.id, pair.id).subscribe({
-          next: () => this.refreshPairs(tournament),
+          next: () => {
+            this.refreshPairs.emit();
+            this.loading.set(false);
+          },
           error: () => {
             this.loading.set(false);
           }

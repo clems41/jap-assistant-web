@@ -1,6 +1,8 @@
 import {ChangeDetectionStrategy, Component, effect, inject, input, signal} from '@angular/core';
+import {toObservable} from '@angular/core/rxjs-interop';
 import {TimeSlot, TimeSlotRequest, Tournament} from '../../../../../shared/models/tournament.models';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {take} from 'rxjs';
 import {TournamentService} from '../../../../../shared/services/tournament.service';
 import {DatePickerModule} from 'primeng/datepicker';
 import {InputNumberModule} from 'primeng/inputnumber';
@@ -30,11 +32,8 @@ export class TimeSlotsComponent {
   editForm: FormGroup = this.buildForm();
 
   constructor() {
-    effect(() => {
-      this.loading.set(true);
-      const tournament = this.tournament();
-      this.refreshTimeSlots(tournament);
-    });
+    toObservable(this.tournament).pipe(take(1)).subscribe(t => this.refreshTimeSlots(t));
+
     effect(() => {
       const slots = this.timeSlots();
       const lastEndTime = slots.length > 0 ? slots[slots.length - 1].end_time : '12:00';

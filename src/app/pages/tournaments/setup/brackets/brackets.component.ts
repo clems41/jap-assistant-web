@@ -1,18 +1,21 @@
 import {
   Component, DestroyRef, ElementRef, afterNextRender, computed, inject, input, signal, viewChild,
-  ChangeDetectionStrategy, effect
+  ChangeDetectionStrategy, effect, untracked
 } from '@angular/core';
 import {Tournament} from '../../../../shared/models/tournament.models';
 import {Pair} from '../../../../shared/models/pair.models';
 import {TreeNode} from 'primeng/api';
 import {OrganizationChartModule} from 'primeng/organizationchart';
 import {BracketService} from '../../../../shared/services/bracket.service';
-import {BracketDimension} from '../../../../shared/models/bracket.models';
+import {SelectModule} from 'primeng/select';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 
 @Component({
   selector: 'app-brackets',
   imports: [
     OrganizationChartModule,
+    SelectModule,
+    ReactiveFormsModule
   ],
   templateUrl: './brackets.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -23,8 +26,10 @@ export class BracketsComponent {
 
   private destroyRef = inject(DestroyRef);
   private bracketService = inject(BracketService);
-  bracketDimension = signal<BracketDimension>(8);
+  private formBuilder = inject(FormBuilder);
+  form: FormGroup = this.buildForm();
   bracketData = signal<TreeNode[]>([]);
+  availableNumberOfTopSeeds = signal<number[]>([]);
 
   chartContainer = viewChild<ElementRef<HTMLElement>>('chartContainer');
   private chartNaturalWidth = signal(0);
@@ -44,9 +49,26 @@ export class BracketsComponent {
       this.destroyRef.onDestroy(() => observer.disconnect());
     });
 
+    this.form.get('bracketDimension')?.valueChanges.subscribe(bracketDimension => this.bracketData.set(this.bracketService.buildBracketData(bracketDimension)));
+
     effect(() => {
-      this.bracketDimension.set(this.bracketService.getBracketDimensionFromNumberOfPairs(this.pairs().length));
-      this.bracketData.set(this.bracketService.buildBracketData(this.bracketDimension()));
+      const nbPairs = this.pairs().length;
+      const bracketDimension = this.bracketService.getBracketDimensionFromNumberOfPairs(nbPairs);
+      untracked(() => {
+        this.form.patchValue({
+          bracketDimension: bracketDimension,
+          nbTopSeeds: bracketDimension / 4,
+        });
+      });
+      this.availableNumberOfTopSeeds.set(this.bracketService.getAvailableNumberOfTopSeedsFromNumberOfPairs(nbPairs));
+      this.bracketData.set(this.bracketService.buildBracketData(bracketDimension));
     });
+  }
+
+  private buildForm() {
+    return this.formBuilder.group({
+      bracketDimension: [64, [Validators.required]],
+      nbTopSeeds: [0, [Validators.required, Validators.min(1)]],
+    })
   }
 }

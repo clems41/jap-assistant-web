@@ -293,6 +293,79 @@ describe('BracketService', () => {
   });
 
   // -------------------------------------------------------------------------
+  // getBracketDimensionFromNumberOfPairs
+  // -------------------------------------------------------------------------
+
+  describe('getBracketDimensionFromNumberOfPairs', () => {
+    it('should return 4 for 4 pairs', () => {
+      expect(service.getBracketDimensionFromNumberOfPairs(4)).toBe(4);
+    });
+
+    it('should return 4 for 3 pairs', () => {
+      expect(service.getBracketDimensionFromNumberOfPairs(3)).toBe(4);
+    });
+
+    it('should return 8 for 5 pairs', () => {
+      expect(service.getBracketDimensionFromNumberOfPairs(5)).toBe(8);
+    });
+
+    it('should return 8 for 8 pairs', () => {
+      expect(service.getBracketDimensionFromNumberOfPairs(8)).toBe(8);
+    });
+
+    it('should return 16 for 9 pairs', () => {
+      expect(service.getBracketDimensionFromNumberOfPairs(9)).toBe(16);
+    });
+
+    it('should return 16 for 12 pairs', () => {
+      expect(service.getBracketDimensionFromNumberOfPairs(12)).toBe(16);
+    });
+
+    it('should return 16 for 16 pairs', () => {
+      expect(service.getBracketDimensionFromNumberOfPairs(16)).toBe(16);
+    });
+
+    it('should return 32 for 17 pairs', () => {
+      expect(service.getBracketDimensionFromNumberOfPairs(17)).toBe(32);
+    });
+
+    it('should return 64 for 65 pairs (max fallback)', () => {
+      expect(service.getBracketDimensionFromNumberOfPairs(65)).toBe(64);
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // getNumberOfTopSeedsFromNumberOfPairs
+  // -------------------------------------------------------------------------
+
+  describe('getNumberOfTopSeedsFromNumberOfPairs', () => {
+    it('should return [2, 3, 4, 5, 6] for 12 pairs', () => {
+      expect(service.getAvailableNumberOfTopSeedsFromNumberOfPairs(12)).toEqual([2, 3, 4, 5, 6]);
+    });
+
+    it('should return [1, 2] for 8 pairs (min=1, max=4 → [1,2,3,4])', () => {
+      expect(service.getAvailableNumberOfTopSeedsFromNumberOfPairs(8)).toEqual([1, 2, 3, 4]);
+    });
+
+    it('should return a contiguous range from min to max', () => {
+      const result = service.getAvailableNumberOfTopSeedsFromNumberOfPairs(16);
+      for (let i = 1; i < result.length; i++) {
+        expect(result[i]).toBe(result[i - 1] + 1);
+      }
+    });
+
+    it('min should be Math.round(nbPairs / 8)', () => {
+      const result = service.getAvailableNumberOfTopSeedsFromNumberOfPairs(12);
+      expect(result[0]).toBe(Math.round(12 / 8));
+    });
+
+    it('max should be Math.round(nbPairs / 2)', () => {
+      const result = service.getAvailableNumberOfTopSeedsFromNumberOfPairs(12);
+      expect(result[result.length - 1]).toBe(Math.round(12 / 2));
+    });
+  });
+
+  // -------------------------------------------------------------------------
   // Node titles spot-checks
   // -------------------------------------------------------------------------
 

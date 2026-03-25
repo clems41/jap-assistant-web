@@ -17,6 +17,12 @@ export class BracketService {
     { label: 'Demie',   count: 2,  minDimension: 4  },
   ];
 
+  getAvailableNumberOfTopSeedsFromNumberOfPairs(nbPairs: number): number[] {
+    const min: number = Math.round(nbPairs / 8);
+    const max: number = Math.round(nbPairs / 2);
+    return Array.from({ length: max - min + 1 }, (_, i) => min + i);
+  }
+
   getBracketDimensionFromNumberOfPairs(nbPairs: number): BracketDimension {
     const dimensions: BracketDimension[] = [4, 8, 16, 32, 64];
     return dimensions.find(d => d >= nbPairs) ?? 64;

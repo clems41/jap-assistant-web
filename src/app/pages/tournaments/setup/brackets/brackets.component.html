@@ -1,12 +1,21 @@
 <div>
-  <div class="h-32 -mb-40 flex justify-end">
-    <div class="rounded-xl bg-contrast-100 text-blanc-100 flex flex-col p-3 z-10 relative">
-      <span>(N) Nombre de paires : {{ pairs().length }}</span>
-      <span>(D) Dimension du tableau : 16</span>
-    </div>
+  <div class="-mb-40 flex justify-end">
+    <form [formGroup]="form" class="rounded-xl bg-contrast-80 text-blanc-100 flex flex-col gap-2 p-3 z-10 relative">
+      <span>Nombre de paires (N) : <strong>{{ pairs().length }}</strong></span>
+      <div class="flex flex-row justify-between gap-2 items-center">
+        <label class="text-blanc-100!" for="bracketDimension">Dimension du tableau (D) : </label>
+        <p-select [options]="[4, 8, 16, 32, 64]" formControlName="bracketDimension" inputId="bracketDimension"
+                  appendTo="body" size="small"/>
+      </div>
+      <div class="flex flex-row justify-between gap-2 items-center">
+        <label class="text-blanc-100!" for="nbTopSeeds">Nombre de Tête de Séries (TS) : </label>
+        <p-select [options]="availableNumberOfTopSeeds()" formControlName="nbTopSeeds" inputId="nbTopSeeds"
+                  appendTo="body" size="small"/>
+      </div>
+    </form>
   </div>
   <div class="relative" [style.height.px]="containerHeight()">
-    <div #chartContainer class="rotate-90 origin-center w-fit mx-auto"
+    <div #chartContainer class="rotate-90 origin-center"
          [style.margin-top.px]="chartMargin()"
          [style.margin-bottom.px]="chartMargin()">
       <p-organization-chart [value]="bracketData()">

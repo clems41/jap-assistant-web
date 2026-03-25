@@ -32,6 +32,34 @@ describe('AuthService', () => {
     it('should be created', () => {
       expect(service).toBeTruthy();
     });
+
+    it('should be unauthenticated when no access_token in localStorage', () => {
+      localStorage.removeItem('access_token');
+      // Re-create service to re-evaluate signal
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          AuthService,
+          { provide: HttpRequesterService, useValue: httpRequesterSpy },
+        ],
+      });
+      const freshService = TestBed.inject(AuthService);
+      expect(freshService.isAuthenticated()).toBeFalse();
+    });
+
+    it('should be authenticated when access_token is present in localStorage', () => {
+      localStorage.setItem('access_token', 'some-token');
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          AuthService,
+          { provide: HttpRequesterService, useValue: httpRequesterSpy },
+        ],
+      });
+      const freshService = TestBed.inject(AuthService);
+      expect(freshService.isAuthenticated()).toBeTrue();
+      localStorage.removeItem('access_token');
+    });
   });
 
   // ---------------------------------------------------------------------------
@@ -233,6 +261,35 @@ describe('AuthService', () => {
           done();
         },
       });
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // logout()
+  // ---------------------------------------------------------------------------
+
+  describe('logout()', () => {
+    it('should remove access_token and refresh_token from localStorage', () => {
+      localStorage.setItem('access_token', 'tok');
+      localStorage.setItem('refresh_token', 'ref');
+
+      service.logout();
+
+      expect(localStorage.getItem('access_token')).toBeNull();
+      expect(localStorage.getItem('refresh_token')).toBeNull();
+    });
+
+    it('should set isAuthenticated to false', () => {
+      service.logout();
+
+      expect(service.isAuthenticated()).toBeFalse();
+    });
+
+    it('should set isAuthenticated to false even when called multiple times', () => {
+      service.logout();
+      service.logout();
+
+      expect(service.isAuthenticated()).toBeFalse();
     });
   });
 

@@ -8,6 +8,7 @@ import { provideRouter, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 
 import { HttpRequesterService } from './http-requester.service';
+import { AuthService } from './auth.service';
 import { ENVIRONMENT } from '../../core/tokens/environment.token';
 import { Environment } from '../../../environments/environment.model';
 
@@ -22,8 +23,11 @@ describe('HttpRequesterService', () => {
   let httpMock: HttpTestingController;
   let messageService: MessageService;
   let router: Router;
+  let authServiceSpy: jasmine.SpyObj<AuthService>;
 
   beforeEach(() => {
+    authServiceSpy = jasmine.createSpyObj<AuthService>('AuthService', ['logout']);
+
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
@@ -31,6 +35,7 @@ describe('HttpRequesterService', () => {
         provideRouter([]),
         MessageService,
         { provide: ENVIRONMENT, useValue: mockEnvironment },
+        { provide: AuthService, useValue: authServiceSpy },
       ],
     });
 
@@ -330,6 +335,7 @@ describe('HttpRequesterService', () => {
 
       tick();
 
+      expect(authServiceSpy.logout).toHaveBeenCalled();
       expect(router.navigate).toHaveBeenCalledWith(['/auth/login']);
     }));
 
@@ -346,6 +352,7 @@ describe('HttpRequesterService', () => {
 
       tick();
 
+      expect(authServiceSpy.logout).toHaveBeenCalled();
       expect(router.navigate).toHaveBeenCalledWith(['/auth/login']);
       // No refresh request should have been sent
       httpMock.expectNone(`${mockEnvironment.apiBaseUrl}/auth/token/refresh/`);
@@ -374,6 +381,7 @@ describe('HttpRequesterService', () => {
 
       tick();
 
+      expect(authServiceSpy.logout).toHaveBeenCalled();
       expect(router.navigate).toHaveBeenCalledWith(['/auth/login']);
     }));
   });

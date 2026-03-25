@@ -18,6 +18,9 @@ const mockTournament: Tournament = {
   location: 'Lyon',
   league: 'Auvergne-Rhône-Alpes',
   gender: 'Homme',
+  game_format: 'AMERICAN',
+  configuration: 'POULES',
+  estimated_match_duration: 60,
   created_at: '2026-01-01T00:00:00Z',
   updated_at: '2026-01-01T00:00:00Z',
 };

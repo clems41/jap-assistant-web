@@ -9,13 +9,16 @@ import {OrganizationChartModule} from 'primeng/organizationchart';
 import {BracketService} from '../../../../shared/services/bracket.service';
 import {SelectModule} from 'primeng/select';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {DragDropModule} from 'primeng/dragdrop';
+import {MatchData} from '../../../../shared/models/bracket.models';
 
 @Component({
   selector: 'app-brackets',
   imports: [
     OrganizationChartModule,
     SelectModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    DragDropModule,
   ],
   templateUrl: './brackets.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -28,8 +31,11 @@ export class BracketsComponent {
   private bracketService = inject(BracketService);
   private formBuilder = inject(FormBuilder);
   form: FormGroup = this.buildForm();
-  bracketData = signal<TreeNode[]>([]);
+  bracketData = signal<TreeNode<MatchData>[]>([]);
   availableNumberOfTopSeeds = signal<number[]>([]);
+  selectedPair = signal<Pair | null>(null);
+  remainingPairsToBePlaced = signal<Pair[]>([]);
+  pairsPlaced = signal<Pair[]>([]);
 
   chartContainer = viewChild<ElementRef<HTMLElement>>('chartContainer');
   private chartNaturalWidth = signal(0);
@@ -52,6 +58,13 @@ export class BracketsComponent {
     this.form.get('bracketDimension')?.valueChanges.subscribe(bracketDimension => this.bracketData.set(this.bracketService.buildBracketData(bracketDimension)));
 
     effect(() => {
+      const pairsPlaced = this.pairsPlaced();
+      this.remainingPairsToBePlaced.set(
+        this.pairs().filter(pair => !pairsPlaced.find(pairPlaced => pairPlaced.id === pair.id))
+      );
+    });
+
+    effect(() => {
       const nbPairs = this.pairs().length;
       const bracketDimension = this.bracketService.getBracketDimensionFromNumberOfPairs(nbPairs);
       untracked(() => {
@@ -65,10 +78,55 @@ export class BracketsComponent {
     });
   }
 
+  getPairName(pair: Pair): string {
+    return pair.player1 && pair.player2 ?
+      `${pair?.player1?.last_name.toUpperCase()} / ${pair?.player2?.last_name?.toUpperCase()}` : '---';
+  }
+
   private buildForm() {
     return this.formBuilder.group({
       bracketDimension: [64, [Validators.required]],
       nbTopSeeds: [0, [Validators.required, Validators.min(1)]],
     })
+  }
+
+  dragStart(pair: Pair) {
+    console.log('dragStart', pair);
+    this.selectedPair.set(pair);
+  }
+
+  dragEnd(): void {
+    this.selectedPair.set(null);
+  }
+
+  drop(matchData: MatchData): void {
+    const selectedPair = this.selectedPair();
+    if (!selectedPair) return;
+
+    const bracketData = structuredClone(this.bracketData());
+    const node = this.findNode(bracketData, matchData.title);
+    if (!node?.data) return;
+
+    if (!node.data.pair1.id) {
+      node.data.pair1 = selectedPair;
+    } else if (!node.data.pair2.id) {
+      node.data.pair2 = selectedPair;
+    } else {
+      return;
+    }
+
+    this.bracketData.set(bracketData);
+    this.pairsPlaced.set([...this.pairsPlaced(), selectedPair]);
+  }
+
+  private findNode(nodes: TreeNode<MatchData>[], title: string): TreeNode<MatchData> | null {
+    for (const node of nodes) {
+      if (node.data?.title === title) return node;
+      if (node.children?.length) {
+        const found = this.findNode(node.children as TreeNode<MatchData>[], title);
+        if (found) return found;
+      }
+    }
+    return null;
   }
 }

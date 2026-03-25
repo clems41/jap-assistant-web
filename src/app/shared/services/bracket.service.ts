@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
-import { TreeNode } from 'primeng/api';
+import {Injectable} from '@angular/core';
+import {TreeNode} from 'primeng/api';
 import {BracketDimension, MatchData} from '../models/bracket.models';
+import {Pair} from '../models/pair.models';
 
 interface RoundConfig {
   label: string;
@@ -8,19 +9,19 @@ interface RoundConfig {
   minDimension: BracketDimension;
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class BracketService {
   private readonly rounds: RoundConfig[] = [
-    { label: '1/16ème', count: 16, minDimension: 32 },
-    { label: '1/8ème',  count: 8,  minDimension: 16 },
-    { label: 'Quart',   count: 4,  minDimension: 8  },
-    { label: 'Demie',   count: 2,  minDimension: 4  },
+    {label: '1/16ème', count: 16, minDimension: 32},
+    {label: '1/8ème', count: 8, minDimension: 16},
+    {label: 'Quart', count: 4, minDimension: 8},
+    {label: 'Demie', count: 2, minDimension: 4},
   ];
 
   getAvailableNumberOfTopSeedsFromNumberOfPairs(nbPairs: number): number[] {
     const min: number = Math.round(nbPairs / 8);
     const max: number = Math.round(nbPairs / 2);
-    return Array.from({ length: max - min + 1 }, (_, i) => min + i);
+    return Array.from({length: max - min + 1}, (_, i) => min + i);
   }
 
   getBracketDimensionFromNumberOfPairs(nbPairs: number): BracketDimension {
@@ -42,7 +43,11 @@ export class BracketService {
       {
         expanded: true,
         type: 'match',
-        data: { title: 'Finale', pair1: '---', pair2: '---' },
+        data: {
+          title: 'Finale',
+          pair1: {} as Pair,
+          pair2: {} as Pair
+        },
         children: previousRound,
       },
     ];
@@ -53,10 +58,10 @@ export class BracketService {
     count: number,
     previousRound: TreeNode<MatchData>[],
   ): TreeNode<MatchData>[] {
-    return Array.from({ length: count }, (_, i) => ({
+    return Array.from({length: count}, (_, i) => ({
       expanded: true,
       type: 'match' as const,
-      data: { title: `${label} #${i + 1}`, pair1: '---', pair2: '---' },
+      data: {title: `${label} #${i + 1}`, pair1: {} as Pair, pair2: {} as Pair},
       children:
         previousRound.length > 0
           ? [previousRound[i * 2], previousRound[i * 2 + 1]]

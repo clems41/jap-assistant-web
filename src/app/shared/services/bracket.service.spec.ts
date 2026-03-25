@@ -1,16 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { TreeNode } from 'primeng/api';
 import { BracketService } from './bracket.service';
+import { MatchData } from '../models/bracket.models';
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-interface MatchData {
-  title: string;
-  pair1: string;
-  pair2: string;
-}
 
 /** Collect all nodes in BFS order. */
 function collectAllNodes(nodes: TreeNode<MatchData>[]): TreeNode<MatchData>[] {
@@ -114,11 +109,11 @@ describe('BracketService', () => {
       expect(huitiemes.length).toBe(0);
     });
 
-    it('should set pair1 and pair2 to "---" on all nodes', () => {
+    it('should initialize pair1 and pair2 as empty Pair on all nodes', () => {
       const all = collectAllNodes(result);
       for (const node of all) {
-        expect(node.data?.['pair1']).toBe('---');
-        expect(node.data?.['pair2']).toBe('---');
+        expect(node.data?.pair1.id).toBeUndefined();
+        expect(node.data?.pair2.id).toBeUndefined();
       }
     });
 
@@ -193,11 +188,11 @@ describe('BracketService', () => {
       }
     });
 
-    it('should set pair1 and pair2 to "---" on all nodes', () => {
+    it('should initialize pair1 and pair2 as empty Pair on all nodes', () => {
       const all = collectAllNodes(result);
       for (const node of all) {
-        expect(node.data?.['pair1']).toBe('---');
-        expect(node.data?.['pair2']).toBe('---');
+        expect(node.data?.pair1.id).toBeUndefined();
+        expect(node.data?.pair2.id).toBeUndefined();
       }
     });
 
@@ -264,11 +259,11 @@ describe('BracketService', () => {
       }
     });
 
-    it('should set pair1 and pair2 to "---" on all nodes', () => {
+    it('should initialize pair1 and pair2 as empty Pair on all nodes', () => {
       const all = collectAllNodes(result);
       for (const node of all) {
-        expect(node.data?.['pair1']).toBe('---');
-        expect(node.data?.['pair2']).toBe('---');
+        expect(node.data?.pair1.id).toBeUndefined();
+        expect(node.data?.pair2.id).toBeUndefined();
       }
     });
 

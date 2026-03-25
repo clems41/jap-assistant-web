@@ -1,12 +1,23 @@
-<div class="card overflow-x-auto">
-  <p-organization-chart [value]="data">
-    <ng-template let-node pTemplate="person">
-      <div class="flex flex-col">
-        <div class="flex flex-col items-center">
-          <span class="font-bold mb-2">{{ node.data.name }}</span>
-          <span>{{ node.data.title }}</span>
-        </div>
-      </div>
-    </ng-template>
-  </p-organization-chart>
+<div>
+  <div class="h-32 -mb-40 flex justify-end">
+    <div class="rounded-xl bg-contrast-100 text-blanc-100 flex flex-col p-3 z-10 relative">
+      <span>(N) Nombre de paires : {{ pairs().length }}</span>
+      <span>(D) Dimension du tableau : 16</span>
+    </div>
+  </div>
+  <div class="relative" [style.height.px]="containerHeight()">
+    <div #chartContainer class="rotate-90 origin-center w-fit mx-auto"
+         [style.margin-top.px]="chartMargin()"
+         [style.margin-bottom.px]="chartMargin()">
+      <p-organization-chart [value]="bracketData()">
+        <ng-template let-node pTemplate="match">
+          <div class="-rotate-90 flex flex-col items-center w-24 h-24">
+            <span class="font-bold mb-2">{{ node.data.title }}</span>
+            <span>{{ node.data.pair1 }}</span>
+            <span>{{ node.data.pair2 }}</span>
+          </div>
+        </ng-template>
+      </p-organization-chart>
+    </div>
+  </div>
 </div>

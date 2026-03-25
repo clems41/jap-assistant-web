@@ -9,7 +9,7 @@ import { MessageService } from 'primeng/api';
 
 import { HttpRequesterService } from './http-requester.service';
 import { AuthService } from './auth.service';
-import { ENVIRONMENT } from '../../core/tokens/environment.token';
+import { ENVIRONMENT } from '../core/tokens/environment.token';
 import { Environment } from '../../../environments/environment.model';
 
 const mockEnvironment: Environment = {

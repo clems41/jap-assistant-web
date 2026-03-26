@@ -2,6 +2,40 @@
 
   <!-- ── Zone du tableau (organization chart) ───────────────────────── -->
   <div class="relative flex-1 overflow-x-auto overflow-y-auto" style="max-height: calc(100vh - 250px)">
+
+    <!-- Config superposée en haut à droite -->
+    <div class="sticky top-4 right-4 float-right z-10 rounded-xl bg-contrast-100 text-blanc-100 flex flex-col gap-3 p-4 shadow-md w-72">
+      <div class="flex flex-row justify-between gap-2 items-center">
+        <span class="text-body-light text-contrast-15">Paires inscrites</span>
+        <span class="text-body-bold text-blanc-100">{{ pairs().length }}</span>
+      </div>
+
+      <form [formGroup]="form" class="flex flex-row justify-between gap-3">
+        <div class="flex flex-col gap-1 w-1/2">
+          <label class="text-floatlabel text-contrast-15!" for="bracketDimension">Dimension (D)</label>
+          <p-select
+            [options]="[4, 8, 16, 32, 64]"
+            formControlName="bracketDimension"
+            inputId="bracketDimension"
+            appendTo="body"
+            size="small"
+            styleClass="w-full"
+          />
+        </div>
+        <div class="flex flex-col gap-1 w-1/2">
+          <label class="text-floatlabel text-contrast-15!" for="nbTopSeeds">Têtes de série (TS)</label>
+          <p-select
+            [options]="availableNumberOfTopSeeds()"
+            formControlName="nbTopSeeds"
+            inputId="nbTopSeeds"
+            appendTo="body"
+            size="small"
+            styleClass="w-full"
+          />
+        </div>
+      </form>
+    </div>
+
     <div
       #chartContainer
       class="rotate-90 origin-center"
@@ -78,41 +112,8 @@
     </div>
   </div>
 
-  <!-- ── Panneau latéral droit : config + paires ────────────────────── -->
+  <!-- ── Panneau latéral droit : paires ─────────────────────────────── -->
   <aside class="flex flex-col gap-4 shrink-0">
-
-    <!-- Formulaire de configuration -->
-    <div class="rounded-xl bg-contrast-100 text-blanc-100 flex flex-col gap-3 p-4 shadow-md">
-      <div class="flex flex-row justify-between gap-2 items-center">
-        <span class="text-body-light text-contrast-15">Paires inscrites</span>
-        <span class="text-body-bold text-blanc-100">{{ pairs().length }}</span>
-      </div>
-
-      <form [formGroup]="form" class="flex flex-row justify-between gap-3">
-        <div class="flex flex-col gap-1 w-1/2">
-          <label class="text-floatlabel text-contrast-15!" for="bracketDimension">Dimension (D)</label>
-          <p-select
-            [options]="[4, 8, 16, 32, 64]"
-            formControlName="bracketDimension"
-            inputId="bracketDimension"
-            appendTo="body"
-            size="small"
-            styleClass="w-full"
-          />
-        </div>
-        <div class="flex flex-col gap-1 w-1/2">
-          <label class="text-floatlabel text-contrast-15!" for="nbTopSeeds">Têtes de série (TS)</label>
-          <p-select
-            [options]="availableNumberOfTopSeeds()"
-            formControlName="nbTopSeeds"
-            inputId="nbTopSeeds"
-            appendTo="body"
-            size="small"
-            styleClass="w-full"
-          />
-        </div>
-      </form>
-    </div>
 
     <!-- Liste des paires restantes à placer -->
     <div class="flex flex-col gap-2">

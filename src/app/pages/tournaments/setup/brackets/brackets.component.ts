@@ -45,7 +45,6 @@ export class BracketsComponent {
   private chartNaturalWidth = signal(0);
   private chartNaturalHeight = signal(0);
   chartMargin = computed(() => Math.max(0, (this.chartNaturalWidth() - this.chartNaturalHeight()) / 2));
-  containerHeight = computed(() => this.chartNaturalWidth() || 400);
 
   constructor() {
     afterNextRender(() => {

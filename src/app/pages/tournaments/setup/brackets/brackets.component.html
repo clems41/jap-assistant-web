@@ -1,7 +1,7 @@
 <div class="sm:-mx-5 md:-mx-10 lg:-mx-16 flex flex-col gap-4 md:flex-row md:gap-6 md:justify-center md:items-start">
 
   <!-- ── Zone du tableau (organization chart) ───────────────────────── -->
-  <div class="relative flex-1 overflow-x-auto" [style.height.px]="containerHeight()">
+  <div class="relative flex-1 overflow-x-auto overflow-y-auto" style="max-height: calc(100vh - 250px)">
     <div
       #chartContainer
       class="rotate-90 origin-center"

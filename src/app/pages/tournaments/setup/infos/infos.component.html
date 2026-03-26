@@ -1,7 +1,7 @@
 <app-loading-spinner [loading]="loading()"></app-loading-spinner>
 <form [class.hidden]="loading()"
       [formGroup]="updateForm"
-      class="px-40 flex flex-col gap-5 w-full items-center p-4"
+      class="flex flex-col gap-5 w-full items-center p-4"
       (ngSubmit)="updateTournament()">
 
   <div class="flex flex-col w-full">

@@ -73,9 +73,15 @@
                   [class.ring-primary-100]="isSlotHovered(node.data)"
                   [class.scale-105]="isSlotHovered(node.data)">
                   @if (isPairAlreadyPlaced(node.data)) {
-                    <span class="text-body-light text-success-120 font-medium truncate w-full text-center">
-                      {{ getPairName(node.data.pair) }}
+                    <span class="text-body-light text-success-120 font-medium truncate flex-1 text-center">
+                      {{ getPairName(node.data.pair!) }}
                     </span>
+                    <button
+                      type="button"
+                      (click)="removePairFromSlot(node.data)"
+                      class="shrink-0 text-success-50 hover:text-error-100 transition-colors leading-none">
+                      <i class="bi bi-x-lg text-xs"></i>
+                    </button>
                   } @else {
                     <span class="text-body-light text-gris-50 italic">–</span>
                   }

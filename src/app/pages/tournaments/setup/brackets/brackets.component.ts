@@ -149,6 +149,19 @@ export class BracketsComponent {
     return !!matchData.pair?.id;
   }
 
+  removePairFromSlot(matchData: MatchData): void {
+    const removedPair = matchData.pair;
+    if (!removedPair) return;
+
+    const bracketData = structuredClone(this.bracketData());
+    const node = this.findNode(bracketData, matchData.title);
+    if (!node?.data) return;
+
+    node.data.pair = undefined;
+    this.bracketData.set(bracketData);
+    this.pairsPlaced.set(this.pairsPlaced().filter(p => p.id !== removedPair.id));
+  }
+
   private findNode(nodes: TreeNode<MatchData>[], title: string): TreeNode<MatchData> | null {
     for (const node of nodes) {
       if (node.data?.title === title) return node;

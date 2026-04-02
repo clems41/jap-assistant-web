@@ -46,6 +46,16 @@ export class BracketsComponent {
   private chartNaturalHeight = signal(0);
   chartMargin = computed(() => Math.max(0, (this.chartNaturalWidth() - this.chartNaturalHeight()) / 2));
 
+  private readonly allRoundLabels = ['Gagnant', 'Finale', 'Demies', 'Quarts', '1/8èmes', '1/16èmes', '1/32èmes'];
+  bracketRounds = computed<string[]>(() => this.allRoundLabels.slice(0, this.treeDepth(this.bracketData())));
+
+  private treeDepth(nodes: TreeNode<MatchData>[]): number {
+    if (!nodes.length) return 0;
+    const first = nodes[0];
+    if (!first.children?.length) return 1;
+    return 1 + this.treeDepth(first.children as TreeNode<MatchData>[]);
+  }
+
   constructor() {
     afterNextRender(() => {
       const el = this.chartContainer()?.nativeElement;

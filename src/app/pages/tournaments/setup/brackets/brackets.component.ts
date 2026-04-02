@@ -43,7 +43,7 @@ export class BracketsComponent {
 
   chartContainer = viewChild<ElementRef<HTMLElement>>('chartContainer');
   private chartNaturalWidth = signal(0);
-  private chartNaturalHeight = signal(0);
+  chartNaturalHeight = signal(0);
   chartMargin = computed(() => Math.max(0, (this.chartNaturalWidth() - this.chartNaturalHeight()) / 2));
 
   private readonly allRoundLabels = ['Gagnant', 'Finale', 'Demies', 'Quarts', '1/8èmes', '1/16èmes', '1/32èmes'];

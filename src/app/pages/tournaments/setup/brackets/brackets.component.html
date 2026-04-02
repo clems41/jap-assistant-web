@@ -1,23 +1,26 @@
-<div class="sm:-mx-5 md:-mx-10 lg:-mx-16 flex flex-col gap-4 md:flex-row md:gap-6 md:justify-center md:items-start">
+<div class="-mx-4 sm:-mx-20 md:-mx-40 lg:-mx-60 flex flex-col gap-4 md:flex-row md:gap-6 md:justify-center md:items-start">
 
   <!-- ── Zone du tableau (organization chart) ───────────────────────── -->
-  <div class="flex-1 flex flex-col min-w-0">
-
-    <!-- En-têtes des tours -->
-    <div class="flex flex-row-reverse bg-contrast-5 rounded-t-xl border border-b-0 border-contrast-15 px-2">
-      @for (round of bracketRounds(); track round) {
-        <div class="flex-1 py-2 text-center">
-          <span class="text-label text-contrast-100 font-semibold">{{ round }}</span>
-        </div>
-      }
-    </div>
+  <div class="flex-1 min-w-0">
 
     <!-- Scroll container -->
-    <div class="relative overflow-x-auto overflow-y-auto border border-contrast-15 rounded-b-xl" style="max-height: calc(100vh - 290px)">
+    <div class="relative overflow-x-auto overflow-y-auto rounded-xl border border-contrast-15" style="max-height: calc(100vh - 250px)">
+
+      <!-- En-têtes des tours (sticky top, largeur = largeur visuelle du tableau) -->
+      <div
+        class="sticky top-0 z-20 flex flex-row-reverse bg-contrast-5 border-b border-contrast-15"
+        [style.width.px]="chartNaturalHeight()"
+        [style.margin-left.px]="chartMargin()">
+        @for (round of bracketRounds(); track round) {
+          <div class="flex-1 py-2 text-center min-w-0">
+            <span class="text-label text-contrast-100 font-semibold">{{ round }}</span>
+          </div>
+        }
+      </div>
 
       <!-- Config superposée en haut à droite -->
       <div
-        class="sticky top-4 right-4 float-right z-10 rounded-xl bg-contrast-100 text-blanc-100 flex flex-col gap-3 p-4 shadow-md w-72">
+        class="sticky top-12 right-4 float-right z-10 rounded-xl bg-contrast-100 text-blanc-100 flex flex-col gap-3 p-4 shadow-md w-72 m-4">
         <div class="flex flex-row justify-between gap-2 items-center">
           <span class="text-body-light text-contrast-15">Paires inscrites</span>
           <span class="text-body-bold text-blanc-100">{{ pairs().length }}</span>

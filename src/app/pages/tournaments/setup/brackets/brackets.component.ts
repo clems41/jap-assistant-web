@@ -7,10 +7,13 @@ import {Pair} from '../../../../shared/models/pair.models';
 import {TreeNode} from 'primeng/api';
 import {OrganizationChartModule} from 'primeng/organizationchart';
 import {BracketService} from '../../../../shared/services/bracket.service';
+import {BracketApiService} from '../../../../shared/services/bracket-api.service';
 import {SelectModule} from 'primeng/select';
+import {ButtonModule} from 'primeng/button';
+import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {DragDropModule} from 'primeng/dragdrop';
-import {MatchData} from '../../../../shared/models/bracket.models';
+import {MatchData, BracketStateResponse, BracketStatePayload, BracketSlotPayload} from '../../../../shared/models/bracket.models';
 import {NgIf} from '@angular/common';
 
 @Component({
@@ -18,6 +21,8 @@ import {NgIf} from '@angular/common';
   imports: [
     OrganizationChartModule,
     SelectModule,
+    ButtonModule,
+    ProgressSpinnerModule,
     ReactiveFormsModule,
     DragDropModule,
     NgIf,
@@ -31,6 +36,7 @@ export class BracketsComponent {
 
   private destroyRef = inject(DestroyRef);
   private bracketService = inject(BracketService);
+  private bracketApiService = inject(BracketApiService);
   private formBuilder = inject(FormBuilder);
   form: FormGroup = this.buildForm();
   bracketData = signal<TreeNode<MatchData>[]>([]);
@@ -40,6 +46,8 @@ export class BracketsComponent {
   hoveredSlot = signal<MatchData | null>(null);
   remainingPairsToBePlaced = signal<Pair[]>([]);
   pairsPlaced = signal<Pair[]>([]);
+  isLoadingState = signal<boolean>(true);
+  isSaving = signal<boolean>(false);
 
   chartContainer = viewChild<ElementRef<HTMLElement>>('chartContainer');
   private chartNaturalWidth = signal(0);
@@ -90,6 +98,62 @@ export class BracketsComponent {
       });
       this.availableNumberOfTopSeeds.set(this.bracketService.getAvailableNumberOfTopSeedsFromNumberOfPairs(nbPairs));
       this.bracketData.set(this.bracketService.buildBracketData(bracketDimension));
+    });
+
+    effect(() => {
+      const tournament = this.tournament();
+      untracked(() => this.loadBracketState(tournament.id));
+    });
+  }
+
+  private loadBracketState(tournamentId: number): void {
+    this.bracketApiService.getBracketState(tournamentId).subscribe({
+      next: (state) => {
+        if (state) this.applyBracketState(state);
+        this.isLoadingState.set(false);
+      },
+      error: () => this.isLoadingState.set(false),
+    });
+  }
+
+  private applyBracketState(state: BracketStateResponse): void {
+    const newBracketData = this.bracketService.buildBracketData(state.dimension);
+    for (const slot of state.slots) {
+      const node = this.findNode(newBracketData, slot.slot_title);
+      if (node?.data) node.data.pair = slot.pair;
+    }
+    this.form.patchValue(
+      { bracketDimension: state.dimension, nbTopSeeds: state.nb_top_seeds },
+      { emitEvent: false }
+    );
+    this.bracketData.set(newBracketData);
+    this.pairsPlaced.set(state.slots.map(slot => slot.pair));
+  }
+
+  private serializeBracketData(): BracketSlotPayload[] {
+    const slots: BracketSlotPayload[] = [];
+    const traverse = (nodes: TreeNode<MatchData>[]) => {
+      for (const node of nodes) {
+        if (node.data?.pair?.id) {
+          slots.push({ slot_title: node.data.title, pair_id: node.data.pair.id });
+        }
+        if (node.children) traverse(node.children as TreeNode<MatchData>[]);
+      }
+    };
+    traverse(this.bracketData());
+    return slots;
+  }
+
+  saveBracket(): void {
+    this.isSaving.set(true);
+    const payload: BracketStatePayload = {
+      dimension: this.form.value.bracketDimension,
+      nb_top_seeds: this.form.value.nbTopSeeds,
+      slots: this.serializeBracketData(),
+    };
+    this.bracketApiService.saveBracketState(this.tournament().id, payload).subscribe({
+      next: () => this.isSaving.set(false),
+      error: () => this.isSaving.set(false),
     });
   }
 

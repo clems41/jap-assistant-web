@@ -57,63 +57,64 @@ describe('BracketService', () => {
 
   // -------------------------------------------------------------------------
   // buildBracketData(8)
+  // Root: "Gagnant" → R2 (×2) → R4 (×4) → R8 (×8) — 15 nodes total
   // -------------------------------------------------------------------------
 
   describe('buildBracketData(8)', () => {
     let result: TreeNode<MatchData>[];
-    let finale: TreeNode<MatchData>;
+    let root: TreeNode<MatchData>;
 
     beforeEach(() => {
       result = service.buildBracketData(8);
-      finale = result[0];
+      root = result[0];
     });
 
     it('should return an array with a single root node', () => {
       expect(result.length).toBe(1);
     });
 
-    it('should set the root node title to "Finale"', () => {
-      expect(finale.data?.['title']).toBe('Finale');
+    it('should set the root node title to "Gagnant"', () => {
+      expect(root.data?.['title']).toBe('Gagnant');
     });
 
-    it('should have 2 demi-finale children at depth 1', () => {
-      const demies = nodesAtDepth(finale, 1);
-      expect(demies.length).toBe(2);
-      expect(demies[0].data?.['title']).toBe('Demie #1');
-      expect(demies[1].data?.['title']).toBe('Demie #2');
+    it('should have 2 R2 children at depth 1', () => {
+      const r2 = nodesAtDepth(root, 1);
+      expect(r2.length).toBe(2);
+      expect(r2[0].data?.['title']).toBe('R2 #1');
+      expect(r2[1].data?.['title']).toBe('R2 #2');
     });
 
-    it('should have 4 quart-de-finale children at depth 2', () => {
-      const quarts = nodesAtDepth(finale, 2);
-      expect(quarts.length).toBe(4);
-      expect(quarts[0].data?.['title']).toBe('Quart #1');
-      expect(quarts[3].data?.['title']).toBe('Quart #4');
+    it('should have 4 R4 nodes at depth 2', () => {
+      const r4 = nodesAtDepth(root, 2);
+      expect(r4.length).toBe(4);
+      expect(r4[0].data?.['title']).toBe('R4 #1');
+      expect(r4[3].data?.['title']).toBe('R4 #4');
     });
 
-    it('should not have huitième nodes (quarts have no children)', () => {
-      const quarts = nodesAtDepth(finale, 2);
-      for (const quart of quarts) {
-        expect((quart.children ?? []).length).toBe(0);
+    it('should have 8 R8 leaf nodes at depth 3', () => {
+      const r8 = nodesAtDepth(root, 3);
+      expect(r8.length).toBe(8);
+      expect(r8[0].data?.['title']).toBe('R8 #1');
+      expect(r8[7].data?.['title']).toBe('R8 #8');
+    });
+
+    it('should not include any R16 nodes', () => {
+      const all = collectAllNodes(result);
+      const r16 = all.filter((n) => n.data?.['title'].startsWith('R16'));
+      expect(r16.length).toBe(0);
+    });
+
+    it('should not have children on R8 leaf nodes', () => {
+      const r8 = nodesAtDepth(root, 3);
+      for (const node of r8) {
+        expect((node.children ?? []).length).toBe(0);
       }
     });
 
-    it('should not include any 1/16ème nodes', () => {
-      const all = collectAllNodes(result);
-      const seiziemes = all.filter((n) => n.data?.['title'].startsWith('1/16ème'));
-      expect(seiziemes.length).toBe(0);
-    });
-
-    it('should not include any 1/8ème nodes', () => {
-      const all = collectAllNodes(result);
-      const huitiemes = all.filter((n) => n.data?.['title'].startsWith('1/8ème'));
-      expect(huitiemes.length).toBe(0);
-    });
-
-    it('should initialize pair1 and pair2 as empty Pair on all nodes', () => {
+    it('should initialize pair as an empty object on all nodes', () => {
       const all = collectAllNodes(result);
       for (const node of all) {
-        expect(node.data?.pair1.id).toBeUndefined();
-        expect(node.data?.pair2.id).toBeUndefined();
+        expect(node.data?.pair?.['id']).toBeUndefined();
       }
     });
 
@@ -124,82 +125,10 @@ describe('BracketService', () => {
       }
     });
 
-    it('should set type to "match" on all nodes', () => {
+    it('should set type to "pair" on all nodes', () => {
       const all = collectAllNodes(result);
       for (const node of all) {
-        expect(node.type).toBe('match');
-      }
-    });
-
-    it('should produce a total of 7 nodes (1 finale + 2 demies + 4 quarts)', () => {
-      const all = collectAllNodes(result);
-      expect(all.length).toBe(7);
-    });
-  });
-
-  // -------------------------------------------------------------------------
-  // buildBracketData(16)
-  // -------------------------------------------------------------------------
-
-  describe('buildBracketData(16)', () => {
-    let result: TreeNode<MatchData>[];
-    let finale: TreeNode<MatchData>;
-
-    beforeEach(() => {
-      result = service.buildBracketData(16);
-      finale = result[0];
-    });
-
-    it('should return an array with a single root node', () => {
-      expect(result.length).toBe(1);
-    });
-
-    it('should set the root node title to "Finale"', () => {
-      expect(finale.data?.['title']).toBe('Finale');
-    });
-
-    it('should have 2 demi-finale children at depth 1', () => {
-      const demies = nodesAtDepth(finale, 1);
-      expect(demies.length).toBe(2);
-    });
-
-    it('should have 4 quart-de-finale nodes at depth 2', () => {
-      const quarts = nodesAtDepth(finale, 2);
-      expect(quarts.length).toBe(4);
-    });
-
-    it('should have 8 huitième-de-finale nodes at depth 3', () => {
-      const huitiemes = nodesAtDepth(finale, 3);
-      expect(huitiemes.length).toBe(8);
-      expect(huitiemes[0].data?.['title']).toBe('1/8ème #1');
-      expect(huitiemes[2].data?.['title']).toBe('1/8ème #3');
-    });
-
-    it('should not include any 1/16ème nodes', () => {
-      const all = collectAllNodes(result);
-      const seiziemes = all.filter((n) => n.data?.['title'].startsWith('1/16ème'));
-      expect(seiziemes.length).toBe(0);
-    });
-
-    it('should not have children on huitième nodes', () => {
-      const huitiemes = nodesAtDepth(finale, 3);
-      for (const h of huitiemes) {
-        expect((h.children ?? []).length).toBe(0);
-      }
-    });
-
-    it('should initialize pair1 and pair2 as empty Pair on all nodes', () => {
-      const all = collectAllNodes(result);
-      for (const node of all) {
-        expect(node.data?.pair1.id).toBeUndefined();
-        expect(node.data?.pair2.id).toBeUndefined();
-      }
-    });
-
-    it('should set expanded to true on all nodes', () => {
-      const all = collectAllNodes(result);
-      for (const node of all) {
-        expect(node.expanded).toBeTrue();
+        expect(node.type).toBe('pair');
       }
     });
 
@@ -210,60 +139,67 @@ describe('BracketService', () => {
   });
 
   // -------------------------------------------------------------------------
-  // buildBracketData(32)
+  // buildBracketData(16)
+  // Root → R2 (×2) → R4 (×4) → R8 (×8) → R16 (×16) — 31 nodes total
   // -------------------------------------------------------------------------
 
-  describe('buildBracketData(32)', () => {
+  describe('buildBracketData(16)', () => {
     let result: TreeNode<MatchData>[];
-    let finale: TreeNode<MatchData>;
+    let root: TreeNode<MatchData>;
 
     beforeEach(() => {
-      result = service.buildBracketData(32);
-      finale = result[0];
+      result = service.buildBracketData(16);
+      root = result[0];
     });
 
     it('should return an array with a single root node', () => {
       expect(result.length).toBe(1);
     });
 
-    it('should set the root node title to "Finale"', () => {
-      expect(finale.data?.['title']).toBe('Finale');
+    it('should set the root node title to "Gagnant"', () => {
+      expect(root.data?.['title']).toBe('Gagnant');
     });
 
-    it('should have 2 demi-finale children at depth 1', () => {
-      const demies = nodesAtDepth(finale, 1);
-      expect(demies.length).toBe(2);
+    it('should have 2 R2 children at depth 1', () => {
+      const r2 = nodesAtDepth(root, 1);
+      expect(r2.length).toBe(2);
     });
 
-    it('should have 4 quart-de-finale nodes at depth 2', () => {
-      const quarts = nodesAtDepth(finale, 2);
-      expect(quarts.length).toBe(4);
+    it('should have 4 R4 nodes at depth 2', () => {
+      const r4 = nodesAtDepth(root, 2);
+      expect(r4.length).toBe(4);
     });
 
-    it('should have 8 huitième-de-finale nodes at depth 3', () => {
-      const huitiemes = nodesAtDepth(finale, 3);
-      expect(huitiemes.length).toBe(8);
+    it('should have 8 R8 nodes at depth 3', () => {
+      const r8 = nodesAtDepth(root, 3);
+      expect(r8.length).toBe(8);
+      expect(r8[0].data?.['title']).toBe('R8 #1');
+      expect(r8[2].data?.['title']).toBe('R8 #3');
     });
 
-    it('should have 16 seizième-de-finale nodes at depth 4', () => {
-      const seiziemes = nodesAtDepth(finale, 4);
-      expect(seiziemes.length).toBe(16);
-      expect(seiziemes[0].data?.['title']).toBe('1/16ème #1');
-      expect(seiziemes[15].data?.['title']).toBe('1/16ème #16');
+    it('should have 16 R16 leaf nodes at depth 4', () => {
+      const r16 = nodesAtDepth(root, 4);
+      expect(r16.length).toBe(16);
+      expect(r16[0].data?.['title']).toBe('R16 #1');
     });
 
-    it('should not have children on seizième nodes', () => {
-      const seiziemes = nodesAtDepth(finale, 4);
-      for (const s of seiziemes) {
-        expect((s.children ?? []).length).toBe(0);
+    it('should not include any R32 nodes', () => {
+      const all = collectAllNodes(result);
+      const r32 = all.filter((n) => n.data?.['title'].startsWith('R32'));
+      expect(r32.length).toBe(0);
+    });
+
+    it('should not have children on R16 leaf nodes', () => {
+      const r16 = nodesAtDepth(root, 4);
+      for (const h of r16) {
+        expect((h.children ?? []).length).toBe(0);
       }
     });
 
-    it('should initialize pair1 and pair2 as empty Pair on all nodes', () => {
+    it('should initialize pair as an empty object on all nodes', () => {
       const all = collectAllNodes(result);
       for (const node of all) {
-        expect(node.data?.pair1.id).toBeUndefined();
-        expect(node.data?.pair2.id).toBeUndefined();
+        expect(node.data?.pair?.['id']).toBeUndefined();
       }
     });
 
@@ -274,16 +210,92 @@ describe('BracketService', () => {
       }
     });
 
-    it('should set type to "match" on all nodes', () => {
-      const all = collectAllNodes(result);
-      for (const node of all) {
-        expect(node.type).toBe('match');
-      }
-    });
-
     it('should produce a total of 31 nodes (1 + 2 + 4 + 8 + 16)', () => {
       const all = collectAllNodes(result);
       expect(all.length).toBe(31);
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // buildBracketData(32)
+  // Root → R2 (×2) → R4 (×4) → R8 (×8) → R16 (×16) → R32 (×32) — 63 nodes
+  // -------------------------------------------------------------------------
+
+  describe('buildBracketData(32)', () => {
+    let result: TreeNode<MatchData>[];
+    let root: TreeNode<MatchData>;
+
+    beforeEach(() => {
+      result = service.buildBracketData(32);
+      root = result[0];
+    });
+
+    it('should return an array with a single root node', () => {
+      expect(result.length).toBe(1);
+    });
+
+    it('should set the root node title to "Gagnant"', () => {
+      expect(root.data?.['title']).toBe('Gagnant');
+    });
+
+    it('should have 2 R2 children at depth 1', () => {
+      const r2 = nodesAtDepth(root, 1);
+      expect(r2.length).toBe(2);
+    });
+
+    it('should have 4 R4 nodes at depth 2', () => {
+      const r4 = nodesAtDepth(root, 2);
+      expect(r4.length).toBe(4);
+    });
+
+    it('should have 8 R8 nodes at depth 3', () => {
+      const r8 = nodesAtDepth(root, 3);
+      expect(r8.length).toBe(8);
+    });
+
+    it('should have 16 R16 nodes at depth 4', () => {
+      const r16 = nodesAtDepth(root, 4);
+      expect(r16.length).toBe(16);
+    });
+
+    it('should have 32 R32 leaf nodes at depth 5', () => {
+      const r32 = nodesAtDepth(root, 5);
+      expect(r32.length).toBe(32);
+      expect(r32[0].data?.['title']).toBe('R32 #1');
+      expect(r32[15].data?.['title']).toBe('R32 #16');
+    });
+
+    it('should not have children on R32 leaf nodes', () => {
+      const r32 = nodesAtDepth(root, 5);
+      for (const s of r32) {
+        expect((s.children ?? []).length).toBe(0);
+      }
+    });
+
+    it('should initialize pair as an empty object on all nodes', () => {
+      const all = collectAllNodes(result);
+      for (const node of all) {
+        expect(node.data?.pair?.['id']).toBeUndefined();
+      }
+    });
+
+    it('should set expanded to true on all nodes', () => {
+      const all = collectAllNodes(result);
+      for (const node of all) {
+        expect(node.expanded).toBeTrue();
+      }
+    });
+
+    it('should set type to "pair" on all nodes', () => {
+      const all = collectAllNodes(result);
+      for (const node of all) {
+        expect(node.type).toBe('pair');
+      }
+    });
+
+    it('should produce a total of 63 nodes (1 + 2 + 4 + 8 + 16 + 32)', () => {
+      const all = collectAllNodes(result);
+      expect(all.length).toBe(63);
     });
   });
 
@@ -365,27 +377,27 @@ describe('BracketService', () => {
   // -------------------------------------------------------------------------
 
   describe('node title formatting', () => {
-    it('should label quart nodes as "Quart #N" with 1-based index', () => {
+    it('should label R4 nodes as "R4 #N" with 1-based index', () => {
       const result = service.buildBracketData(8);
-      const quarts = nodesAtDepth(result[0], 2);
-      expect(quarts.map((n) => n.data?.['title'])).toEqual([
-        'Quart #1',
-        'Quart #2',
-        'Quart #3',
-        'Quart #4',
+      const r4 = nodesAtDepth(result[0], 2);
+      expect(r4.map((n) => n.data?.['title'])).toEqual([
+        'R4 #1',
+        'R4 #2',
+        'R4 #3',
+        'R4 #4',
       ]);
     });
 
-    it('should label huitième nodes as "1/8ème #N" with 1-based index', () => {
+    it('should label R8 nodes as "R8 #N" with 1-based index', () => {
       const result = service.buildBracketData(16);
-      const huitiemes = nodesAtDepth(result[0], 3);
-      expect(huitiemes[2].data?.['title']).toBe('1/8ème #3');
+      const r8 = nodesAtDepth(result[0], 3);
+      expect(r8[2].data?.['title']).toBe('R8 #3');
     });
 
-    it('should label seizième nodes as "1/16ème #N" with 1-based index', () => {
+    it('should label R16 nodes as "R16 #N" with 1-based index', () => {
       const result = service.buildBracketData(32);
-      const seiziemes = nodesAtDepth(result[0], 4);
-      expect(seiziemes[7].data?.['title']).toBe('1/16ème #8');
+      const r16 = nodesAtDepth(result[0], 4);
+      expect(r16[7].data?.['title']).toBe('R16 #8');
     });
   });
 
@@ -394,32 +406,32 @@ describe('BracketService', () => {
   // -------------------------------------------------------------------------
 
   describe('parent-child wiring', () => {
-    it('should wire demie children so demie #1 owns quart #1 and quart #2', () => {
+    it('should wire R2 #1 children to R4 #1 and R4 #2', () => {
       const result = service.buildBracketData(8);
-      const finale = result[0];
-      const demie1 = (finale.children as TreeNode<MatchData>[])[0];
-      const demie1Children = demie1.children as TreeNode<MatchData>[];
-      expect(demie1Children[0].data?.['title']).toBe('Quart #1');
-      expect(demie1Children[1].data?.['title']).toBe('Quart #2');
+      const root = result[0];
+      const r2_1 = (root.children as TreeNode<MatchData>[])[0];
+      const r2_1Children = r2_1.children as TreeNode<MatchData>[];
+      expect(r2_1Children[0].data?.['title']).toBe('R4 #1');
+      expect(r2_1Children[1].data?.['title']).toBe('R4 #2');
     });
 
-    it('should wire demie children so demie #2 owns quart #3 and quart #4', () => {
+    it('should wire R2 #2 children to R4 #3 and R4 #4', () => {
       const result = service.buildBracketData(8);
-      const finale = result[0];
-      const demie2 = (finale.children as TreeNode<MatchData>[])[1];
-      const demie2Children = demie2.children as TreeNode<MatchData>[];
-      expect(demie2Children[0].data?.['title']).toBe('Quart #3');
-      expect(demie2Children[1].data?.['title']).toBe('Quart #4');
+      const root = result[0];
+      const r2_2 = (root.children as TreeNode<MatchData>[])[1];
+      const r2_2Children = r2_2.children as TreeNode<MatchData>[];
+      expect(r2_2Children[0].data?.['title']).toBe('R4 #3');
+      expect(r2_2Children[1].data?.['title']).toBe('R4 #4');
     });
 
-    it('should wire quart #1 children to huitième #1 and huitième #2 for dim=16', () => {
+    it('should wire R4 #1 children to R8 #1 and R8 #2 for dim=16', () => {
       const result = service.buildBracketData(16);
-      const finale = result[0];
-      const demie1 = (finale.children as TreeNode<MatchData>[])[0];
-      const quart1 = (demie1.children as TreeNode<MatchData>[])[0];
-      const quart1Children = quart1.children as TreeNode<MatchData>[];
-      expect(quart1Children[0].data?.['title']).toBe('1/8ème #1');
-      expect(quart1Children[1].data?.['title']).toBe('1/8ème #2');
+      const root = result[0];
+      const r2_1 = (root.children as TreeNode<MatchData>[])[0];
+      const r4_1 = (r2_1.children as TreeNode<MatchData>[])[0];
+      const r4_1Children = r4_1.children as TreeNode<MatchData>[];
+      expect(r4_1Children[0].data?.['title']).toBe('R8 #1');
+      expect(r4_1Children[1].data?.['title']).toBe('R8 #2');
     });
   });
 });

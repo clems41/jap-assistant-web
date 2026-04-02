@@ -4,7 +4,12 @@
   <div class="flex-1 min-w-0">
 
     <!-- Scroll container -->
-    <div class="relative overflow-x-auto overflow-y-auto rounded-xl border border-contrast-15" style="max-height: calc(100vh - 250px)">
+    @if (isLoadingState()) {
+      <div class="flex items-center justify-center rounded-xl border border-contrast-15" style="height: calc(100vh - 250px)">
+        <p-progress-spinner strokeWidth="4" styleClass="w-12 h-12" />
+      </div>
+    }
+    <div class="relative overflow-x-auto overflow-y-auto rounded-xl border border-contrast-15" [class.hidden]="isLoadingState()" style="max-height: calc(100vh - 250px)">
 
       <!-- En-têtes des tours (sticky top, largeur = largeur visuelle du tableau) -->
       <div
@@ -50,6 +55,16 @@
             />
           </div>
         </form>
+
+        <p-button
+          label="Enregistrer"
+          icon="pi pi-save"
+          [loading]="isSaving()"
+          [disabled]="isLoadingState()"
+          (onClick)="saveBracket()"
+          size="small"
+          styleClass="w-full"
+        />
       </div>
 
       <div

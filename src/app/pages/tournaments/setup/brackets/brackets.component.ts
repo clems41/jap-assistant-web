@@ -37,7 +37,7 @@ export class BracketsComponent {
   availableNumberOfTopSeeds = signal<number[]>([]);
   selectedPair = signal<Pair | null>(null);
   isDragging = computed(() => this.selectedPair() !== null);
-  hoveredSlot = signal<{ title: string; slot: 'pair1' | 'pair2' } | null>(null);
+  hoveredSlot = signal<MatchData | null>(null);
   remainingPairsToBePlaced = signal<Pair[]>([]);
   pairsPlaced = signal<Pair[]>([]);
 
@@ -113,9 +113,9 @@ export class BracketsComponent {
     this.hoveredSlot.set(null);
   }
 
-  dragEnterSlot(matchData: MatchData, slot: 'pair1' | 'pair2'): void {
-    if (!matchData[slot].id) {
-      this.hoveredSlot.set({ title: matchData.title, slot });
+  dragEnterSlot(matchData: MatchData): void {
+    if (!matchData.pair?.id) {
+      this.hoveredSlot.set({ title: matchData.title, pair: matchData.pair, disabled: false });
     }
   }
 
@@ -123,21 +123,21 @@ export class BracketsComponent {
     this.hoveredSlot.set(null);
   }
 
-  isSlotHovered(matchData: MatchData, slot: 'pair1' | 'pair2'): boolean {
+  isSlotHovered(matchData: MatchData): boolean {
     const h = this.hoveredSlot();
-    return h?.title === matchData.title && h?.slot === slot;
+    return h !== null && h.title === matchData.title;
   }
 
-  dropOnSlot(matchData: MatchData, slot: 'pair1' | 'pair2'): void {
+  dropOnSlot(matchData: MatchData): void {
     const selectedPair = this.selectedPair();
     if (!selectedPair) return;
-    if (matchData[slot].id) return;
+    if (matchData.pair?.id) return;
 
     const bracketData = structuredClone(this.bracketData());
     const node = this.findNode(bracketData, matchData.title);
     if (!node?.data) return;
 
-    node.data[slot] = selectedPair;
+    node.data.pair = selectedPair;
 
     this.bracketData.set(bracketData);
     this.pairsPlaced.set([...this.pairsPlaced(), selectedPair]);
@@ -145,12 +145,8 @@ export class BracketsComponent {
     this.hoveredSlot.set(null);
   }
 
-  isMatchFull(matchData: MatchData): boolean {
-    return !!matchData.pair1.id && !!matchData.pair2.id;
-  }
-
-  isMatchEmpty(matchData: MatchData): boolean {
-    return !matchData.pair1.id && !matchData.pair2.id;
+  isPairAlreadyPlaced(matchData: MatchData): boolean {
+    return !!matchData.pair?.id;
   }
 
   private findNode(nodes: TreeNode<MatchData>[], title: string): TreeNode<MatchData> | null {

@@ -5,17 +5,19 @@ import {Pair} from '../models/pair.models';
 
 interface RoundConfig {
   label: string;
+  minDimension: number;
   count: number;
-  minDimension: BracketDimension;
 }
 
 @Injectable({providedIn: 'root'})
 export class BracketService {
   private readonly rounds: RoundConfig[] = [
-    {label: '1/16ème', count: 16, minDimension: 32},
-    {label: '1/8ème', count: 8, minDimension: 16},
-    {label: 'Quart', count: 4, minDimension: 8},
-    {label: 'Demie', count: 2, minDimension: 4},
+    {label: 'R64', minDimension: 33, count: 64},
+    {label: 'R32', minDimension: 17, count: 32},
+    {label: 'R16', minDimension: 9, count: 16},
+    {label: 'R8', minDimension: 5, count: 8},
+    {label: 'R4', minDimension: 3, count: 4},
+    {label: 'R2', minDimension: 2, count: 2},
   ];
 
   getAvailableNumberOfTopSeedsFromNumberOfPairs(nbPairs: number): number[] {
@@ -42,11 +44,11 @@ export class BracketService {
     return [
       {
         expanded: true,
-        type: 'match',
+        type: 'pair',
         data: {
-          title: 'Finale',
-          pair1: {} as Pair,
-          pair2: {} as Pair
+          title: 'Gagnant',
+          pair: {} as Pair,
+          disabled: false,
         },
         children: previousRound,
       },
@@ -60,8 +62,8 @@ export class BracketService {
   ): TreeNode<MatchData>[] {
     return Array.from({length: count}, (_, i) => ({
       expanded: true,
-      type: 'match' as const,
-      data: {title: `${label} #${i + 1}`, pair1: {} as Pair, pair2: {} as Pair},
+      type: 'pair' as const,
+      data: {title: `${label} #${i + 1}`, pair: {} as Pair, disabled: false},
       children:
         previousRound.length > 0
           ? [previousRound[i * 2], previousRound[i * 2 + 1]]

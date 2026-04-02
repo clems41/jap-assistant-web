@@ -9,7 +9,7 @@ import { Injectable, Injector, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import {Observable, EMPTY, throwError, switchMap, catchError, take, tap} from 'rxjs';
+import { Observable, EMPTY, throwError, switchMap, catchError, take, tap, finalize, map, shareReplay } from 'rxjs';
 import { Environment } from '../../../environments/environment.model';
 import { AuthService } from './auth.service';
 import {ENVIRONMENT} from '../core/tokens/environment.token';
@@ -39,6 +39,8 @@ export class HttpRequesterService {
   private injector = inject(Injector);
   private messageService = inject(MessageService);
   private environment = inject<Environment>(ENVIRONMENT);
+
+  private refreshInProgress$: Observable<string> | null = null;
 
   private get baseUrl(): string {
     return this.environment.apiBaseUrl;
@@ -118,34 +120,46 @@ export class HttpRequesterService {
     });
   }
 
-  private refreshAndRetry<T>(
-    retryFn: () => Observable<T>,
-  ): Observable<T> {
-    const refreshToken = this.getRefreshToken();
-    console.log('refreshAndRetry : ', refreshToken);
+  private getOrStartRefresh(): Observable<string> {
+    if (this.refreshInProgress$) {
+      return this.refreshInProgress$;
+    }
 
+    const refreshToken = this.getRefreshToken();
     if (!refreshToken) {
       this.injector.get(AuthService).logout();
       this.router.navigate(['/auth/login']);
       return EMPTY;
     }
 
-    return this.http
+    this.refreshInProgress$ = this.http
       .post<RefreshResponse>(`${this.baseUrl}/auth/token/refresh/`, {
         refresh: refreshToken,
       })
       .pipe(
         take(1),
-        switchMap((response) => {
+        map((response) => {
           this.setAccessToken(response.access_token);
-          return retryFn();
+          return response.access_token;
         }),
         catchError(() => {
           this.injector.get(AuthService).logout();
           this.router.navigate(['/auth/login']);
           return EMPTY;
         }),
+        finalize(() => {
+          this.refreshInProgress$ = null;
+        }),
+        shareReplay(1),
       );
+
+    return this.refreshInProgress$;
+  }
+
+  private refreshAndRetry<T>(retryFn: () => Observable<T>): Observable<T> {
+    return this.getOrStartRefresh().pipe(
+      switchMap(() => retryFn()),
+    );
   }
 
   private handleError<T>(

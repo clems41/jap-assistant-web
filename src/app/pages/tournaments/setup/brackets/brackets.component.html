@@ -98,6 +98,7 @@
               (onDrop)="dropOnSlot(node.data)"
               (onDragEnter)="dragEnterSlot(node.data)"
               (onDragLeave)="dragLeaveSlot()"
+              (click)="openScoreDialog(node)"
               [class.bg-contrast-5]="!isPairAlreadyPlaced(node.data) && !isDragging()"
               [class.bg-success-5]="isPairAlreadyPlaced(node.data)"
               [class.bg-primary-5]="isDragging() && !isPairAlreadyPlaced(node.data) && !isSlotHovered(node.data)"
@@ -107,7 +108,11 @@
               [class.ring-2]="isSlotHovered(node.data) || (isPairAlreadyPlaced(node.data) && getSeedNumber(node.data.pair!) !== null)"
               [class.ring-primary-100]="isSlotHovered(node.data)"
               [class.ring-contrast-100]="isPairAlreadyPlaced(node.data) && getSeedNumber(node.data.pair!) !== null"
-              [class.scale-105]="isSlotHovered(node.data)">
+              [class.scale-105]="isSlotHovered(node.data)"
+              [class.hover:cursor-pointer!]="canSetScore(node)"
+              [class.hover:bg-primary-30]="canSetScore(node)"
+              [class.bg-gris-50!]="isDisabled(node)"
+            >
               @if (isPairAlreadyPlaced(node.data) && getSeedNumber(node.data.pair!) !== null) {
                 <span
                   class="absolute top-0 left-0 -translate-y-1/2 -translate-x-1/2 z-10 w-5 h-5 rounded-full bg-contrast-100 text-blanc-100 text-xs font-bold flex items-center justify-center -rotate-90">
@@ -127,7 +132,7 @@
                   </button>
                 </div>
               } @else {
-                <span class="-rotate-90 text-body-light text-gris-50 italic">–</span>
+                <div class="-rotate-90 text-body-light text-gris-50 italic">–</div>
               }
             </div>
           </ng-template>
@@ -176,3 +181,47 @@
   </aside>
 
 </div>
+
+<p-dialog header="Saisie du score" [modal]="true" [visible]="scoreDialogVisible()"
+          (visibleChange)="closeScoreDialog()"
+          [style]="{ width: '50%' }">
+  <form [formGroup]="scoreForm" class="flex flex-col gap-5 w-full items-center p-4" (ngSubmit)="saveScore()">
+
+    <div class="flex flex-col w-full gap-2">
+      <label>Vainqueur</label>
+      <div class="flex flex-row gap-3 justify-center flex-wrap">
+        @for (child of selectNodeForScore()?.children; track child.data.pair.id) {
+          <span
+            class="cursor-pointer px-4 py-2 rounded-full border-2 text-body-medium transition-colors select-none"
+            [class.border-primary-100]="scoreForm.value.winner_pair_id === child.data.pair.id"
+            [class.bg-primary-15]="scoreForm.value.winner_pair_id === child.data.pair.id"
+            [class.text-primary-100]="scoreForm.value.winner_pair_id === child.data.pair.id"
+            [class.border-gris-50]="scoreForm.value.winner_pair_id !== child.data.pair.id"
+            [class.text-gris-100]="scoreForm.value.winner_pair_id !== child.data.pair.id"
+            (click)="scoreForm.controls['winner_pair_id'].setValue(child.data.pair.id)">
+            {{ getPairName(child.data.pair) }}
+          </span>
+        }
+      </div>
+    </div>
+
+    <div class="flex flex-col w-full">
+      <label for="game_format">Format de jeu</label>
+      <p-select [options]="availableGameFormats()" formControlName="game_format" optionLabel="label"
+                optionValue="value" inputId="game_format" appendTo="body"/>
+    </div>
+
+    <div class="flex flex-col w-full">
+      <label for="score">Score</label>
+      <input pInputText id="score" type="text" autocomplete="off" formControlName="score"/>
+    </div>
+
+    <div class="flex flex-row gap-3">
+      <p-button label="Annuler" icon="bi bi-x-circle" fluid=""
+                (click)="closeScoreDialog()" outlined="true"/>
+      <p-button label="Valider" icon="bi bi-check-circle" type="submit" fluid=""
+                [disabled]="scoreForm.invalid"/>
+    </div>
+
+  </form>
+</p-dialog>

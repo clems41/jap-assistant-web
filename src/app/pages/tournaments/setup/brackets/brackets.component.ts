@@ -16,6 +16,10 @@ import {DragDropModule} from 'primeng/dragdrop';
 import {MatchData, BracketStateResponse, BracketStatePayload, BracketSlotPayload} from '../../../../shared/models/bracket.models';
 import {NgIf} from '@angular/common';
 import {TooltipModule} from 'primeng/tooltip';
+import {DialogModule} from 'primeng/dialog';
+import {validScoreBasedOnGameFormat} from '../../../../shared/validators/form.validators';
+import {InputTextModule} from 'primeng/inputtext';
+import {EnumChoice} from '../../../../shared/models/base.models';
 
 @Component({
   selector: 'app-brackets',
@@ -28,6 +32,8 @@ import {TooltipModule} from 'primeng/tooltip';
     DragDropModule,
     NgIf,
     TooltipModule,
+    DialogModule,
+    InputTextModule,
   ],
   templateUrl: './brackets.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -35,6 +41,7 @@ import {TooltipModule} from 'primeng/tooltip';
 export class BracketsComponent {
   tournament = input.required<Tournament>();
   pairs = input.required<Pair[]>();
+  availableGameFormats = input.required<EnumChoice[]>();
 
   private destroyRef = inject(DestroyRef);
   private bracketService = inject(BracketService);
@@ -50,6 +57,9 @@ export class BracketsComponent {
   pairsPlaced = signal<Pair[]>([]);
   isLoadingState = signal<boolean>(true);
   isSaving = signal<boolean>(false);
+  scoreDialogVisible = signal<boolean>(false);
+  selectNodeForScore = signal<TreeNode | null>(null);
+  scoreForm: FormGroup = this.buildScoreForm();
 
   chartContainer = viewChild<ElementRef<HTMLElement>>('chartContainer');
   private chartNaturalWidth = signal(0);
@@ -104,7 +114,12 @@ export class BracketsComponent {
 
     effect(() => {
       const tournament = this.tournament();
-      untracked(() => this.loadBracketState(tournament.id));
+      untracked(() => {
+        this.loadBracketState(tournament.id);
+        this.scoreForm.patchValue({
+          game_format: tournament.game_format
+        });
+      });
     });
   }
 
@@ -121,10 +136,11 @@ export class BracketsComponent {
   private applyBracketState(state: BracketStateResponse): void {
     const newBracketData = this.bracketService.buildBracketData(state.dimension);
     for (const slot of state.slots) {
-      const node = this.findNode(newBracketData, slot.slot_title);
+      const node = this.bracketService.findNode(newBracketData, slot.slot_title);
       if (node?.data) {
         node.data.pair = slot.pair;
         node.data.score = slot.score;
+        node.data.game_format = slot.game_format;
       }
     }
     this.form.patchValue(
@@ -140,7 +156,8 @@ export class BracketsComponent {
     const traverse = (nodes: TreeNode<MatchData>[]) => {
       for (const node of nodes) {
         if (node.data?.pair?.id) {
-          slots.push({ slot_title: node.data.title, pair_id: node.data.pair.id, score: node.data.score });
+          slots.push({ slot_title: node.data.title, pair_id: node.data.pair.id, score: node.data.score,
+            game_format: node.data.game_format });
         }
         if (node.children) traverse(node.children as TreeNode<MatchData>[]);
       }
@@ -236,11 +253,64 @@ export class BracketsComponent {
       `${pair?.player1?.last_name.toUpperCase()} / ${pair?.player2?.last_name?.toUpperCase()}` : '---';
   }
 
+  canSetScore(node: TreeNode): boolean {
+    if (!node.children) return false
+    const childrenFilled = node.children.map(children => !!children.data.pair.id)
+    return childrenFilled.filter(filled => filled).length === 2;
+  }
+
+  saveScore(): void {
+    if (this.scoreForm.invalid) return
+    const {game_format, score, winner_pair_id} = this.scoreForm.value;
+    const winner_pair = this.pairs().find(pair => pair.id === winner_pair_id);
+    let selectedNode = this.selectNodeForScore();
+    if (!selectedNode) return;
+    const bracketData = structuredClone(this.bracketData());
+    const node = this.bracketService.findNode(bracketData, selectedNode.data.title);
+    if (!node?.data) return;
+
+    node.data.pair = winner_pair;
+    node.data.score = score;
+    node.data.game_format = game_format;
+
+    this.bracketData.set(bracketData);
+    this.closeScoreDialog();
+  }
+
+  isDisabled(node: TreeNode): boolean {
+    const bracketData = structuredClone(this.bracketData());
+    const parentNode = this.bracketService.findParent(bracketData, node.data.title);
+    return !!parentNode && !node.data.pair.id && !!parentNode.data?.pair?.id
+  }
+
+  openScoreDialog(node: TreeNode): void {
+    if (!this.canSetScore(node)) return
+    this.scoreDialogVisible.set(true);
+    this.selectNodeForScore.set(node);
+  }
+
+  closeScoreDialog(): void {
+    this.scoreDialogVisible.set(false);
+    this.selectNodeForScore.set(null);
+    const tournament = this.tournament();
+    this.scoreForm.reset({
+      game_format: tournament.game_format
+    });
+  }
+
   private buildForm() {
     return this.formBuilder.group({
       bracketDimension: [64, [Validators.required]],
       nbTopSeeds: [0, [Validators.required, Validators.min(1)]],
     })
+  }
+
+  private buildScoreForm() {
+    return this.formBuilder.group({
+      game_format: [null, [Validators.required]],
+      score: ['', [Validators.required]],
+      winner_pair_id: [null, [Validators.required]],
+    }, { validators: validScoreBasedOnGameFormat });
   }
 
   dragStart(pair: Pair) {
@@ -255,7 +325,7 @@ export class BracketsComponent {
 
   dragEnterSlot(matchData: MatchData): void {
     if (!matchData.pair?.id) {
-      this.hoveredSlot.set({ title: matchData.title, pair: matchData.pair, disabled: false });
+      this.hoveredSlot.set({ title: matchData.title, pair: matchData.pair });
     }
   }
 
@@ -274,7 +344,7 @@ export class BracketsComponent {
     if (matchData.pair?.id) return;
 
     const bracketData = structuredClone(this.bracketData());
-    const node = this.findNode(bracketData, matchData.title);
+    const node = this.bracketService.findNode(bracketData, matchData.title);
     if (!node?.data) return;
 
     node.data.pair = selectedPair;
@@ -294,22 +364,11 @@ export class BracketsComponent {
     if (!removedPair) return;
 
     const bracketData = structuredClone(this.bracketData());
-    const node = this.findNode(bracketData, matchData.title);
+    const node = this.bracketService.findNode(bracketData, matchData.title);
     if (!node?.data) return;
 
     node.data.pair = undefined;
     this.bracketData.set(bracketData);
     this.pairsPlaced.set(this.pairsPlaced().filter(p => p.id !== removedPair.id));
-  }
-
-  private findNode(nodes: TreeNode<MatchData>[], title: string): TreeNode<MatchData> | null {
-    for (const node of nodes) {
-      if (node.data?.title === title) return node;
-      if (node.children?.length) {
-        const found = this.findNode(node.children as TreeNode<MatchData>[], title);
-        if (found) return found;
-      }
-    }
-    return null;
   }
 }

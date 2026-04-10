@@ -20,6 +20,28 @@ export class BracketService {
     {label: 'R2', minDimension: 2, count: 2},
   ];
 
+  findNode(nodes: TreeNode<MatchData>[], title: string): TreeNode<MatchData> | null {
+    for (const node of nodes) {
+      if (node.data?.title === title) return node;
+      if (node.children?.length) {
+        const found = this.findNode(node.children as TreeNode<MatchData>[], title);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
+
+  findParent(nodes: TreeNode<MatchData>[], title: string): TreeNode<MatchData> | null {
+    for (const node of nodes) {
+      if (node.data?.title === title) return node;
+      if (node.children?.length) {
+        const found = this.findNode(node.children as TreeNode<MatchData>[], title);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
+
   getAvailableNumberOfTopSeedsFromNumberOfPairs(nbPairs: number): number[] {
     const min: number = Math.round(nbPairs / 8);
     const max: number = Math.round(nbPairs / 2);
@@ -48,7 +70,6 @@ export class BracketService {
         data: {
           title: 'Gagnant',
           pair: {} as Pair,
-          disabled: false,
         },
         children: previousRound,
       },

@@ -5,14 +5,15 @@ export type BracketDimension = 4 | 8 | 16 | 32 | 64;
 export interface MatchData {
   title: string;
   pair?: Pair;
-  disabled: boolean;
   score?: string;
+  game_format?: string;
 }
 
 export interface BracketSlotPayload {
   slot_title: string;
   pair_id: number;
   score?: string;
+  game_format?: string;
 }
 
 export interface BracketStatePayload {
@@ -25,6 +26,7 @@ export interface BracketSlotResponse {
   slot_title: string;
   pair: Pair;
   score?: string;
+  game_format?: string;
 }
 
 export interface BracketStateResponse {

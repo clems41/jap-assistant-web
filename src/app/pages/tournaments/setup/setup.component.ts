@@ -38,6 +38,7 @@ export class SetupComponent implements OnInit {
   genders = toSignal(this.tournamentService.getGenders(), {initialValue: []});
   categories = toSignal(this.tournamentService.getCategories(), {initialValue: []});
   leagues = toSignal(this.tournamentService.getLeagues(), {initialValue: []});
+  gameFormats = toSignal(this.tournamentService.getGameFormats(), {initialValue: []});
 
   ngOnInit() {
     this.loading.set(true);

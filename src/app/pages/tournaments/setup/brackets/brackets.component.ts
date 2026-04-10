@@ -15,6 +15,7 @@ import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/
 import {DragDropModule} from 'primeng/dragdrop';
 import {MatchData, BracketStateResponse, BracketStatePayload, BracketSlotPayload} from '../../../../shared/models/bracket.models';
 import {NgIf} from '@angular/common';
+import {TooltipModule} from 'primeng/tooltip';
 
 @Component({
   selector: 'app-brackets',
@@ -26,6 +27,7 @@ import {NgIf} from '@angular/common';
     ReactiveFormsModule,
     DragDropModule,
     NgIf,
+    TooltipModule,
   ],
   templateUrl: './brackets.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -120,7 +122,10 @@ export class BracketsComponent {
     const newBracketData = this.bracketService.buildBracketData(state.dimension);
     for (const slot of state.slots) {
       const node = this.findNode(newBracketData, slot.slot_title);
-      if (node?.data) node.data.pair = slot.pair;
+      if (node?.data) {
+        node.data.pair = slot.pair;
+        node.data.score = slot.score;
+      }
     }
     this.form.patchValue(
       { bracketDimension: state.dimension, nbTopSeeds: state.nb_top_seeds },
@@ -135,13 +140,74 @@ export class BracketsComponent {
     const traverse = (nodes: TreeNode<MatchData>[]) => {
       for (const node of nodes) {
         if (node.data?.pair?.id) {
-          slots.push({ slot_title: node.data.title, pair_id: node.data.pair.id });
+          slots.push({ slot_title: node.data.title, pair_id: node.data.pair.id, score: node.data.score });
         }
         if (node.children) traverse(node.children as TreeNode<MatchData>[]);
       }
     };
     traverse(this.bracketData());
     return slots;
+  }
+
+  printBracket(): void {
+    const chartEl = document.getElementById('bracket-chart');
+    if (!chartEl) return;
+
+    const filename = this.buildPrintFilename();
+
+    const styles = Array.from(document.styleSheets).reduce<string>((acc, sheet) => {
+      try {
+        return acc + Array.from(sheet.cssRules).map(r => r.cssText).join('\n');
+      } catch {
+        return acc;
+      }
+    }, '');
+
+    const pw = window.open('', '_blank', 'width=1200,height=900');
+    if (!pw) return;
+
+    pw.document.write(`<!DOCTYPE html>
+<html lang="fr-FR">
+<head>
+  <meta charset="utf-8">
+  <title>${filename}</title>
+  <style>
+    ${styles}
+    @page { size: A4 landscape; margin: 10mm; }
+    html, body { margin: 0; padding: 0; background: white; height: 100%; overflow: hidden; }
+    body { display: flex; align-items: center; justify-content: center; }
+    #bracket-chart { margin: 0 !important; }
+  </style>
+</head>
+<body>
+  ${chartEl.outerHTML}
+  <script>
+    window.addEventListener('load', function () {
+      var el = document.getElementById('bracket-chart');
+      if (el) {
+        el.style.margin = '0';
+        var rect = el.getBoundingClientRect();
+        var availW = 1047, availH = 718;
+        var scale = Math.min(availW / (rect.width || availW), availH / (rect.height || availH));
+        if (scale < 1) { el.style.zoom = scale.toString(); }
+      }
+      setTimeout(function () { window.print(); window.close(); }, 300);
+    });
+  </script>
+</body>
+</html>`);
+    pw.document.close();
+  }
+
+  private buildPrintFilename(): string {
+    const t = this.tournament();
+    const sanitize = (s: string) => s.replace(/[^a-zA-Z0-9\u00C0-\u017E]/g, '_');
+    const name = sanitize(t.name ?? 'tournoi');
+    const category = sanitize(t.category ?? '');
+    const date = t.start_date
+      ? new Date(t.start_date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-')
+      : '';
+    return [name, category, date].filter(Boolean).join('_');
   }
 
   saveBracket(): void {

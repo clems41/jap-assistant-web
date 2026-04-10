@@ -56,19 +56,31 @@
           </div>
         </form>
 
-        <p-button
-          label="Enregistrer"
-          icon="pi pi-save"
-          [loading]="isSaving()"
-          [disabled]="isLoadingState()"
-          (onClick)="saveBracket()"
-          size="small"
-          styleClass="w-full"
-        />
+        <div class="flex gap-2">
+          <p-button
+            label="Enregistrer"
+            icon="pi pi-save"
+            [loading]="isSaving()"
+            [disabled]="isLoadingState()"
+            (onClick)="saveBracket()"
+            size="small"
+            styleClass="flex-1"
+          />
+          <p-button
+            icon="pi pi-print"
+            [disabled]="isLoadingState()"
+            (onClick)="printBracket()"
+            size="small"
+            severity="secondary"
+            pTooltip="Imprimer le tableau"
+            tooltipPosition="bottom"
+          />
+        </div>
       </div>
 
       <div
         #chartContainer
+        id="bracket-chart"
         class="rotate-90 origin-center"
         [style.margin-top.px]="chartMargin()"
         [style.margin-bottom.px]="chartMargin()"

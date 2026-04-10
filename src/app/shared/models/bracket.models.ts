@@ -6,11 +6,13 @@ export interface MatchData {
   title: string;
   pair?: Pair;
   disabled: boolean;
+  score?: string;
 }
 
 export interface BracketSlotPayload {
   slot_title: string;
   pair_id: number;
+  score?: string;
 }
 
 export interface BracketStatePayload {
@@ -22,6 +24,7 @@ export interface BracketStatePayload {
 export interface BracketSlotResponse {
   slot_title: string;
   pair: Pair;
+  score?: string;
 }
 
 export interface BracketStateResponse {

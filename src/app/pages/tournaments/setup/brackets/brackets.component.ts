@@ -20,6 +20,7 @@ import {DialogModule} from 'primeng/dialog';
 import {validScoreBasedOnGameFormat} from '../../../../shared/validators/form.validators';
 import {InputTextModule} from 'primeng/inputtext';
 import {EnumChoice} from '../../../../shared/models/base.models';
+import {InputMask} from 'primeng/inputmask';
 
 @Component({
   selector: 'app-brackets',
@@ -34,6 +35,7 @@ import {EnumChoice} from '../../../../shared/models/base.models';
     TooltipModule,
     DialogModule,
     InputTextModule,
+    InputMask,
   ],
   templateUrl: './brackets.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush

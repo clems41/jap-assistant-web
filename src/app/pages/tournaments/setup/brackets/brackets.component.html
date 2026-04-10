@@ -1,15 +1,18 @@
-<div class="-mx-4 sm:-mx-20 md:-mx-40 lg:-mx-60 flex flex-col gap-4 md:flex-row md:gap-6 md:justify-center md:items-start">
+<div
+  class="-mx-4 sm:-mx-20 md:-mx-40 lg:-mx-60 flex flex-col gap-4 md:flex-row md:gap-6 md:justify-center md:items-start">
 
   <!-- ── Zone du tableau (organization chart) ───────────────────────── -->
   <div class="flex-1 min-w-0">
 
     <!-- Scroll container -->
     @if (isLoadingState()) {
-      <div class="flex items-center justify-center rounded-xl border border-contrast-15" style="height: calc(100vh - 250px)">
-        <p-progress-spinner strokeWidth="4" styleClass="w-12 h-12" />
+      <div class="flex items-center justify-center rounded-xl border border-contrast-15"
+           style="height: calc(100vh - 250px)">
+        <p-progress-spinner strokeWidth="4" styleClass="w-12 h-12"/>
       </div>
     }
-    <div class="relative overflow-x-auto overflow-y-auto rounded-xl border border-contrast-15" [class.hidden]="isLoadingState()" style="max-height: calc(100vh - 250px)">
+    <div class="relative overflow-x-auto overflow-y-auto rounded-xl border border-contrast-15"
+         [class.hidden]="isLoadingState()" style="max-height: calc(100vh - 250px)">
 
       <!-- En-têtes des tours (sticky top, largeur = largeur visuelle du tableau) -->
       <div
@@ -106,7 +109,8 @@
               [class.ring-contrast-100]="isPairAlreadyPlaced(node.data) && getSeedNumber(node.data.pair!) !== null"
               [class.scale-105]="isSlotHovered(node.data)">
               @if (isPairAlreadyPlaced(node.data) && getSeedNumber(node.data.pair!) !== null) {
-                <span class="absolute top-0 left-0 -translate-y-1/2 -translate-x-1/2 z-10 w-5 h-5 rounded-full bg-contrast-100 text-blanc-100 text-xs font-bold flex items-center justify-center -rotate-90">
+                <span
+                  class="absolute top-0 left-0 -translate-y-1/2 -translate-x-1/2 z-10 w-5 h-5 rounded-full bg-contrast-100 text-blanc-100 text-xs font-bold flex items-center justify-center -rotate-90">
                   {{ getSeedNumber(node.data.pair!) }}
                 </span>
               }
@@ -137,20 +141,14 @@
   <aside class="flex flex-col gap-4 shrink-0">
 
     <!-- Liste des paires restantes à placer -->
-    <div class="flex flex-col gap-2">
-      <div class="flex items-center justify-between">
-        <h3 class="text-body-medium text-gris-100">Paires à placer</h3>
-        <span class="text-body-light text-gris-80">
+    @if (remainingPairsToBePlaced().length !== 0) {
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center justify-between">
+          <h3 class="text-body-medium text-gris-100">Paires à placer</h3>
+          <span class="text-body-light text-gris-80">
           {{ remainingPairsToBePlaced().length }} / {{ pairs().length }}
         </span>
-      </div>
-
-      @if (remainingPairsToBePlaced().length === 0) {
-        <div class="rounded-xl border border-dashed border-success-50 bg-success-5 p-4 text-center">
-          <i class="bi bi-check-circle text-success-100 text-xl"></i>
-          <p class="text-body-light text-success-100 mt-1">Toutes les paires sont placées</p>
         </div>
-      } @else {
         <div class="flex flex-col gap-1">
           @for (pair of remainingPairsToBePlaced(); track pair.id) {
             <div
@@ -173,9 +171,8 @@
             </div>
           }
         </div>
-      }
-    </div>
-
+      </div>
+    }
   </aside>
 
 </div>

@@ -68,7 +68,6 @@ export class SetupComponent implements OnInit {
   }
 
   get tournamentContainsBracket(): boolean {
-    return ['TMC'].includes(this.tournament()?.configuration ?? '') &&
-      this.pairs()?.length > 0;
+    return ['TMC'].includes(this.tournament()?.configuration ?? '');
   }
 }

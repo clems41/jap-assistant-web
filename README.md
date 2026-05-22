@@ -57,3 +57,13 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+## TODO
+- afficher le score dans le tableau
+- débloquer le back pour pouvoir avoir plusieurs fois la même paire dans le tableau
+- pouvoir supprimer une paire gagnante pour saisir à nouveau le score
+- griser les noeuds qui ne peuvent plus être modifiés
+- Cliquer sur un nœud pour soit ajouter une paire de la liste, soit saisir un score et donc ajouter automatiquement une paire
+- Bouton 'Annuler' qui recharge la page pour retourner à la dernière version enregistrée
+- Ajout des tableaux de classement
+- Page 'Rotation' avec la liste des matchs à venir, el calcul des rotations et des estimations d'heure de convocation et de fin de tournoi

@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {TournamentService} from '../../../shared/services/tournament.service';
-import {Tournament} from '../../../shared/models/tournament.models';
+import {Tournament, TournamentStatus} from '../../../shared/models/tournament.models';
 import {TabsModule} from 'primeng/tabs';
 import {InfosComponent} from './infos/infos.component';
 import {PlayersComponent} from './players/players.component';
@@ -31,6 +31,8 @@ export class SetupComponent implements OnInit {
   private readonly pairService = inject(PairService);
 
   readonly tournamentId: number = Number(this.route.snapshot.paramMap.get('id'));
+
+  private readonly configurationThatContainsBrackets = ['TMC'];
   tournament = signal<Tournament | null>(null);
   pairs = signal<Pair[]>([]);
   loading = signal<boolean>(false);
@@ -68,6 +70,7 @@ export class SetupComponent implements OnInit {
   }
 
   get tournamentContainsBracket(): boolean {
-    return ['TMC'].includes(this.tournament()?.configuration ?? '');
+    return this.configurationThatContainsBrackets.includes(this.tournament()?.configuration ?? '') &&
+      this.tournament()?.status === TournamentStatus.SET;
   }
 }

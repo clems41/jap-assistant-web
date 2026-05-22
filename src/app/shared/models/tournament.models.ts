@@ -1,5 +1,13 @@
 import {PaginatedRequest} from './base.models';
 
+export enum TournamentStatus {
+  DRAFT = 'DRAFT',
+  SET = 'SET',
+  READY = 'READY',
+  STARTED = 'STARTED',
+  FINISHED = 'FINISHED'
+}
+
 export interface Tournament {
   id: number;
   owner: number;
@@ -9,6 +17,7 @@ export interface Tournament {
   location: string;
   league: string;
   gender: string;
+  status: TournamentStatus;
   game_format: string;
   configuration: string;
   estimated_match_duration: number;

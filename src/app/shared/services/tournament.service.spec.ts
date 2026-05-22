@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { HttpRequesterService } from './http-requester.service';
-import {Tournament, TournamentRequest} from '../models/tournament.models';
+import {Tournament, TournamentRequest, TournamentStatus} from '../models/tournament.models';
 import {EnumChoice, PaginatedResponse} from '../models/base.models';
 import {TournamentService} from './tournament.service';
 
@@ -18,6 +18,7 @@ const mockTournament: Tournament = {
   location: 'Lyon',
   league: 'Auvergne-Rhône-Alpes',
   gender: 'Homme',
+  status: TournamentStatus.DRAFT,
   game_format: 'AMERICAN',
   configuration: 'POULES',
   estimated_match_duration: 60,

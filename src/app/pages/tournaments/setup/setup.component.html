@@ -20,13 +20,16 @@
         <app-players
           [tournament]="t"
           [pairs]="pairs()"
-          (refreshPairs)="refreshPairs()"
+          (refreshPairs)="refreshTournamentAndPairs()"
         ></app-players>
       </p-tabpanel>
       <p-tabpanel value="settings">
         <app-settings
           [tournament]="t"
           (tournamentChange)="tournament.set($event)"
+          [availableGameFormats]="gameFormats()"
+          [availableGameFormatDurations]="gameFormatDurations()"
+          [availableConfigurations]="configurations()"
         ></app-settings>
       </p-tabpanel>
       <p-tabpanel value="brackets">

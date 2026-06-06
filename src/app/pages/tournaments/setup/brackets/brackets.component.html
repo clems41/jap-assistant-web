@@ -1,1 +1,16 @@
-<p>brackets works!</p>
+@let b = bracket();
+@if (bracketAlreadyGenerated() && b) {
+  <div class="relative">
+    <app-bracket-info
+      [bracket]="b">
+    </app-bracket-info>
+    <app-bracket-chart
+      [bracket]="b">
+    </app-bracket-chart>
+  </div>
+} @else {
+  <app-generate-bracket
+    [tournament]="tournament()"
+    (bracket)="bracketHasBeenGenerated($event)"
+  ></app-generate-bracket>
+}

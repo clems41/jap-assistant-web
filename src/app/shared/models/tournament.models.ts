@@ -21,8 +21,30 @@ export interface Tournament {
   game_format: string;
   configuration: string;
   estimated_match_duration: number;
+  pairs_count: number;
   created_at: string;
   updated_at: string;
+}
+
+export interface Bracket {
+  id: number;
+  dimension: number;
+  nb_top_seeds: number;
+  root_match: BracketMatch;
+}
+
+export interface BracketMatch {
+  id: number;
+  round: string;
+  round_display: string;
+  match_number: number;
+  pair1: number;
+  pair2: number;
+  game_format: string;
+  score: string;
+  child1: BracketMatch;
+  child2: BracketMatch;
+
 }
 
 export interface DurationByGameFormat {
@@ -53,6 +75,11 @@ export interface TournamentRequest {
   game_format?: string;
   configuration?: string;
   estimated_match_duration?: number;
+}
+
+export interface GenerateBracketRequest {
+  dimension: number;
+  nb_top_seeds: number;
 }
 
 export interface LastLeagueResponse {

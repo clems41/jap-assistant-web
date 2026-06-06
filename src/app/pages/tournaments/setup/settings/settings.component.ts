@@ -1,13 +1,14 @@
-import {ChangeDetectionStrategy, Component, effect, inject, model, signal, untracked} from '@angular/core';
-import {Tournament, TournamentRequest} from '../../../../shared/models/tournament.models';
+import {ChangeDetectionStrategy, Component, effect, inject, input, model, signal, untracked} from '@angular/core';
+import {DurationByGameFormat, Tournament, TournamentRequest} from '../../../../shared/models/tournament.models';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {SelectModule} from 'primeng/select';
-import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {TournamentService} from '../../../../shared/services/tournament.service';
 import {ButtonModule} from 'primeng/button';
 import {InputNumberModule} from 'primeng/inputnumber';
 import {LoadingSpinnerComponent} from '../../../../shared/components/loading-spinner/loading-spinner.component';
 import {TimeSlotsComponent} from './time-slots/time-slots.component';
+import {EnumChoice} from '../../../../shared/models/base.models';
 
 @Component({
   selector: 'app-settings',
@@ -24,18 +25,18 @@ import {TimeSlotsComponent} from './time-slots/time-slots.component';
 })
 export class SettingsComponent {
   tournament = model.required<Tournament>();
+  availableGameFormats = input.required<EnumChoice[]>();
+  availableConfigurations = input.required<EnumChoice[]>();
+  availableGameFormatDurations = input.required<DurationByGameFormat[]>();
   private readonly formBuilder = inject(FormBuilder);
   private readonly tournamentService = inject(TournamentService);
   configurationForm: FormGroup = this.buildConfigurationForm();
 
   loading = signal<boolean>(false);
-  availableGameFormats = toSignal(this.tournamentService.getGameFormats(), {initialValue: []});
-  availableConfigurations = toSignal(this.tournamentService.getConfigurations(), {initialValue: []});
-  gameFormatDurations = toSignal(this.tournamentService.getGameFormatDurations(), {initialValue: []});
 
   constructor() {
     this.configurationForm.get('game_format')?.valueChanges.pipe(takeUntilDestroyed()).subscribe(format => {
-      const gameFormatDuration = this.gameFormatDurations()
+      const gameFormatDuration = this.availableGameFormatDurations()
         .find(item => item.format === format);
       if (gameFormatDuration) {
         this.configurationForm.patchValue({

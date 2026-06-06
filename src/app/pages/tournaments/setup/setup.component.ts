@@ -41,8 +41,14 @@ export class SetupComponent implements OnInit {
   categories = toSignal(this.tournamentService.getCategories(), {initialValue: []});
   leagues = toSignal(this.tournamentService.getLeagues(), {initialValue: []});
   gameFormats = toSignal(this.tournamentService.getGameFormats(), {initialValue: []});
+  configurations = toSignal(this.tournamentService.getConfigurations(), {initialValue: []});
+  gameFormatDurations = toSignal(this.tournamentService.getGameFormatDurations(), {initialValue: []});
 
   ngOnInit() {
+    this.refreshTournamentAndPairs();
+  }
+
+  refreshTournamentAndPairs(): void {
     this.loading.set(true);
     this.tournamentService.getTournament(this.tournamentId)
       .subscribe({

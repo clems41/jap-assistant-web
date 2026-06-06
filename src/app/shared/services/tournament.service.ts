@@ -2,7 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, shareReplay } from 'rxjs';
 import { HttpRequesterService } from './http-requester.service';
 import {
-  DurationByGameFormat,
+  Bracket,
+  DurationByGameFormat, GenerateBracketRequest,
   LastLeagueResponse,
   PaginatedTournamentRequest, TimeSlot, TimeSlotRequest,
   Tournament,
@@ -30,6 +31,15 @@ export class TournamentService {
   /** POST /api/v1/tournaments/ */
   createTournament(input: TournamentRequest): Observable<Tournament> {
     return this.http.post<Tournament>('/tournaments', input);
+  }
+  /** GET /api/v1/tournaments/{id}/brackets/ */
+  getTournamentBracket(id: number): Observable<Bracket> {
+    return this.http.get<Bracket>(`/tournaments/${id}/bracket`, undefined, {show_error: false});
+  }
+
+  /** POST /api/v1/tournaments/{id}/brackets/ */
+  generateTournamentBracket(id: number, input: GenerateBracketRequest): Observable<Bracket> {
+    return this.http.post<Bracket>(`/tournaments/${id}/bracket`, input);
   }
 
   /** GET /api/v1/tournaments/{id}/ */

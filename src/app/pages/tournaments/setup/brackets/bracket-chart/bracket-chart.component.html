@@ -1,11 +1,124 @@
-<p>bracket-chart works!</p>
-<p>bracket-chart works!</p>
-<p>bracket-chart works!</p>
-<br>
-<br>
-<br>
-<br>
-<br>
+<div class="overflow-x-auto py-6 px-4">
+  <div class="relative" [style.width.px]="layout().totalWidth" [style.height.px]="layout().totalHeight">
 
-<p>bracket-chart works!</p>
-<p>bracket-chart works!</p>
+    <!-- SVG connectors -->
+    <svg class="absolute inset-0 overflow-visible pointer-events-none"
+         [attr.width]="layout().totalWidth"
+         [attr.height]="layout().totalHeight">
+      @for (c of layout().connectors; track c.id) {
+        <path [attr.d]="c.path"
+              fill="none"
+              stroke-width="2"
+              [attr.stroke]="c.isWinner ? 'var(--color-success-100)' : 'var(--color-gris-30)'" />
+      }
+    </svg>
+
+    <!-- Pair slots -->
+    @for (slot of layout().pairSlots; track slot.id) {
+      <div class="absolute flex items-center px-3 rounded-lg border transition-colors"
+           [style.left.px]="slot.x"
+           [style.top.px]="slot.y - PAIR_H / 2"
+           [style.width.px]="PAIR_W"
+           [style.height.px]="PAIR_H"
+           [class]="slot.isChampion
+             ? 'border-primary-100 bg-primary-5 shadow-md'
+             : slot.isWinner
+               ? 'border-success-30 bg-success-5'
+               : slot.pairId
+                 ? 'border-gris-15 bg-blanc-100'
+                 : 'border-dashed border-gris-30 bg-blanc-100'">
+        @if (slot.isChampion) {
+          <i class="bi bi-trophy-fill text-primary-100 mr-2 shrink-0"></i>
+        }
+        <span class="text-body-light truncate"
+              [class.text-primary-120]="slot.isChampion"
+              [class.font-semibold]="slot.isChampion"
+              [class.text-gris-30]="!slot.pairId && !slot.isChampion">
+          {{ slot.pairId ? getPairName(slot.pairId) : (slot.isChampion ? '—' : '') }}
+        </span>
+      </div>
+    }
+
+    <!-- Junction badges (match score, clickable) -->
+    @for (junction of layout().junctions; track junction.match.id) {
+      <button type="button"
+              class="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border
+                     bg-blanc-100 shadow-sm px-2 py-0.5 text-label text-gris-80
+                     min-w-12 text-center transition-colors cursor-pointer
+                     hover:border-primary-50 hover:text-primary-100 focus:outline-none"
+              [style.left.px]="junction.x"
+              [style.top.px]="junction.y"
+              [class.border-success-50]="junction.match.winner_id"
+              [class.border-gris-15]="!junction.match.winner_id"
+              [title]="junction.match.round_display + ' #' + junction.match.match_number"
+              (click)="onJunctionClick(junction)">
+        {{ junction.match.score || '+' }}
+      </button>
+    }
+
+  </div>
+</div>
+
+<!-- Score dialog -->
+<p-dialog
+  [visible]="!!selectedJunction()"
+  (visibleChange)="!$event && closeDialog()"
+  [header]="(selectedJunction()?.match?.round_display ?? '') + ' #' + (selectedJunction()?.match?.match_number ?? '')"
+  [modal]="true"
+  [style]="{width: '360px'}"
+  [draggable]="false">
+
+  @if (selectedJunction(); as junction) {
+    <form [formGroup]="scoreForm" class="flex flex-col gap-5">
+
+      <!-- Winner selection -->
+      <div class="flex flex-col gap-3">
+        <span class="text-label text-gris-80">Vainqueur</span>
+        <div class="flex flex-col gap-2">
+          @if (junction.match.pair1) {
+            <div class="flex items-center gap-3 p-3 rounded-lg border border-gris-15 cursor-pointer"
+                 [class.border-success-50]="scoreForm.get('winnerId')?.value === junction.match.pair1"
+                 [class.bg-success-5]="scoreForm.get('winnerId')?.value === junction.match.pair1"
+                 (click)="scoreForm.get('winnerId')?.setValue(junction.match.pair1)">
+              <p-radiobutton
+                name="winner"
+                [value]="junction.match.pair1"
+                formControlName="winnerId" />
+              <span class="text-body-regular">{{ getPairName(junction.match.pair1) }}</span>
+            </div>
+          }
+          @if (junction.match.pair2) {
+            <div class="flex items-center gap-3 p-3 rounded-lg border border-gris-15 cursor-pointer"
+                 [class.border-success-50]="scoreForm.get('winnerId')?.value === junction.match.pair2"
+                 [class.bg-success-5]="scoreForm.get('winnerId')?.value === junction.match.pair2"
+                 (click)="scoreForm.get('winnerId')?.setValue(junction.match.pair2)">
+              <p-radiobutton
+                name="winner"
+                [value]="junction.match.pair2"
+                formControlName="winnerId" />
+              <span class="text-body-regular">{{ getPairName(junction.match.pair2) }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Score input -->
+      <div class="flex flex-col gap-2">
+        <label for="score-input" class="text-label text-gris-80">Score</label>
+        <input id="score-input"
+               pInputText
+               formControlName="score"
+               placeholder="ex : 6-3 7-5"
+               class="w-full" />
+      </div>
+
+    </form>
+  }
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-2">
+      <p-button label="Annuler" severity="secondary" (onClick)="closeDialog()" />
+      <p-button label="Enregistrer" [disabled]="scoreForm.invalid" (onClick)="saveScore()" />
+    </div>
+  </ng-template>
+</p-dialog>

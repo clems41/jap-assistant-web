@@ -42,6 +42,7 @@ export interface BracketMatch {
   pair2: number;
   game_format: string;
   score: string;
+  winner_id: number;
   child1: BracketMatch;
   child2: BracketMatch;
 
@@ -80,6 +81,11 @@ export interface TournamentRequest {
 export interface GenerateBracketRequest {
   dimension: number;
   nb_top_seeds: number;
+}
+
+export interface ScoreRequest {
+  score: string;
+  winner_id: number;
 }
 
 export interface LastLeagueResponse {

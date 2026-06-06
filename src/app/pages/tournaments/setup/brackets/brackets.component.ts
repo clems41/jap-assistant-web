@@ -1,5 +1,5 @@
 import {Component, inject, input, OnInit, signal} from '@angular/core';
-import {Bracket, Tournament} from '../../../../shared/models/tournament.models';
+import {Bracket, ScoreRequest, Tournament} from '../../../../shared/models/tournament.models';
 import {EnumChoice} from '../../../../shared/models/base.models';
 import {Pair} from '../../../../shared/models/pair.models';
 import {TournamentService} from '../../../../shared/services/tournament.service';
@@ -31,7 +31,14 @@ export class BracketsComponent implements OnInit {
     this.loadBracket();
   }
 
-  private loadBracket(): void {
+  onScoreChanged(event: { matchId: number; score: string; winnerId: number }): void {
+    const req: ScoreRequest = { score: event.score, winner_id: event.winnerId };
+    this.tournamentService
+      .updateMatchScore(this.tournament().id, event.matchId, req)
+      .subscribe({ next: () => this.loadBracket() });
+  }
+
+  protected loadBracket(): void {
     this.loading.set(true);
     const tournament = this.tournament();
     this.tournamentService.getTournamentBracket(tournament.id)

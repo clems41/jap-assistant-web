@@ -3,9 +3,10 @@ import { Observable, shareReplay } from 'rxjs';
 import { HttpRequesterService } from './http-requester.service';
 import {
   Bracket,
+  BracketMatch,
   DurationByGameFormat, GenerateBracketRequest,
   LastLeagueResponse,
-  PaginatedTournamentRequest, TimeSlot, TimeSlotRequest,
+  PaginatedTournamentRequest, ScoreRequest, TimeSlot, TimeSlotRequest,
   Tournament,
   TournamentRequest,
 } from '../models/tournament.models';
@@ -40,6 +41,15 @@ export class TournamentService {
   /** POST /api/v1/tournaments/{id}/brackets/ */
   generateTournamentBracket(id: number, input: GenerateBracketRequest): Observable<Bracket> {
     return this.http.post<Bracket>(`/tournaments/${id}/bracket`, input);
+  }
+
+  /** PATCH /api/v1/tournaments/{id}/matches/{matchId}/score/ */
+  updateMatchScore(tournamentId: number, matchId: number, request: ScoreRequest): Observable<BracketMatch> {
+    return this.http.patch<BracketMatch>(
+      `/tournaments/${tournamentId}/matches/${matchId}/score`,
+      request,
+      { succes_message: 'Score enregistré' }
+    );
   }
 
   /** GET /api/v1/tournaments/{id}/ */

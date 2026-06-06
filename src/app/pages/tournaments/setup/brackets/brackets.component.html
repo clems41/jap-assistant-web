@@ -5,7 +5,9 @@
       [bracket]="b">
     </app-bracket-info>
     <app-bracket-chart
-      [bracket]="b">
+      [bracket]="b"
+      [pairs]="pairs()"
+      (scoreChanged)="onScoreChanged($event)">
     </app-bracket-chart>
   </div>
 } @else {

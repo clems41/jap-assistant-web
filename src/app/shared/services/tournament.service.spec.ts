@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { HttpRequesterService } from './http-requester.service';
-import {Tournament, TournamentRequest, TournamentStatus} from '../models/tournament.models';
+import {BracketMatch, ScoreRequest, Tournament, TournamentRequest, TournamentStatus} from '../models/tournament.models';
 import {EnumChoice, PaginatedResponse} from '../models/base.models';
 import {TournamentService} from './tournament.service';
 
@@ -22,6 +22,7 @@ const mockTournament: Tournament = {
   game_format: 'AMERICAN',
   configuration: 'POULES',
   estimated_match_duration: 60,
+  pairs_count: 0,
   created_at: '2026-01-01T00:00:00Z',
   updated_at: '2026-01-01T00:00:00Z',
 };
@@ -47,6 +48,20 @@ const mockEnumChoices: EnumChoice[] = [
   { value: 'P250', label: 'P250' },
 ];
 
+const mockBracketMatch: BracketMatch = {
+  id: 1,
+  round: 'FINALE',
+  round_display: 'Finale',
+  match_number: 1,
+  pair1: 1,
+  pair2: 2,
+  game_format: 'C1',
+  score: '6-3 6-4',
+  winner_id: 1,
+  child1: null as unknown as BracketMatch,
+  child2: null as unknown as BracketMatch,
+};
+
 // ---------------------------------------------------------------------------
 // Suite
 // ---------------------------------------------------------------------------
@@ -61,7 +76,7 @@ describe('TournamentService', () => {
    * cachés créés à la construction du service.
    */
   function buildService(enumReturnValue = of(mockEnumChoices)): { service: TournamentService; spy: jasmine.SpyObj<HttpRequesterService> } {
-    const spy = jasmine.createSpyObj<HttpRequesterService>('HttpRequesterService', ['get', 'post', 'put', 'delete']);
+    const spy = jasmine.createSpyObj<HttpRequesterService>('HttpRequesterService', ['get', 'post', 'put', 'patch', 'delete']);
     spy.get.and.returnValue(enumReturnValue);
     TestBed.configureTestingModule({
       providers: [TournamentService, { provide: HttpRequesterService, useValue: spy }],
@@ -329,6 +344,47 @@ describe('TournamentService', () => {
   // -------------------------------------------------------------------------
   // getLeagues()
   // -------------------------------------------------------------------------
+
+  // -------------------------------------------------------------------------
+  // updateMatchScore()
+  // -------------------------------------------------------------------------
+
+  describe('updateMatchScore()', () => {
+    const mockScoreRequest: ScoreRequest = { score: '6-3 6-4', winner_id: 1 };
+
+    it('should call PATCH /api/v1/tournaments/{id}/matches/{matchId}/score with the correct body', () => {
+      httpSpy.patch.and.returnValue(of(mockBracketMatch));
+
+      service.updateMatchScore(1, 1, mockScoreRequest).subscribe();
+
+      expect(httpSpy.patch).toHaveBeenCalledOnceWith(
+        '/tournaments/1/matches/1/score',
+        mockScoreRequest,
+        { succes_message: 'Score enregistré' }
+      );
+    });
+
+    it('should return the updated BracketMatch on success', (done) => {
+      httpSpy.patch.and.returnValue(of(mockBracketMatch));
+
+      service.updateMatchScore(1, 1, mockScoreRequest).subscribe((res) => {
+        expect(res).toEqual(mockBracketMatch);
+        done();
+      });
+    });
+
+    it('should propagate HTTP errors', (done) => {
+      const error = new Error('400 Bad Request');
+      httpSpy.patch.and.returnValue(throwError(() => error));
+
+      service.updateMatchScore(1, 1, mockScoreRequest).subscribe({
+        error: (err) => {
+          expect(err).toBe(error);
+          done();
+        },
+      });
+    });
+  });
 
   describe('getLeagues()', () => {
     it('should call GET /api/v1/tournaments/enums/leagues at service creation', () => {

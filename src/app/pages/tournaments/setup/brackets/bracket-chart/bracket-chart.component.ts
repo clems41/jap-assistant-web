@@ -92,6 +92,8 @@ export class BracketChartComponent {
     this.sortedPairs().filter(p => !this.placedPairIds().has(p.id))
   );
 
+  readonly allPairsPlaced = computed(() => this.unplacedPairs().length === 0);
+
   readonly blockedSlotIds = computed<Set<string>>(() => {
     const result = new Set<string>();
     this.computeBlockedSlots(this.bracket().root_match, this.seedingMap(), result);
@@ -103,6 +105,12 @@ export class BracketChartComponent {
       .filter(s => !s.isChampion && !this.blockedSlotIds().has(s.id))
       .map(s => 'drop-' + s.id)
   );
+
+  readonly lockedSlotIds = computed<Set<string>>(() => {
+    const result = new Set<string>();
+    this.collectLockedSlots(this.bracket().root_match, result);
+    return result;
+  });
 
   constructor() {
     effect(() => {
@@ -255,6 +263,23 @@ export class BracketChartComponent {
     this.computeBlockedSlots(match.child2 as BracketMatch | null, seedingMap, result);
   }
 
+  private collectLockedSlots(match: BracketMatch | null, result: Set<string>): void {
+    if (!match) return;
+    if (match.score || match.winner_id) {
+      result.add(`${match.id}-p1`);
+      result.add(`${match.id}-p2`);
+    } else {
+      if (match.child1?.winner_id && match.child1.winner_id === match.pair1) {
+        result.add(`${match.id}-p1`);
+      }
+      if (match.child2?.winner_id && match.child2.winner_id === match.pair2) {
+        result.add(`${match.id}-p2`);
+      }
+    }
+    this.collectLockedSlots(match.child1 as BracketMatch | null, result);
+    this.collectLockedSlots(match.child2 as BracketMatch | null, result);
+  }
+
   private traverseForSeeding(match: BracketMatch | null, map: Map<string, number | null>): void {
     if (!match) return;
     map.set(`${match.id}-p1`, match.pair1 ?? null);
@@ -317,6 +342,12 @@ export class BracketChartComponent {
 
       connectors.push({ id: `${match.id}-cp1`, path: `M ${pairRightX} ${pair1Y + yOffset} H ${junctionX} V ${junctionY + yOffset}`, isWinner: pair1Wins });
       connectors.push({ id: `${match.id}-cp2`, path: `M ${pairRightX} ${pair2Y + yOffset} H ${junctionX} V ${junctionY + yOffset}`, isWinner: pair2Wins });
+      if (match.child1) {
+        connectors.push({ id: `${match.id}-cj1`, path: `M ${junX(d + 1)} ${pair1Y + yOffset} H ${pairX}`, isWinner: pair1Wins });
+      }
+      if (match.child2) {
+        connectors.push({ id: `${match.id}-cj2`, path: `M ${junX(d + 1)} ${pair2Y + yOffset} H ${pairX}`, isWinner: pair2Wins });
+      }
 
       return junctionY;
     };

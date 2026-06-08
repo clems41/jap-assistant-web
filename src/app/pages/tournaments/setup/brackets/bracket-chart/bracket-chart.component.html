@@ -36,16 +36,34 @@
         <!-- Pair slots — seeding mode -->
         @for (slot of layout().pairSlots; track slot.id) {
           @if (!slot.isChampion) {
-            @if (blockedSlotIds().has(slot.id)) {
-              <!-- Slot bloqué : un parent a reçu une paire directe -->
-              <div class="absolute flex items-center px-2 rounded-lg border border-gris-15 bg-gris-5 opacity-50"
-                   [style.left.px]="slot.x"
-                   [style.top.px]="slot.y - PAIR_H / 2"
-                   [style.width.px]="PAIR_W"
-                   [style.height.px]="PAIR_H">
-                <i class="bi bi-slash-circle text-gris-30 text-xs mr-1.5 shrink-0"></i>
-                <span class="text-xs text-gris-30 truncate">Non disponible</span>
-              </div>
+            @if (blockedSlotIds().has(slot.id) && !seedingMap().get(slot.id)) {
+              @if (!allPairsPlaced()) {
+                <!-- Slot bloqué vide, paires restantes : "Non disponible" -->
+                <div class="absolute flex items-center px-2 rounded-lg border border-gris-15 bg-gris-5 opacity-50"
+                     [style.left.px]="slot.x"
+                     [style.top.px]="slot.y - PAIR_H / 2"
+                     [style.width.px]="PAIR_W"
+                     [style.height.px]="PAIR_H">
+                  <i class="bi bi-slash-circle text-gris-30 text-xs mr-1.5 shrink-0"></i>
+                  <span class="text-xs text-gris-30 truncate">Non disponible</span>
+                </div>
+              } @else if (slot.isLeaf) {
+                <!-- Leaf bloqué vide, toutes paires placées : disabled sans label -->
+                <div class="absolute rounded-lg border border-gris-15 bg-gris-5 opacity-50"
+                     [style.left.px]="slot.x"
+                     [style.top.px]="slot.y - PAIR_H / 2"
+                     [style.width.px]="PAIR_W"
+                     [style.height.px]="PAIR_H">
+                </div>
+              } @else {
+                <!-- Non-leaf bloqué vide, toutes paires placées : blanc (recevra le gagnant) -->
+                <div class="absolute rounded-lg border border-gris-15 bg-blanc-100"
+                     [style.left.px]="slot.x"
+                     [style.top.px]="slot.y - PAIR_H / 2"
+                     [style.width.px]="PAIR_W"
+                     [style.height.px]="PAIR_H">
+                </div>
+              }
             } @else {
               <!-- Slot interactif -->
               <div class="absolute flex items-center px-2 rounded-lg border transition-colors"
@@ -75,11 +93,13 @@
                       <span class="text-xs leading-tight truncate font-medium">{{ players[0] }}</span>
                       <span class="text-xs leading-tight truncate text-gris-50">{{ players[1] }}</span>
                     </div>
-                    <button type="button"
-                            class="shrink-0 text-gris-50 hover:text-error-100 transition-colors"
-                            (click)="onRemoveFromSlot(slot.id)">
-                      <i class="bi bi-x-lg text-xs"></i>
-                    </button>
+                    @if (!lockedSlotIds().has(slot.id)) {
+                      <button type="button"
+                              class="shrink-0 text-gris-50 hover:text-error-100 transition-colors"
+                              (click)="onRemoveFromSlot(slot.id)">
+                        <i class="bi bi-x-lg text-xs"></i>
+                      </button>
+                    }
                   </div>
                 } @else {
                   <span class="text-xs text-primary-50 truncate">Déposer ici</span>
@@ -94,26 +114,37 @@
                  [style.width.px]="PAIR_W"
                  [style.height.px]="PAIR_H">
               <i class="bi bi-trophy-fill text-primary-100 mr-2 shrink-0"></i>
-              <span class="text-body-light truncate text-primary-120 font-semibold">
-                {{ slot.pairId ? getPairName(slot.pairId) : '—' }}
-              </span>
+              @if (slot.pairId) {
+                @let players = getPairPlayerNames(slot.pairId);
+                <div class="flex flex-col flex-1 min-w-0">
+                  <span class="text-xs leading-tight truncate font-semibold text-primary-120">{{ players[0] }}</span>
+                  <span class="text-xs leading-tight truncate text-primary-80">{{ players[1] }}</span>
+                </div>
+              } @else {
+                <span class="text-body-light text-primary-120 font-semibold">—</span>
+              }
             </div>
           }
         }
 
         <!-- Junction badges -->
         @for (junction of layout().junctions; track junction.match.id) {
+          @let hasBothPairs = !!junction.match.pair1 && !!junction.match.pair2;
           <button type="button"
                   class="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border
                          bg-blanc-100 shadow-sm px-2 py-0.5 text-label text-gris-80
-                         min-w-12 text-center transition-colors cursor-pointer
-                         hover:border-primary-50 hover:text-primary-100 focus:outline-none"
+                         min-w-12 text-center transition-colors focus:outline-none"
                   [style.left.px]="junction.x"
                   [style.top.px]="junction.y"
                   [class.border-success-50]="junction.match.winner_id"
                   [class.border-gris-15]="!junction.match.winner_id"
+                  [class.cursor-pointer]="hasBothPairs"
+                  [class.cursor-not-allowed]="!hasBothPairs"
+                  [class.opacity-40]="!hasBothPairs"
+                  [disabled]="!hasBothPairs"
                   [title]="junction.match.round_display + ' #' + junction.match.match_number"
-                  (click)="onJunctionClick(junction)">
+                  (mousedown)="$event.stopPropagation()"
+                  (click)="$event.stopPropagation(); onJunctionClick(junction)">
             {{ junction.match.score || '+' }}
           </button>
         }
@@ -180,16 +211,18 @@
 
   </div>
 
-<!-- Score dialog (présent dans les deux modes) -->
-<p-dialog
-  [visible]="!!selectedJunction()"
-  (visibleChange)="!$event && closeDialog()"
-  [header]="(selectedJunction()?.match?.round_display ?? '') + ' #' + (selectedJunction()?.match?.match_number ?? '')"
-  [modal]="true"
-  [style]="{width: '360px'}"
-  [draggable]="false">
+<!-- Score dialog -->
+@if (selectedJunction(); as junction) {
+  <p-dialog
+    [visible]="true"
+    (visibleChange)="!$event && closeDialog()"
+    [header]="junction.match.round_display + ' #' + junction.match.match_number"
+    [modal]="true"
+    [style]="{width: '360px'}"
+    [draggable]="false"
+    [transitionOptions]="'0ms'"
+    appendTo="body">
 
-  @if (selectedJunction(); as junction) {
     <form [formGroup]="scoreForm" class="flex flex-col gap-5">
 
       <div class="flex flex-col gap-3">
@@ -232,12 +265,12 @@
       </div>
 
     </form>
-  }
 
-  <ng-template pTemplate="footer">
-    <div class="flex justify-end gap-2">
-      <p-button label="Annuler" severity="secondary" (onClick)="closeDialog()" />
-      <p-button label="Enregistrer" [disabled]="scoreForm.invalid" (onClick)="saveScore()" />
-    </div>
-  </ng-template>
-</p-dialog>
+    <ng-template pTemplate="footer">
+      <div class="flex justify-end gap-2">
+        <p-button label="Annuler" severity="secondary" (onClick)="closeDialog()" />
+        <p-button label="Enregistrer" [disabled]="scoreForm.invalid" (onClick)="saveScore()" />
+      </div>
+    </ng-template>
+  </p-dialog>
+}

@@ -55,6 +55,7 @@ export class BracketChartComponent {
 
   scoreChanged = output<{ matchId: number; score: string; winnerId: number }>();
   seedingChanged = output<SeedingRequest>();
+  deleteRequested = output<void>();
 
   private readonly fb = inject(FormBuilder);
 

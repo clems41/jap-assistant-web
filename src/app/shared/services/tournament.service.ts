@@ -43,6 +43,11 @@ export class TournamentService {
     return this.http.post<Bracket>(`/tournaments/${id}/bracket`, input);
   }
 
+  /** DELETE /api/v1/tournaments/{id}/bracket/ */
+  deleteTournamentBracket(id: number): Observable<void> {
+    return this.http.delete<void>(`/tournaments/${id}/bracket`, { succes_message: 'Tableau supprimé' });
+  }
+
   /** PATCH /api/v1/tournaments/{id}/bracket/placement/ */
   updateBracketPlacement(tournamentId: number, request: SeedingRequest): Observable<Bracket> {
     return this.http.patch<Bracket>(

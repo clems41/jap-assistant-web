@@ -5,7 +5,8 @@
       [bracket]="b"
       [pairs]="pairs()"
       (scoreChanged)="onScoreChanged($event)"
-      (seedingChanged)="onSeedingChanged($event)">
+      (seedingChanged)="onSeedingChanged($event)"
+      (deleteRequested)="onDeleteBracketRequested()">
     </app-bracket-chart>
   </div>
 } @else {

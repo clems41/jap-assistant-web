@@ -2,7 +2,7 @@
 
     <!-- Bracket scrollable -->
     <div class="flex-1 overflow-auto py-6 px-4">
-      <div class="relative" [style.width.px]="layout().totalWidth" [style.height.px]="layout().totalHeight">
+      <div class="relative mx-auto" [style.width.px]="layout().totalWidth" [style.height.px]="layout().totalHeight">
 
         <!-- Round headers -->
         @for (header of layout().roundHeaders; track header.label) {
@@ -114,17 +114,19 @@
       <!-- Header panneau -->
       <div class="flex flex-col px-4 py-3 border-b border-gris-15 bg-blanc-100 sticky top-0 gap-2">
         <div class="flex items-center justify-between">
-          <span class="text-body-bold text-contrast-100">Paires</span>
-          <p-button label="Sauvegarder"
-                    icon="bi bi-floppy"
-                    size="small"
-                    (onClick)="saveSeedingPlacement()">
-          </p-button>
+          <span class="text-body-bold text-contrast-100">Liste des paires</span>
+          <span class="text-body-light text-gris-80 ml-auto">{{ pairs().length - unplacedPairs().length }}/{{ pairs().length }} placées</span>
         </div>
         <div class="flex items-center gap-4">
-          <span class="text-body-light text-gris-80">Tableau <b class="text-contrast-100">{{ bracket().dimension }}</b></span>
-          <span class="text-body-light text-gris-80"><b class="text-contrast-100">{{ bracket().nb_top_seeds }}</b> TS</span>
-          <span class="text-body-light text-gris-80 ml-auto">{{ pairs().length - unplacedPairs().length }}/{{ pairs().length }} placées</span>
+          <span class="text-body-light text-gris-80">Dimension : <b class="text-contrast-100">{{ bracket().dimension }}</b></span>
+          <span class="text-body-light text-gris-80">TS : <b class="text-contrast-100">{{ bracket().nb_top_seeds }}</b></span>
+          <div class="flex items-center gap-2">
+            <p-button label="Sauvegarder"
+                      icon="bi bi-floppy"
+                      size="small"
+                      (onClick)="saveSeedingPlacement()">
+            </p-button>
+          </div>
         </div>
       </div>
 
@@ -152,6 +154,15 @@
             Toutes les paires sont placées
           </p>
         }
+        <div class="flex justify-center gap-4">
+          <p-button label="Supprimer le tableau"
+                    icon="pi pi-trash"
+                    severity="danger"
+                    [outlined]="true"
+                    size="small"
+                    (onClick)="deleteRequested.emit()">
+          </p-button>
+        </div>
       </div>
     </div>
 

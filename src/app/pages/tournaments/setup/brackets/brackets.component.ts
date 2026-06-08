@@ -6,6 +6,7 @@ import {TournamentService} from '../../../../shared/services/tournament.service'
 import {GenerateBracketComponent} from './generate-bracket/generate-bracket.component';
 import {BracketChartComponent} from './bracket-chart/bracket-chart.component';
 import {ButtonModule} from 'primeng/button';
+import {ConfirmationService} from 'primeng/api';
 
 @Component({
   selector: 'app-brackets',
@@ -22,6 +23,7 @@ export class BracketsComponent implements OnInit {
   availableGameFormats = input.required<EnumChoice[]>();
 
   private readonly tournamentService = inject(TournamentService);
+  private readonly confirmationService = inject(ConfirmationService);
 
   loading = signal<boolean>(false);
   bracket = signal<Bracket | null>(null);
@@ -55,6 +57,28 @@ export class BracketsComponent implements OnInit {
   bracketHasBeenGenerated(bracket: Bracket): void {
     this.bracket.set(bracket);
     this.bracketAlreadyGenerated.set(true);
+  }
+
+  onDeleteBracketRequested(): void {
+    this.confirmationService.confirm({
+      message: 'Êtes-vous sûr de vouloir supprimer le tableau ? Cette action est irréversible.',
+      header: 'Supprimer le tableau',
+      closable: true,
+      closeOnEscape: true,
+      icon: 'pi pi-exclamation-triangle',
+      rejectButtonProps: { label: 'Annuler', severity: 'secondary', outlined: true },
+      acceptButtonProps: { label: 'Supprimer', severity: 'danger' },
+      accept: () => {
+        this.tournamentService
+          .deleteTournamentBracket(this.tournament().id)
+          .subscribe({
+            next: () => {
+              this.bracket.set(null);
+              this.bracketAlreadyGenerated.set(false);
+            }
+          });
+      },
+    });
   }
 
   onSeedingChanged(req: SeedingRequest): void {

@@ -225,15 +225,31 @@ export class BracketChartComponent {
     this.collectSubtreeSlotIds(match.child2 as BracketMatch | null, result);
   }
 
+  private hasAnyPairInSubtree(match: BracketMatch | null, seedingMap: Map<string, number | null>): boolean {
+    if (!match) return false;
+    if (seedingMap.get(`${match.id}-p1`) != null) return true;
+    if (seedingMap.get(`${match.id}-p2`) != null) return true;
+    return this.hasAnyPairInSubtree(match.child1 as BracketMatch | null, seedingMap)
+        || this.hasAnyPairInSubtree(match.child2 as BracketMatch | null, seedingMap);
+  }
+
   private computeBlockedSlots(match: BracketMatch | null, seedingMap: Map<string, number | null>, result: Set<string>): void {
     if (!match) return;
+    // Règle 1 : si le slot parent est rempli → bloquer tout le sous-arbre enfant correspondant
     const p1 = seedingMap.get(`${match.id}-p1`);
-    if (p1 !== null && p1 !== undefined && match.child1) {
+    if (p1 != null && match.child1) {
       this.collectSubtreeSlotIds(match.child1 as BracketMatch | null, result);
     }
     const p2 = seedingMap.get(`${match.id}-p2`);
-    if (p2 !== null && p2 !== undefined && match.child2) {
+    if (p2 != null && match.child2) {
       this.collectSubtreeSlotIds(match.child2 as BracketMatch | null, result);
+    }
+    // Règle 2 : si le sous-arbre enfant contient une paire → bloquer le slot parent car un match doit être joué
+    if (match.child1 && this.hasAnyPairInSubtree(match.child1 as BracketMatch | null, seedingMap)) {
+      result.add(`${match.id}-p1`);
+    }
+    if (match.child2 && this.hasAnyPairInSubtree(match.child2 as BracketMatch | null, seedingMap)) {
+      result.add(`${match.id}-p2`);
     }
     this.computeBlockedSlots(match.child1 as BracketMatch | null, seedingMap, result);
     this.computeBlockedSlots(match.child2 as BracketMatch | null, seedingMap, result);

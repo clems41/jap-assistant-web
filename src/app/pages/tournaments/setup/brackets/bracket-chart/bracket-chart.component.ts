@@ -92,8 +92,16 @@ export class BracketChartComponent {
     this.sortedPairs().filter(p => !this.placedPairIds().has(p.id))
   );
 
+  readonly blockedSlotIds = computed<Set<string>>(() => {
+    const result = new Set<string>();
+    this.computeBlockedSlots(this.bracket().root_match, this.seedingMap(), result);
+    return result;
+  });
+
   readonly dropListIds = computed<string[]>(() =>
-    this.layout().pairSlots.filter(s => !s.isChampion).map(s => 'drop-' + s.id)
+    this.layout().pairSlots
+      .filter(s => !s.isChampion && !this.blockedSlotIds().has(s.id))
+      .map(s => 'drop-' + s.id)
   );
 
   constructor() {
@@ -129,6 +137,7 @@ export class BracketChartComponent {
   readonly slotEnterPredicate = (_drag: CdkDrag, list: CdkDropList): boolean => {
     const slot = list.data as PairSlot | undefined;
     if (!slot || slot.isChampion) return false;
+    if (this.blockedSlotIds().has(slot.id)) return false;
     const current = this.seedingMap().get(slot.id);
     return current === null || current === undefined;
   };
@@ -137,6 +146,20 @@ export class BracketChartComponent {
     const pairId = event.item.data as number;
     const newMap = new Map(this.seedingMap());
     newMap.set(targetSlot.id, pairId);
+
+    const dashIdx = targetSlot.id.lastIndexOf('-');
+    const matchId = Number(targetSlot.id.substring(0, dashIdx));
+    const pos = targetSlot.id.substring(dashIdx + 1);
+    const match = this.findMatch(this.bracket().root_match, matchId);
+    if (match) {
+      const child = pos === 'p1' ? match.child1 : match.child2;
+      if (child) {
+        const toBlocked = new Set<string>();
+        this.collectSubtreeSlotIds(child as BracketMatch, toBlocked);
+        for (const id of toBlocked) newMap.set(id, null);
+      }
+    }
+
     this.seedingMap.set(newMap);
   }
 
@@ -185,6 +208,35 @@ export class BracketChartComponent {
   closeDialog(): void {
     this.selectedJunction.set(null);
     this.scoreForm.reset();
+  }
+
+  private findMatch(match: BracketMatch | null, id: number): BracketMatch | null {
+    if (!match) return null;
+    if (match.id === id) return match;
+    return this.findMatch(match.child1 as BracketMatch | null, id)
+        ?? this.findMatch(match.child2 as BracketMatch | null, id);
+  }
+
+  private collectSubtreeSlotIds(match: BracketMatch | null, result: Set<string>): void {
+    if (!match) return;
+    result.add(`${match.id}-p1`);
+    result.add(`${match.id}-p2`);
+    this.collectSubtreeSlotIds(match.child1 as BracketMatch | null, result);
+    this.collectSubtreeSlotIds(match.child2 as BracketMatch | null, result);
+  }
+
+  private computeBlockedSlots(match: BracketMatch | null, seedingMap: Map<string, number | null>, result: Set<string>): void {
+    if (!match) return;
+    const p1 = seedingMap.get(`${match.id}-p1`);
+    if (p1 !== null && p1 !== undefined && match.child1) {
+      this.collectSubtreeSlotIds(match.child1 as BracketMatch | null, result);
+    }
+    const p2 = seedingMap.get(`${match.id}-p2`);
+    if (p2 !== null && p2 !== undefined && match.child2) {
+      this.collectSubtreeSlotIds(match.child2 as BracketMatch | null, result);
+    }
+    this.computeBlockedSlots(match.child1 as BracketMatch | null, seedingMap, result);
+    this.computeBlockedSlots(match.child2 as BracketMatch | null, seedingMap, result);
   }
 
   private traverseForSeeding(match: BracketMatch | null, map: Map<string, number | null>): void {

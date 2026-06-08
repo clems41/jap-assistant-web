@@ -36,44 +36,56 @@
         <!-- Pair slots — seeding mode -->
         @for (slot of layout().pairSlots; track slot.id) {
           @if (!slot.isChampion) {
-            <!-- Slot interactif (tout round) -->
-            <div class="absolute flex items-center px-2 rounded-lg border transition-colors"
-                 cdkDropList
-                 [id]="'drop-' + slot.id"
-                 [cdkDropListData]="slot"
-                 [cdkDropListConnectedTo]="['pairs-panel-list']"
-                 [cdkDropListEnterPredicate]="slotEnterPredicate"
-                 [cdkDropListSortingDisabled]="true"
-                 (cdkDropListDropped)="onDropIntoSlot($event, slot)"
-                 [style.left.px]="slot.x"
-                 [style.top.px]="slot.y - PAIR_H / 2"
-                 [style.width.px]="PAIR_W"
-                 [style.height.px]="PAIR_H"
-                 [class]="seedingMap().get(slot.id)
-                   ? 'border-gris-15 bg-blanc-100'
-                   : 'border-dashed border-primary-30 bg-primary-5'">
-              @if (seedingMap().get(slot.id); as placedPairId) {
-                @let players = getPairPlayerNames(placedPairId);
-                @if (getSeedRank(placedPairId); as rank) {
-                  <div class="absolute -top-2 -right-2 z-10">
-                    <p-tag [value]="rank.toString()" severity="warn" styleClass="!text-xs !rounded-full !leading-none"></p-tag>
+            @if (blockedSlotIds().has(slot.id)) {
+              <!-- Slot bloqué : un parent a reçu une paire directe -->
+              <div class="absolute flex items-center px-2 rounded-lg border border-gris-15 bg-gris-5 opacity-50"
+                   [style.left.px]="slot.x"
+                   [style.top.px]="slot.y - PAIR_H / 2"
+                   [style.width.px]="PAIR_W"
+                   [style.height.px]="PAIR_H">
+                <i class="bi bi-slash-circle text-gris-30 text-xs mr-1.5 shrink-0"></i>
+                <span class="text-xs text-gris-30 truncate">Non disponible</span>
+              </div>
+            } @else {
+              <!-- Slot interactif -->
+              <div class="absolute flex items-center px-2 rounded-lg border transition-colors"
+                   cdkDropList
+                   [id]="'drop-' + slot.id"
+                   [cdkDropListData]="slot"
+                   [cdkDropListConnectedTo]="['pairs-panel-list']"
+                   [cdkDropListEnterPredicate]="slotEnterPredicate"
+                   [cdkDropListSortingDisabled]="true"
+                   (cdkDropListDropped)="onDropIntoSlot($event, slot)"
+                   [style.left.px]="slot.x"
+                   [style.top.px]="slot.y - PAIR_H / 2"
+                   [style.width.px]="PAIR_W"
+                   [style.height.px]="PAIR_H"
+                   [class]="seedingMap().get(slot.id)
+                     ? 'border-gris-15 bg-blanc-100'
+                     : 'border-dashed border-primary-30 bg-primary-5'">
+                @if (seedingMap().get(slot.id); as placedPairId) {
+                  @let players = getPairPlayerNames(placedPairId);
+                  @if (getSeedRank(placedPairId); as rank) {
+                    <div class="absolute -top-2 -right-2 z-10">
+                      <p-tag [value]="rank.toString()" severity="warn" styleClass="!text-xs !rounded-full !leading-none"></p-tag>
+                    </div>
+                  }
+                  <div class="flex items-center w-full min-w-0 gap-1">
+                    <div class="flex flex-col flex-1 min-w-0">
+                      <span class="text-xs leading-tight truncate font-medium">{{ players[0] }}</span>
+                      <span class="text-xs leading-tight truncate text-gris-50">{{ players[1] }}</span>
+                    </div>
+                    <button type="button"
+                            class="shrink-0 text-gris-50 hover:text-error-100 transition-colors"
+                            (click)="onRemoveFromSlot(slot.id)">
+                      <i class="bi bi-x-lg text-xs"></i>
+                    </button>
                   </div>
+                } @else {
+                  <span class="text-xs text-primary-50 truncate">Déposer ici</span>
                 }
-                <div class="flex items-center w-full min-w-0 gap-1">
-                  <div class="flex flex-col flex-1 min-w-0">
-                    <span class="text-xs leading-tight truncate font-medium">{{ players[0] }}</span>
-                    <span class="text-xs leading-tight truncate text-gris-50">{{ players[1] }}</span>
-                  </div>
-                  <button type="button"
-                          class="shrink-0 text-gris-50 hover:text-error-100 transition-colors"
-                          (click)="onRemoveFromSlot(slot.id)">
-                    <i class="bi bi-x-lg text-xs"></i>
-                  </button>
-                </div>
-              } @else {
-                <span class="text-xs text-primary-50 truncate">Déposer ici</span>
-              }
-            </div>
+              </div>
+            }
           } @else {
             <!-- Champion : read-only -->
             <div class="absolute flex items-center px-3 rounded-lg border border-primary-100 bg-primary-5 shadow-md transition-colors"

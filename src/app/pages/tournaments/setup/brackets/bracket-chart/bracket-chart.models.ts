@@ -40,4 +40,4 @@ export const PAIR_W = 140;
 export const PAIR_H = 52;
 export const CELL_H = 64;
 export const COL_GAP = 80;
-export const HEADER_HEIGHT = 48;
+export const HEADER_HEIGHT = 24;

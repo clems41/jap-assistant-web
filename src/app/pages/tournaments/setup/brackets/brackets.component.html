@@ -1,13 +1,11 @@
 @let b = bracket();
 @if (bracketAlreadyGenerated() && b) {
-  <div class="relative">
-    <app-bracket-info
-      [bracket]="b">
-    </app-bracket-info>
+  <div class="-mx-4 sm:-mx-20 md:-mx-40 lg:-mx-60">
     <app-bracket-chart
       [bracket]="b"
       [pairs]="pairs()"
-      (scoreChanged)="onScoreChanged($event)">
+      (scoreChanged)="onScoreChanged($event)"
+      (seedingChanged)="onSeedingChanged($event)">
     </app-bracket-chart>
   </div>
 } @else {

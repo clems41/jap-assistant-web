@@ -88,6 +88,16 @@ export interface ScoreRequest {
   winner_id: number;
 }
 
+export interface SeedingMatchPlacement {
+  match_id: number;
+  pair1_id: number | null;
+  pair2_id: number | null;
+}
+
+export interface SeedingRequest {
+  placements: SeedingMatchPlacement[];
+}
+
 export interface LastLeagueResponse {
   league: string;
 }

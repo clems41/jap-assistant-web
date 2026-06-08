@@ -133,6 +133,10 @@
   --text-menu--font-weight: 500;
 }
 
+@utility bracket-area {
+  height: calc(100dvh - 14rem);
+}
+
 label {
   color: var(--color-contrast-100);
 }

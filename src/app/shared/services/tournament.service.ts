@@ -6,7 +6,7 @@ import {
   BracketMatch,
   DurationByGameFormat, GenerateBracketRequest,
   LastLeagueResponse,
-  PaginatedTournamentRequest, ScoreRequest, TimeSlot, TimeSlotRequest,
+  PaginatedTournamentRequest, ScoreRequest, SeedingRequest, TimeSlot, TimeSlotRequest,
   Tournament,
   TournamentRequest,
 } from '../models/tournament.models';
@@ -41,6 +41,15 @@ export class TournamentService {
   /** POST /api/v1/tournaments/{id}/brackets/ */
   generateTournamentBracket(id: number, input: GenerateBracketRequest): Observable<Bracket> {
     return this.http.post<Bracket>(`/tournaments/${id}/bracket`, input);
+  }
+
+  /** PATCH /api/v1/tournaments/{id}/bracket/placement/ */
+  updateBracketPlacement(tournamentId: number, request: SeedingRequest): Observable<Bracket> {
+    return this.http.patch<Bracket>(
+      `/tournaments/${tournamentId}/bracket/placement`,
+      request,
+      { succes_message: 'Placement enregistré' }
+    );
   }
 
   /** PATCH /api/v1/tournaments/{id}/matches/{matchId}/score/ */

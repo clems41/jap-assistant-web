@@ -1,18 +1,18 @@
 import {Component, inject, input, OnInit, signal} from '@angular/core';
-import {Bracket, ScoreRequest, Tournament} from '../../../../shared/models/tournament.models';
+import {Bracket, ScoreRequest, SeedingRequest, Tournament} from '../../../../shared/models/tournament.models';
 import {EnumChoice} from '../../../../shared/models/base.models';
 import {Pair} from '../../../../shared/models/pair.models';
 import {TournamentService} from '../../../../shared/services/tournament.service';
 import {GenerateBracketComponent} from './generate-bracket/generate-bracket.component';
-import {BracketInfoComponent} from './bracket-info/bracket-info.component';
 import {BracketChartComponent} from './bracket-chart/bracket-chart.component';
+import {ButtonModule} from 'primeng/button';
 
 @Component({
   selector: 'app-brackets',
   imports: [
     GenerateBracketComponent,
-    BracketInfoComponent,
     BracketChartComponent,
+    ButtonModule,
   ],
   templateUrl: './brackets.component.html'
 })
@@ -55,6 +55,14 @@ export class BracketsComponent implements OnInit {
   bracketHasBeenGenerated(bracket: Bracket): void {
     this.bracket.set(bracket);
     this.bracketAlreadyGenerated.set(true);
+  }
+
+  onSeedingChanged(req: SeedingRequest): void {
+    this.tournamentService
+      .updateBracketPlacement(this.tournament().id, req)
+      .subscribe({ next: () => {
+        this.loadBracket();
+      }});
   }
 
 }

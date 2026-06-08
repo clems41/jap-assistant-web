@@ -22,6 +22,7 @@ export interface HttpRequesterOptions {
 
 interface RefreshResponse {
   access_token: string;
+  refresh_token?: string;
 }
 
 interface ApiErrorResponse {
@@ -140,6 +141,9 @@ export class HttpRequesterService {
         take(1),
         map((response) => {
           this.setAccessToken(response.access_token);
+          if (response.refresh_token) {
+            localStorage.setItem('refresh_token', response.refresh_token);
+          }
           return response.access_token;
         }),
         catchError(() => {

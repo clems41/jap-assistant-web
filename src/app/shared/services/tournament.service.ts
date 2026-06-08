@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, shareReplay } from 'rxjs';
+import { Observable, defer, shareReplay } from 'rxjs';
 import { HttpRequesterService } from './http-requester.service';
 import {
   Bracket,
@@ -16,13 +16,13 @@ import {EnumChoice, PaginatedResponse} from '../models/base.models';
 export class TournamentService {
   private http = inject(HttpRequesterService);
 
-  private categories$ = this.http.get<EnumChoice[]>('/tournaments/enums/categories').pipe(shareReplay(1));
-  private genders$ = this.http.get<EnumChoice[]>('/tournaments/enums/genders').pipe(shareReplay(1));
-  private leagues$ = this.http.get<EnumChoice[]>('/tournaments/enums/leagues').pipe(shareReplay(1));
-  private configurations$ = this.http.get<EnumChoice[]>('/tournaments/enums/configurations').pipe(shareReplay(1));
-  private gameFormats$ = this.http.get<EnumChoice[]>('/tournaments/enums/game-formats').pipe(shareReplay(1));
-  private gameFormatDurations$ = this.http.get<DurationByGameFormat[]>('/tournaments/enums/game-format-durations').pipe(shareReplay(1));
-  private lastLeague$ = this.http.get<LastLeagueResponse>('/tournaments/last-league').pipe(shareReplay(1));
+  private categories$ = defer(() => this.http.get<EnumChoice[]>('/tournaments/enums/categories')).pipe(shareReplay(1));
+  private genders$ = defer(() => this.http.get<EnumChoice[]>('/tournaments/enums/genders')).pipe(shareReplay(1));
+  private leagues$ = defer(() => this.http.get<EnumChoice[]>('/tournaments/enums/leagues')).pipe(shareReplay(1));
+  private configurations$ = defer(() => this.http.get<EnumChoice[]>('/tournaments/enums/configurations')).pipe(shareReplay(1));
+  private gameFormats$ = defer(() => this.http.get<EnumChoice[]>('/tournaments/enums/game-formats')).pipe(shareReplay(1));
+  private gameFormatDurations$ = defer(() => this.http.get<DurationByGameFormat[]>('/tournaments/enums/game-format-durations')).pipe(shareReplay(1));
+  private lastLeague$ = defer(() => this.http.get<LastLeagueResponse>('/tournaments/last-league')).pipe(shareReplay(1));
 
   /** GET /api/v1/tournaments/ */
   getTournaments(filters?: PaginatedTournamentRequest): Observable<PaginatedResponse<Tournament>> {

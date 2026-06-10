@@ -33,6 +33,7 @@ import {
   PAIR_W,
   PairSlot,
 } from './bracket-chart.models';
+import {NgIf} from '@angular/common';
 
 @Component({
   selector: 'app-bracket-chart',
@@ -45,6 +46,7 @@ import {
     RadioButtonModule,
     TagModule,
     DragDropModule,
+    NgIf,
   ],
   templateUrl: './bracket-chart.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

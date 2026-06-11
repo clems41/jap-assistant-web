@@ -101,6 +101,13 @@ export class BracketChartComponent {
     return result;
   });
 
+  // Slots bloqués uniquement par Règle 1 (parent a une paire → sous-arbre bypassed)
+  readonly rule1BlockedSlotIds = computed<Set<string>>(() => {
+    const result = new Set<string>();
+    this.computeRule1BlockedSlots(this.bracket().root_match, this.seedingMap(), result);
+    return result;
+  });
+
   readonly dropListIds = computed<string[]>(() =>
     this.layout().pairSlots
       .filter(s => !s.isChampion && !this.blockedSlotIds().has(s.id))
@@ -160,17 +167,22 @@ export class BracketChartComponent {
     const matchId = Number(targetSlot.id.substring(0, dashIdx));
     const pos = targetSlot.id.substring(dashIdx + 1);
     const match = this.findMatch(this.bracket().root_match, matchId);
+    const clearedMatchIds = new Set<number>();
     if (match) {
       const child = pos === 'p1' ? match.child1 : match.child2;
       if (child) {
-        const toBlocked = new Set<string>();
-        this.collectSubtreeSlotIds(child as BracketMatch, toBlocked);
-        for (const id of toBlocked) newMap.set(id, null);
+        const toCleared = new Set<string>();
+        this.collectSubtreeSlotIds(child as BracketMatch, toCleared);
+        for (const id of toCleared) {
+          newMap.set(id, null);
+          const mId = Number(id.substring(0, id.lastIndexOf('-')));
+          clearedMatchIds.add(mId);
+        }
       }
     }
 
     this.seedingMap.set(newMap);
-    this.emitMatchPlacement(matchId, newMap);
+    this.emitPlacements(matchId, clearedMatchIds, newMap);
   }
 
   onRemoveFromSlot(slotId: string): void {
@@ -178,17 +190,23 @@ export class BracketChartComponent {
     newMap.set(slotId, null);
     this.seedingMap.set(newMap);
     const matchId = Number(slotId.substring(0, slotId.lastIndexOf('-')));
-    this.emitMatchPlacement(matchId, newMap);
+    this.emitPlacements(matchId, new Set(), newMap);
   }
 
-  private emitMatchPlacement(matchId: number, map: Map<string, number | null>): void {
-    this.seedingChanged.emit({
-      placements: [{
+  private emitPlacements(matchId: number, clearedMatchIds: Set<number>, map: Map<string, number | null>): void {
+    const placements = [
+      {
         match_id: matchId,
         pair1_id: map.get(`${matchId}-p1`) ?? null,
         pair2_id: map.get(`${matchId}-p2`) ?? null,
-      }],
-    });
+      },
+      ...Array.from(clearedMatchIds).map(id => ({
+        match_id: id,
+        pair1_id: null as number | null,
+        pair2_id: null as number | null,
+      })),
+    ];
+    this.seedingChanged.emit({ placements });
   }
 
   onJunctionClick(junction: MatchJunction): void {
@@ -236,6 +254,20 @@ export class BracketChartComponent {
     if (seedingMap.get(`${match.id}-p2`) != null) return true;
     return this.hasAnyPairInSubtree(match.child1 as BracketMatch | null, seedingMap)
         || this.hasAnyPairInSubtree(match.child2 as BracketMatch | null, seedingMap);
+  }
+
+  private computeRule1BlockedSlots(match: BracketMatch | null, seedingMap: Map<string, number | null>, result: Set<string>): void {
+    if (!match) return;
+    const p1 = seedingMap.get(`${match.id}-p1`);
+    if (p1 != null && match.child1) {
+      this.collectSubtreeSlotIds(match.child1 as BracketMatch | null, result);
+    }
+    const p2 = seedingMap.get(`${match.id}-p2`);
+    if (p2 != null && match.child2) {
+      this.collectSubtreeSlotIds(match.child2 as BracketMatch | null, result);
+    }
+    this.computeRule1BlockedSlots(match.child1 as BracketMatch | null, seedingMap, result);
+    this.computeRule1BlockedSlots(match.child2 as BracketMatch | null, seedingMap, result);
   }
 
   private computeBlockedSlots(match: BracketMatch | null, seedingMap: Map<string, number | null>, result: Set<string>): void {

@@ -11,36 +11,41 @@
                 (onClick)="deleteRequested.emit()">
       </p-button>
     </div>
-    <div class="overflow-auto h-full py-6 px-4">
-      <div class="relative mx-auto" [style.width.px]="layout().totalWidth" [style.height.px]="layout().totalHeight">
+    <div class="overflow-auto h-full pb-6 px-4">
+      <div class="mx-auto" [style.width.px]="layout().totalWidth">
 
-        <!-- Round headers -->
-        @for (header of layout().roundHeaders; track header.label) {
-          <div class="absolute flex items-center justify-center"
-               [style.left.px]="header.x - 70"
-               [style.top.px]="0"
-               [style.width.px]="140"
-               [style.height.px]="HEADER_HEIGHT - 16">
-            <span class="text-label text-primary-100 font-medium leading-tight px-1 truncate w-full text-center">
-              {{ header.label }}
-            </span>
+        <!-- Round headers (sticky) -->
+        <div class="sticky top-0 z-20 bg-gris-5" [style.height.px]="HEADER_HEIGHT">
+          <div class="relative h-full">
+            @for (header of layout().roundHeaders; track header.label) {
+              <div class="absolute flex items-center justify-center"
+                   [style.left.px]="header.x - 70"
+                   [style.top.px]="0"
+                   [style.width.px]="140"
+                   [style.height.px]="HEADER_HEIGHT - 6">
+                <span class="text-primary-100 font-bold text-lg leading-tight px-1 truncate w-full text-center">
+                  {{ header.label }}
+                </span>
+              </div>
+            }
+            <div class="absolute inset-x-0" [style.top.px]="HEADER_HEIGHT - 8"></div>
           </div>
-        }
+        </div>
 
-        <!-- Separator -->
-        <div class="absolute left-0 right-0 border-b border-gris-15"
-             [style.top.px]="HEADER_HEIGHT - 8"></div>
+      <div class="relative" [style.width.px]="layout().totalWidth" [style.height.px]="layout().totalHeight - HEADER_HEIGHT">
 
         <!-- SVG connectors -->
         <svg class="absolute inset-0 overflow-visible pointer-events-none"
              [attr.width]="layout().totalWidth"
-             [attr.height]="layout().totalHeight">
-          @for (c of layout().connectors; track c.id) {
-            <path [attr.d]="c.path"
-                  fill="none"
-                  stroke-width="2"
-                  [attr.stroke]="c.isWinner ? 'var(--color-success-100)' : 'var(--color-gris-30)'" />
-          }
+             [attr.height]="layout().totalHeight - HEADER_HEIGHT">
+          <g [attr.transform]="'translate(0,' + (-HEADER_HEIGHT) + ')'">
+            @for (c of layout().connectors; track c.id) {
+              <path [attr.d]="c.path"
+                    fill="none"
+                    stroke-width="2"
+                    [attr.stroke]="c.isWinner ? 'var(--color-success-100)' : 'var(--color-gris-30)'" />
+            }
+          </g>
         </svg>
 
         <!-- Pair slots — seeding mode -->
@@ -51,25 +56,25 @@
                 <!-- Slot bloqué vide, paires restantes : "Non disponible" -->
                 <div class="absolute flex items-center px-2 rounded-lg border border-gris-15 bg-gris-5 opacity-50"
                      [style.left.px]="slot.x"
-                     [style.top.px]="slot.y - PAIR_H / 2"
+                     [style.top.px]="slot.y - HEADER_HEIGHT - PAIR_H / 2"
                      [style.width.px]="PAIR_W"
                      [style.height.px]="PAIR_H">
                   <i class="bi bi-slash-circle text-gris-30 text-xs mr-1.5 shrink-0"></i>
                   <span class="text-xs text-gris-30 truncate">Non disponible</span>
                 </div>
-              } @else if (slot.isLeaf) {
-                <!-- Leaf bloqué vide, toutes paires placées : disabled sans label -->
+              } @else if (slot.isLeaf || rule1BlockedSlotIds().has(slot.id)) {
+                <!-- Slot bypassed (feuille ou sous-arbre d'un placement direct) : disabled -->
                 <div class="absolute rounded-lg border border-gris-15 bg-gris-5 opacity-50"
                      [style.left.px]="slot.x"
-                     [style.top.px]="slot.y - PAIR_H / 2"
+                     [style.top.px]="slot.y - HEADER_HEIGHT - PAIR_H / 2"
                      [style.width.px]="PAIR_W"
                      [style.height.px]="PAIR_H">
                 </div>
               } @else {
-                <!-- Non-leaf bloqué vide, toutes paires placées : blanc (recevra le gagnant) -->
+                <!-- Non-leaf bloqué par Règle 2 : blanc (recevra le gagnant) -->
                 <div class="absolute rounded-lg border border-gris-15 bg-blanc-100"
                      [style.left.px]="slot.x"
-                     [style.top.px]="slot.y - PAIR_H / 2"
+                     [style.top.px]="slot.y - HEADER_HEIGHT - PAIR_H / 2"
                      [style.width.px]="PAIR_W"
                      [style.height.px]="PAIR_H">
                 </div>
@@ -85,7 +90,7 @@
                    [cdkDropListSortingDisabled]="true"
                    (cdkDropListDropped)="onDropIntoSlot($event, slot)"
                    [style.left.px]="slot.x"
-                   [style.top.px]="slot.y - PAIR_H / 2"
+                   [style.top.px]="slot.y - HEADER_HEIGHT - PAIR_H / 2"
                    [style.width.px]="PAIR_W"
                    [style.height.px]="PAIR_H"
                    [class]="seedingMap().get(slot.id)
@@ -120,7 +125,7 @@
             <!-- Champion : read-only -->
             <div class="absolute flex items-center px-3 rounded-lg border border-primary-100 bg-primary-5 shadow-md transition-colors"
                  [style.left.px]="slot.x"
-                 [style.top.px]="slot.y - PAIR_H / 2"
+                 [style.top.px]="slot.y - HEADER_HEIGHT - PAIR_H / 2"
                  [style.width.px]="PAIR_W"
                  [style.height.px]="PAIR_H">
               <i class="bi bi-trophy-fill text-primary-100 mr-2 shrink-0"></i>
@@ -145,7 +150,7 @@
                          bg-blanc-100 shadow-sm px-2 py-0.5 text-label text-gris-80
                          min-w-12 text-center transition-colors focus:outline-none"
                   [style.left.px]="junction.x"
-                  [style.top.px]="junction.y"
+                  [style.top.px]="junction.y - HEADER_HEIGHT"
                   [class.border-success-50]="junction.match.winner_id"
                   [class.border-gris-15]="!junction.match.winner_id"
                   [class.cursor-pointer]="hasBothPairs"
@@ -159,6 +164,7 @@
           </button>
         }
 
+      </div>
       </div>
     </div>
     </div>

@@ -13,7 +13,6 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   Bracket,
   BracketMatch,
-  SeedingMatchPlacement,
   SeedingRequest,
 } from '../../../../../shared/models/tournament.models';
 import { Pair } from '../../../../../shared/models/pair.models';
@@ -171,29 +170,25 @@ export class BracketChartComponent {
     }
 
     this.seedingMap.set(newMap);
+    this.emitMatchPlacement(matchId, newMap);
   }
 
   onRemoveFromSlot(slotId: string): void {
     const newMap = new Map(this.seedingMap());
     newMap.set(slotId, null);
     this.seedingMap.set(newMap);
+    const matchId = Number(slotId.substring(0, slotId.lastIndexOf('-')));
+    this.emitMatchPlacement(matchId, newMap);
   }
 
-  saveSeedingPlacement(): void {
-    const matchMap = new Map<number, SeedingMatchPlacement>();
-    for (const [slotId, pairId] of this.seedingMap()) {
-      const dashIdx = slotId.lastIndexOf('-');
-      const matchId = Number(slotId.substring(0, dashIdx));
-      const posRaw = slotId.substring(dashIdx + 1);
-      if (posRaw !== 'p1' && posRaw !== 'p2') continue;
-      if (!matchMap.has(matchId)) {
-        matchMap.set(matchId, { match_id: matchId, pair1_id: null, pair2_id: null });
-      }
-      const entry = matchMap.get(matchId)!;
-      if (posRaw === 'p1') entry.pair1_id = pairId;
-      else entry.pair2_id = pairId;
-    }
-    this.seedingChanged.emit({ placements: Array.from(matchMap.values()) });
+  private emitMatchPlacement(matchId: number, map: Map<string, number | null>): void {
+    this.seedingChanged.emit({
+      placements: [{
+        match_id: matchId,
+        pair1_id: map.get(`${matchId}-p1`) ?? null,
+        pair2_id: map.get(`${matchId}-p2`) ?? null,
+      }],
+    });
   }
 
   onJunctionClick(junction: MatchJunction): void {

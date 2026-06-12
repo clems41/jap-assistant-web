@@ -4,8 +4,7 @@ import { HttpRequesterService } from './http-requester.service';
 import {
   Bracket,
   BracketMatch,
-  DurationByGameFormat, GenerateBracketRequest,
-  LastLeagueResponse,
+  DurationByGameFormat, GenerateBracketRequest, LastInformationResponse,
   PaginatedTournamentRequest, ScoreRequest, SeedingRequest, TimeSlot, TimeSlotRequest,
   Tournament,
   TournamentRequest,
@@ -22,7 +21,7 @@ export class TournamentService {
   private configurations$ = defer(() => this.http.get<EnumChoice[]>('/tournaments/enums/configurations')).pipe(shareReplay(1));
   private gameFormats$ = defer(() => this.http.get<EnumChoice[]>('/tournaments/enums/game-formats')).pipe(shareReplay(1));
   private gameFormatDurations$ = defer(() => this.http.get<DurationByGameFormat[]>('/tournaments/enums/game-format-durations')).pipe(shareReplay(1));
-  private lastLeague$ = defer(() => this.http.get<LastLeagueResponse>('/tournaments/last-league')).pipe(shareReplay(1));
+  private lastInformation$ = defer(() => this.http.get<LastInformationResponse>('/tournaments/last-information')).pipe(shareReplay(1));
 
   /** GET /api/v1/tournaments/ */
   getTournaments(filters?: PaginatedTournamentRequest): Observable<PaginatedResponse<Tournament>> {
@@ -131,8 +130,8 @@ export class TournamentService {
     return this.gameFormatDurations$;
   }
 
-  /** GET /api/v1/tournaments/last-league/ */
-  getLastLeague(): Observable<LastLeagueResponse> {
-    return this.lastLeague$;
+  /** GET /api/v1/tournaments/last-information/ */
+  getLastInformations(): Observable<LastInformationResponse> {
+    return this.lastInformation$;
   }
 }

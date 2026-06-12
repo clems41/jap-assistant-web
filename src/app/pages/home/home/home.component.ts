@@ -72,9 +72,10 @@ export class HomeComponent implements OnInit {
   }
 
   private getLastLeagueValue(): void {
-    this.tournamentService.getLastLeague().subscribe(res => {
+    this.tournamentService.getLastInformations().subscribe(res => {
       this.createForm.patchValue({
-        league: res?.league
+        league: res?.league,
+        location: res?.location
       })
     });
   }
@@ -92,6 +93,7 @@ export class HomeComponent implements OnInit {
   }
 
   showCreateDialog(): void {
+    this.createForm.patchValue({start_date: new Date()});
     this.createDialogVisible = true;
   }
 

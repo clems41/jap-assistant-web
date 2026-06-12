@@ -1,0 +1,84 @@
+@if (loading()) {
+  <app-loading-spinner [loading]="loading()"></app-loading-spinner>
+} @else {
+  <div class="flex flex-col w-full gap-3">
+    <div class="flex flex-col sm:flex-row justify-between gap-3">
+      <p-button label="Filtrer" icon="bi bi-filter" [badge]="nbFilters"
+                outlined="true" (click)="showFilterDialog()"
+      ></p-button>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      @for (tournament of tournaments; track tournament.id) {
+        <a
+          class="flex flex-col no-underline rounded-xl overflow-hidden bg-blanc-100 border border-contrast-15 shadow-sm hover:shadow-md hover:border-primary-100 transition-all duration-200 cursor-pointer"
+          [routerLink]="'/tournaments/setup/' + tournament.id"
+        >
+          <div class="h-1 w-full bg-primary-100"></div>
+          <div class="flex flex-col gap-3 p-4">
+            <span class="text-title-4 text-contrast-100 font-poppins line-clamp-2">{{ tournament.name }}</span>
+            <div class="flex flex-row items-center gap-2 text-body-light text-gris-100">
+              <i class="bi bi-calendar3 text-primary-100"></i>
+              <span>{{ toFrenchDate(tournament.start_date) }}</span>
+            </div>
+            <div class="flex flex-row items-center gap-2 text-body-light text-gris-100">
+              <i class="bi bi-pin-map text-primary-100"></i>
+              <span>{{ tournament.location }}</span>
+            </div>
+            <div class="flex flex-row flex-wrap gap-2 pt-1">
+              <p-tag [value]="tournament.category" severity="warn"></p-tag>
+              <p-tag [value]="tournament.gender" severity="info"></p-tag>
+              <p-tag [value]="tournament.league" severity="secondary"></p-tag>
+            </div>
+          </div>
+        </a>
+      }
+    </div>
+
+    @if (totalRecords > 0) {
+      <p-paginator (onPageChange)="onPageChange($event)"
+                   [first]="first" [rows]="rows"
+                   [totalRecords]="totalRecords"/>
+    }
+
+  </div>
+}
+
+<p-dialog header="Filtrer" [modal]="true" [(visible)]="filterDialogVisible" [style]="{ width: '50%' }">
+  <form [formGroup]="filterForm" class="flex flex-col gap-5 w-full items-center p-4" (ngSubmit)="filterTournaments()">
+    <div class="flex flex-row w-full justify-between gap-3">
+      <div class="flex flex-col w-full">
+        <label for="category">Catégorie</label>
+        <p-select [options]="availableCategories()" formControlName="category" optionLabel="label" placeholder="Catégorie"
+                  optionValue="value" inputId="category" appendTo="body"/>
+      </div>
+
+      <div class="flex flex-col w-full">
+        <label for="gender">Genre</label>
+        <p-select [options]="availableGenders()" formControlName="gender" optionLabel="label" placeholder="Genre"
+                  optionValue="value" inputId="gender" appendTo="body"/>
+      </div>
+    </div>
+
+    <div class="flex flex-row w-full justify-between gap-3">
+      <div class="flex flex-col w-full">
+        <label for="start_date">Date de début après le :</label>
+        <p-datepicker fluid="" inputId="start_date" formControlName="start_date" dateFormat="dd/mm/yy"
+                      appendTo="body" showClear="true" [minDate]="minStartDate()" [maxDate]="maxStartDate()"></p-datepicker>
+      </div>
+
+      <div class="flex flex-col w-full">
+        <label for="end_date">Date de début avant le :</label>
+        <p-datepicker fluid="" inputId="end_date" formControlName="end_date" dateFormat="dd/mm/yy"
+                      appendTo="body" showClear="true" [minDate]="minEndDate()" [maxDate]="maxEndDate()"></p-datepicker>
+      </div>
+    </div>
+
+    <div class="flex flex-row gap-3">
+      <p-button label="Réinitialiser les filtres" icon="bi bi-x-circle" fluid=""
+                outlined="true" [loading]="loading()" (click)="reinitialiserFiltres()"/>
+      <p-button label="Valider" icon="bi bi-check-circle" type="submit" fluid=""
+                [disabled]="filterForm.invalid" [loading]="loading()"/>
+    </div>
+
+  </form>
+</p-dialog>

@@ -3,20 +3,20 @@ import {ButtonModule} from 'primeng/button';
 import {
   TournamentService
 } from '../../../shared/services/tournament.service';
-import {PaginatorModule, PaginatorState} from 'primeng/paginator';
+import {PaginatorModule} from 'primeng/paginator';
 import {DialogModule} from 'primeng/dialog';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {Router, RouterLink} from '@angular/router';
-import {toFrenchDate, toISODate} from '../../../shared/utils/date.utils';
+import {Router} from '@angular/router';
+import {toISODate} from '../../../shared/utils/date.utils';
 import {InputTextModule} from 'primeng/inputtext';
 import {SelectModule} from 'primeng/select';
 import {DatePickerModule} from 'primeng/datepicker';
 import {TagModule} from 'primeng/tag';
-import {PaginatedTournamentRequest, Tournament, TournamentRequest} from '../../../shared/models/tournament.models';
+import {Tournament, TournamentRequest} from '../../../shared/models/tournament.models';
 import {EnumChoice} from '../../../shared/models/base.models';
 import {TabsModule} from 'primeng/tabs';
-import {LoadingSpinnerComponent} from '../../../shared/components/loading-spinner/loading-spinner.component';
-import {nbFiltersApplied} from '../../../shared/utils/data.utils';
+import {TournamentListComponent} from './tournament-list/tournament-list.component';
+import {addMonths} from 'date-fns';
 
 @Component({
   selector: 'app-home',
@@ -28,10 +28,9 @@ import {nbFiltersApplied} from '../../../shared/utils/data.utils';
     InputTextModule,
     SelectModule,
     DatePickerModule,
-    RouterLink,
     TagModule,
     TabsModule,
-    LoadingSpinnerComponent,
+    TournamentListComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './home.component.html'
@@ -41,23 +40,22 @@ export class HomeComponent implements OnInit {
   private readonly tournamentService = inject(TournamentService);
   private readonly router = inject(Router);
   tournaments: Tournament[] = [];
-  first: number = 0;
-  rows: number = 10;
-  totalRecords: number = 0;
   createDialogVisible: boolean = false;
   createForm: FormGroup = this.buildCreateForm();
   loading = signal(false);
-  noRecords = signal(true);
   availableGenders: EnumChoice[] = [];
   availableCategories: EnumChoice[] = [];
   availableLeagues: EnumChoice[] = [];
-  minDate: Date = new Date();
-  filterDialogVisible: boolean = false;
-  filterForm: FormGroup = this.buildFilterForm();
-  nbFilters: string = '0';
+  startDateForUpcomingTournaments: Date = new Date();
+  endDateForUpcomingTournaments: Date = addMonths(new Date(), 3);
+  minStartDateForUpcomingTournaments: Date = new Date();
+  minEndDateForUpcomingTournaments: Date = new Date();
+  startDateForPastTournaments: Date = addMonths(new Date(), -3);
+  endDateForPastTournaments: Date = new Date();
+  maxStartDateForPastTournaments: Date = new Date();
+  maxEndDateForPastTournaments: Date = new Date();
 
   ngOnInit() {
-    this.refreshItems(true);
     this.getLastLeagueValue();
     this.getEnumData();
   }
@@ -66,19 +64,10 @@ export class HomeComponent implements OnInit {
     return this.formBuilder.group({
       name: ['', [Validators.required]],
       category: [null, [Validators.required]],
-      start_date: [null, [Validators.required]],
+      start_date: [new Date(), [Validators.required]],
       location: [null, [Validators.required]],
       league: [null, [Validators.required]],
       gender: [null, [Validators.required]],
-    })
-  }
-
-  private buildFilterForm(): FormGroup {
-    return this.formBuilder.group({
-      category: [null, []],
-      gender: [null, []],
-      start_date: [null, []],
-      end_date: [null, []],
     })
   }
 
@@ -88,34 +77,6 @@ export class HomeComponent implements OnInit {
         league: res?.league
       })
     });
-  }
-
-  private refreshItems(init: boolean = false): void {
-    this.loading.set(true);
-    const {category, gender, start_date, end_date} = this.filterForm.value;
-    const page = this.first / this.rows + 1;
-    const filters: PaginatedTournamentRequest = {
-      ordering: 'start_date',
-      page: page,
-      page_size: 18,
-      category: category,
-      start_date: start_date ? toISODate(start_date) : undefined,
-      end_date: end_date ? toISODate(end_date) : undefined,
-      gender: gender,
-    }
-    this.tournamentService.getTournaments(filters)
-      .subscribe({
-        next: response => {
-          this.totalRecords = response.count
-          this.tournaments = response.results;
-          if (init) this.noRecords.set(response.count === 0);
-          this.loading.set(false);
-          this.filterDialogVisible = false;
-        },
-        error: () => {
-          this.loading.set(false);
-        }
-      });
   }
 
   private getEnumData(): void {
@@ -130,23 +91,8 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  filterTournaments(): void {
-    this.nbFilters = nbFiltersApplied(this.filterForm.value).toString();
-    this.refreshItems();
-  }
-
-  onPageChange(event: PaginatorState) {
-    this.first = event.first ?? 0;
-    this.rows = event.rows ?? 10;
-    this.refreshItems();
-  }
-
   showCreateDialog(): void {
     this.createDialogVisible = true;
-  }
-
-  showFilterDialog(): void {
-    this.filterDialogVisible = true;
   }
 
   createTournament(): void {
@@ -174,11 +120,4 @@ export class HomeComponent implements OnInit {
       }
     })
   }
-
-  reinitialiserFiltres(): void {
-    this.nbFilters = '0';
-    this.filterForm.reset();
-  }
-
-  protected readonly toFrenchDate = toFrenchDate;
 }

@@ -16,7 +16,7 @@ import {Tournament, TournamentRequest} from '../../../shared/models/tournament.m
 import {EnumChoice} from '../../../shared/models/base.models';
 import {TabsModule} from 'primeng/tabs';
 import {TournamentListComponent} from './tournament-list/tournament-list.component';
-import {addMonths} from 'date-fns';
+import {addMonths, startOfDay} from 'date-fns';
 
 @Component({
   selector: 'app-home',
@@ -46,14 +46,15 @@ export class HomeComponent implements OnInit {
   availableGenders: EnumChoice[] = [];
   availableCategories: EnumChoice[] = [];
   availableLeagues: EnumChoice[] = [];
-  startDateForUpcomingTournaments: Date = new Date();
-  endDateForUpcomingTournaments: Date = addMonths(new Date(), 3);
-  minStartDateForUpcomingTournaments: Date = new Date();
-  minEndDateForUpcomingTournaments: Date = new Date();
-  startDateForPastTournaments: Date = addMonths(new Date(), -3);
-  endDateForPastTournaments: Date = new Date();
-  maxStartDateForPastTournaments: Date = new Date();
-  maxEndDateForPastTournaments: Date = new Date();
+  private readonly today = startOfDay(new Date());
+  startDateForUpcomingTournaments: Date = this.today;
+  endDateForUpcomingTournaments: Date = addMonths(this.today, 3);
+  minStartDateForUpcomingTournaments: Date = this.today;
+  minEndDateForUpcomingTournaments: Date = this.today;
+  startDateForPastTournaments: Date = addMonths(this.today, -3);
+  endDateForPastTournaments: Date = this.today;
+  maxStartDateForPastTournaments: Date = this.today;
+  maxEndDateForPastTournaments: Date = this.today;
 
   ngOnInit() {
     this.getLastLeagueValue();

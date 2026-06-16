@@ -4,14 +4,16 @@
       class="flex flex-col gap-5 w-full items-center p-4"
       (ngSubmit)="updateTournament()">
 
-  <div class="flex flex-col w-full">
-    <label for="name">Nom du tournoi</label>
-    <input pInputText id="name" type="text" autocomplete="off" formControlName="name"/>
-  </div>
+  <div class="flex flex-row w-full justify-between gap-3">
+    <div class="flex flex-col w-full">
+      <label for="name">Nom du tournoi</label>
+      <input pInputText id="name" type="text" autocomplete="off" formControlName="name"/>
+    </div>
 
-  <div class="flex flex-col w-full">
-    <label for="location">Lieu</label>
-    <input pInputText id="location" type="text" autocomplete="off" formControlName="location"/>
+    <div class="flex flex-col w-full">
+      <label for="location">Club</label>
+      <p-select [options]="availableLocations()" fluid="" formControlName="location" inputId="location" [editable]="true" [showClear]="true" />
+    </div>
   </div>
 
   <div class="flex flex-row w-full justify-between gap-3">

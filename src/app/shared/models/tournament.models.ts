@@ -98,9 +98,10 @@ export interface SeedingRequest {
   placements: SeedingMatchPlacement[];
 }
 
-export interface LastInformationResponse {
-  league: string;
-  location: string;
+export interface TournamentInformationsResponse {
+  last_league: string;
+  last_location: string;
+  all_locations: string[];
 }
 
 export interface PaginatedTournamentRequest extends PaginatedRequest {

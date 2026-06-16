@@ -31,6 +31,7 @@ export class InfosComponent {
   private readonly confirmationService = inject(ConfirmationService);
   private readonly router = inject(Router);
   tournament = model.required<Tournament>();
+  availableLocations = input.required<string[]>();
   availableGenders = input.required<EnumChoice[]>();
   availableCategories = input.required<EnumChoice[]>();
   availableLeagues = input.required<EnumChoice[]>();

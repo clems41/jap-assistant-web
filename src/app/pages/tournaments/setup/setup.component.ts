@@ -11,6 +11,7 @@ import {NgIf} from '@angular/common';
 import {BracketsComponent} from './brackets/brackets.component';
 import {PairService} from '../../../shared/services/pair.service';
 import {Pair} from '../../../shared/models/pair.models';
+import {map} from 'rxjs';
 
 @Component({
   selector: 'app-setup',
@@ -43,6 +44,8 @@ export class SetupComponent implements OnInit {
   gameFormats = toSignal(this.tournamentService.getGameFormats(), {initialValue: []});
   configurations = toSignal(this.tournamentService.getConfigurations(), {initialValue: []});
   gameFormatDurations = toSignal(this.tournamentService.getGameFormatDurations(), {initialValue: []});
+  allLocations = toSignal(this.tournamentService.getInformations()
+    .pipe(map(response => response.all_locations)), {initialValue: []});
 
   ngOnInit() {
     this.refreshTournamentAndPairs();

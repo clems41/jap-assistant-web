@@ -17,6 +17,7 @@ import {EnumChoice} from '../../../shared/models/base.models';
 import {TabsModule} from 'primeng/tabs';
 import {TournamentListComponent} from './tournament-list/tournament-list.component';
 import {addMonths, startOfDay} from 'date-fns';
+import {forkJoin} from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -42,10 +43,12 @@ export class HomeComponent implements OnInit {
   tournaments: Tournament[] = [];
   createDialogVisible: boolean = false;
   createForm: FormGroup = this.buildCreateForm();
-  loading = signal(false);
+  createLoading = signal(false);
   availableGenders: EnumChoice[] = [];
   availableCategories: EnumChoice[] = [];
   availableLeagues: EnumChoice[] = [];
+  availableLocations: string[] = [];
+  dataLoading = signal(false);
   private readonly today = startOfDay(new Date());
   startDateForUpcomingTournaments: Date = this.today;
   endDateForUpcomingTournaments: Date = addMonths(this.today, 3);
@@ -57,8 +60,7 @@ export class HomeComponent implements OnInit {
   maxEndDateForPastTournaments: Date = this.today;
 
   ngOnInit() {
-    this.getLastLeagueValue();
-    this.getEnumData();
+    this.getData();
   }
 
   private buildCreateForm(): FormGroup {
@@ -72,24 +74,28 @@ export class HomeComponent implements OnInit {
     })
   }
 
-  private getLastLeagueValue(): void {
-    this.tournamentService.getLastInformations().subscribe(res => {
-      this.createForm.patchValue({
-        league: res?.league,
-        location: res?.location
-      })
-    });
-  }
-
-  private getEnumData(): void {
-    this.tournamentService.getCategories().subscribe(res => {
-      this.availableCategories = res
-    });
-    this.tournamentService.getGenders().subscribe(res => {
-      this.availableGenders = res
-    });
-    this.tournamentService.getLeagues().subscribe(res => {
-      this.availableLeagues = res
+  private getData(): void {
+    this.dataLoading.set(true);
+    forkJoin({
+      informations: this.tournamentService.getInformations(),
+      categories: this.tournamentService.getCategories(),
+      genders: this.tournamentService.getGenders(),
+      leagues: this.tournamentService.getLeagues(),
+    }).subscribe({
+      next: ({informations, categories, genders, leagues}) => {
+        this.createForm.patchValue({
+          league: informations?.last_league,
+          location: informations?.last_location
+        });
+        this.availableLocations = informations?.all_locations;
+        this.availableCategories = categories;
+        this.availableGenders = genders;
+        this.availableLeagues = leagues;
+        this.dataLoading.set(false);
+      },
+      error: () => {
+        this.dataLoading.set(false);
+      }
     });
   }
 
@@ -100,7 +106,7 @@ export class HomeComponent implements OnInit {
 
   createTournament(): void {
     if (this.createForm.invalid) return
-    this.loading.set(true);
+    this.createLoading.set(true);
     const {name, category, start_date, location, league, gender} = this.createForm.value;
     const input: TournamentRequest = {
       name: name,
@@ -112,12 +118,12 @@ export class HomeComponent implements OnInit {
     };
     this.tournamentService.createTournament(input).subscribe({
       next: (response) => {
-        this.loading.set(false);
+        this.createLoading.set(false);
         this.createDialogVisible = false;
         this.router.navigate([`/tournaments/setup/${response.id}`]).then();
       },
       error: () => {
-        this.loading.set(false);
+        this.createLoading.set(false);
         this.createDialogVisible = false;
         this.createForm.reset();
       }

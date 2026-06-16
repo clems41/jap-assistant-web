@@ -1,4 +1,4 @@
-import {Component, inject, input, OnInit, signal} from '@angular/core';
+import {Component, inject, input, OnInit, output, signal} from '@angular/core';
 import {Bracket, ScoreRequest, SeedingRequest, Tournament} from '../../../../shared/models/tournament.models';
 import {EnumChoice} from '../../../../shared/models/base.models';
 import {Pair} from '../../../../shared/models/pair.models';
@@ -21,6 +21,7 @@ export class BracketsComponent implements OnInit {
   tournament = input.required<Tournament>();
   pairs = input.required<Pair[]>();
   availableGameFormats = input.required<EnumChoice[]>();
+  bracketChange = output<Bracket | null>();
 
   private readonly tournamentService = inject(TournamentService);
   private readonly confirmationService = inject(ConfirmationService);
@@ -47,6 +48,7 @@ export class BracketsComponent implements OnInit {
       .subscribe({
         next: bracket => {
           this.bracket.set(bracket);
+          this.bracketChange.emit(bracket);
           this.loading.set(false);
           this.bracketAlreadyGenerated.set(true);
         },
@@ -56,6 +58,7 @@ export class BracketsComponent implements OnInit {
 
   bracketHasBeenGenerated(bracket: Bracket): void {
     this.bracket.set(bracket);
+    this.bracketChange.emit(bracket);
     this.bracketAlreadyGenerated.set(true);
   }
 
@@ -74,6 +77,7 @@ export class BracketsComponent implements OnInit {
           .subscribe({
             next: () => {
               this.bracket.set(null);
+              this.bracketChange.emit(null);
               this.bracketAlreadyGenerated.set(false);
             }
           });

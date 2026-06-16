@@ -1,10 +1,26 @@
 @if (tournament(); as t) {
   <p-tabs value="infos" [showNavigators]="false">
     <p-tablist>
-      <p-tab value="infos">Informations</p-tab>
-      <p-tab value="players">Joueurs</p-tab>
-      <p-tab value="settings">Configuration</p-tab>
-      <p-tab value="brackets" *ngIf="tournamentContainsBracket">Tableau principal</p-tab>
+      <p-tab value="infos">Informations
+        @if (getBadgeValue('infos') > 0) {
+          <p-badge [value]="getBadgeValue('infos')" />
+        }
+      </p-tab>
+      <p-tab value="players">Joueurs
+        @if (getBadgeValue('players') > 0) {
+          <p-badge [value]="getBadgeValue('players')" />
+        }
+      </p-tab>
+      <p-tab value="settings">Configuration
+        @if (getBadgeValue('settings') > 0) {
+          <p-badge [value]="getBadgeValue('settings')" />
+        }
+      </p-tab>
+      <p-tab value="brackets" *ngIf="tournamentContainsBracket">Tableau principal
+        @if (getBadgeValue('brackets') > 0) {
+          <p-badge [value]="getBadgeValue('brackets')" />
+        }
+      </p-tab>
     </p-tablist>
     <p-tabpanels>
       <p-tabpanel value="infos">
@@ -38,6 +54,7 @@
           [tournament]="t"
           [pairs]="pairs()"
           [availableGameFormats]="gameFormats()"
+          (bracketChange)="bracket.set($event)"
         ></app-brackets>
       </p-tabpanel>
     </p-tabpanels>

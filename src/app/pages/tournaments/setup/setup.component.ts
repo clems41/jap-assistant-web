@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {TournamentService} from '../../../shared/services/tournament.service';
-import {Tournament, TournamentStatus} from '../../../shared/models/tournament.models';
+import {Tournament, TournamentStatus, Bracket} from '../../../shared/models/tournament.models';
 import {TabsModule} from 'primeng/tabs';
 import {InfosComponent} from './infos/infos.component';
 import {PlayersComponent} from './players/players.component';
@@ -12,6 +12,9 @@ import {BracketsComponent} from './brackets/brackets.component';
 import {PairService} from '../../../shared/services/pair.service';
 import {Pair} from '../../../shared/models/pair.models';
 import {map} from 'rxjs';
+import { BadgeModule } from 'primeng/badge';
+import { OverlayBadgeModule } from 'primeng/overlaybadge';
+import {collectPlacedPairIds} from '../../../shared/utils/bracket.utils';
 
 @Component({
   selector: 'app-setup',
@@ -22,6 +25,8 @@ import {map} from 'rxjs';
     SettingsComponent,
     NgIf,
     BracketsComponent,
+    BadgeModule,
+    OverlayBadgeModule
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './setup.component.html'
@@ -36,6 +41,7 @@ export class SetupComponent implements OnInit {
   private readonly configurationThatContainsBrackets = ['TMC'];
   tournament = signal<Tournament | null>(null);
   pairs = signal<Pair[]>([]);
+  bracket = signal<Bracket | null>(null);
   loading = signal<boolean>(false);
 
   genders = toSignal(this.tournamentService.getGenders(), {initialValue: []});
@@ -81,5 +87,30 @@ export class SetupComponent implements OnInit {
   get tournamentContainsBracket(): boolean {
     return this.configurationThatContainsBrackets.includes(this.tournament()?.configuration ?? '') &&
       this.tournament()?.status === TournamentStatus.SET;
+  }
+
+  getBadgeValue(tab: string): number {
+    const t = this.tournament();
+    switch (tab) {
+      case 'infos':
+        return [t?.name, t?.location, t?.category, t?.gender, t?.league, t?.start_date]
+          .filter(value => !value).length;
+      case 'players':
+        return this.pairs().filter(p => p.weight === null).length;
+      case 'settings':
+        return [t?.game_format, t?.configuration, t?.estimated_match_duration]
+          .filter(value => value === undefined || value === null || value === '').length;
+      case 'brackets':
+        return this.unplacedPairsCount();
+      default:
+        return 0;
+    }
+  }
+
+  private unplacedPairsCount(): number {
+    const bracket = this.bracket();
+    if (!bracket) return 0;
+    const placed = collectPlacedPairIds(bracket.root_match);
+    return this.pairs().filter(p => !placed.has(p.id)).length;
   }
 }

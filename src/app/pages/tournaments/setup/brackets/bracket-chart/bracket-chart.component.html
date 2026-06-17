@@ -237,7 +237,7 @@
                  [class.bg-success-5]="scoreForm.get('winnerId')?.value === junction.match.pair1"
                  (click)="scoreForm.get('winnerId')?.setValue(junction.match.pair1)">
               <p-radiobutton
-                name="winner"
+                name="winnerId"
                 [value]="junction.match.pair1"
                 formControlName="winnerId" />
               <span class="text-body-regular">{{ getPairName(junction.match.pair1) }}</span>
@@ -249,7 +249,7 @@
                  [class.bg-success-5]="scoreForm.get('winnerId')?.value === junction.match.pair2"
                  (click)="scoreForm.get('winnerId')?.setValue(junction.match.pair2)">
               <p-radiobutton
-                name="winner"
+                name="winnerId"
                 [value]="junction.match.pair2"
                 formControlName="winnerId" />
               <span class="text-body-regular">{{ getPairName(junction.match.pair2) }}</span>

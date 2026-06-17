@@ -70,7 +70,7 @@ export class BracketChartComponent {
 
   layout = computed<BracketLayout>(() => this.computeLayout(this.bracket().root_match));
 
-  selectedJunction = signal<MatchJunction | null>(null);
+  selectedMatch = signal<BracketMatch | null>(null);
 
   scoreForm = this.fb.group({
     score: ['', Validators.required],
@@ -174,28 +174,25 @@ export class BracketChartComponent {
     });
   }
 
-  onJunctionClick(junction: MatchJunction): void {
-    const match = junction.match;
-    if (!match.pair1 && !match.pair2) return;
+  onMatchClick(match: BracketMatch): void {
     this.scoreForm.reset({
       score: match.score || '',
       winnerId: match.winner_id || null,
     });
-    this.selectedJunction.set(junction);
+    this.selectedMatch.set(match);
   }
 
   saveScore(): void {
     if (this.scoreForm.invalid) return;
-    const junction = this.selectedJunction();
-    if (!junction) return;
+    const match = this.selectedMatch();
+    if (!match) return;
     const { score, winnerId } = this.scoreForm.value;
-    this.scoreChanged.emit({ matchId: junction.match.id, score: score!, winnerId: winnerId! });
+    this.scoreChanged.emit({ matchId: match.id, score: score!, winnerId: winnerId! });
     this.closeDialog();
   }
 
   closeDialog(): void {
-    this.selectedJunction.set(null);
-    this.scoreForm.reset();
+    this.selectedMatch.set(null);
   }
 
   private collectLockedSlots(match: BracketMatch | null, result: Set<string>): void {

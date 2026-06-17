@@ -149,7 +149,7 @@
                   [disabled]="!hasBothPairs"
                   [title]="junction.match.round_display + ' #' + junction.match.match_number"
                   (mousedown)="$event.stopPropagation()"
-                  (click)="$event.stopPropagation(); onJunctionClick(junction)">
+                  (click)="$event.stopPropagation(); onMatchClick(junction.match)">
             {{ junction.match.score || '+' }}
           </button>
         }
@@ -215,11 +215,11 @@
   </div>
 
 <!-- Score dialog -->
-@if (selectedJunction(); as junction) {
+@if (selectedMatch(); as match) {
   <p-dialog
     [visible]="true"
     (visibleChange)="!$event && closeDialog()"
-    [header]="junction.match.round_display + ' #' + junction.match.match_number"
+    [header]="match.round_display + ' #' + match.match_number"
     [modal]="true"
     [style]="{width: '360px'}"
     [draggable]="false"
@@ -231,28 +231,28 @@
       <div class="flex flex-col gap-3">
         <span class="text-label text-gris-80">Vainqueur</span>
         <div class="flex flex-col gap-2">
-          @if (junction.match.pair1) {
+          @if (match.pair1) {
             <div class="flex items-center gap-3 p-3 rounded-lg border border-gris-15 cursor-pointer"
-                 [class.border-success-50]="scoreForm.get('winnerId')?.value === junction.match.pair1"
-                 [class.bg-success-5]="scoreForm.get('winnerId')?.value === junction.match.pair1"
-                 (click)="scoreForm.get('winnerId')?.setValue(junction.match.pair1)">
+                 [class.border-success-50]="scoreForm.get('winnerId')?.value === match.pair1"
+                 [class.bg-success-5]="scoreForm.get('winnerId')?.value === match.pair1"
+                 (click)="scoreForm.get('winnerId')?.setValue(match.pair1)">
               <p-radiobutton
                 name="winnerId"
-                [value]="junction.match.pair1"
+                [value]="match.pair1"
                 formControlName="winnerId" />
-              <span class="text-body-regular">{{ getPairName(junction.match.pair1) }}</span>
+              <span class="text-body-regular">{{ getPairName(match.pair1) }}</span>
             </div>
           }
-          @if (junction.match.pair2) {
+          @if (match.pair2) {
             <div class="flex items-center gap-3 p-3 rounded-lg border border-gris-15 cursor-pointer"
-                 [class.border-success-50]="scoreForm.get('winnerId')?.value === junction.match.pair2"
-                 [class.bg-success-5]="scoreForm.get('winnerId')?.value === junction.match.pair2"
-                 (click)="scoreForm.get('winnerId')?.setValue(junction.match.pair2)">
+                 [class.border-success-50]="scoreForm.get('winnerId')?.value === match.pair2"
+                 [class.bg-success-5]="scoreForm.get('winnerId')?.value === match.pair2"
+                 (click)="scoreForm.get('winnerId')?.setValue(match.pair2)">
               <p-radiobutton
                 name="winnerId"
-                [value]="junction.match.pair2"
+                [value]="match.pair2"
                 formControlName="winnerId" />
-              <span class="text-body-regular">{{ getPairName(junction.match.pair2) }}</span>
+              <span class="text-body-regular">{{ getPairName(match.pair2) }}</span>
             </div>
           }
         </div>

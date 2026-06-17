@@ -24,6 +24,10 @@
               <i class="bi bi-pin-map text-primary-100"></i>
               <span>{{ tournament.location }}</span>
             </div>
+            <div class="flex flex-row items-center gap-2 text-body-light text-gris-100">
+              <i class="bi bi-people text-primary-100"></i>
+              <span>{{ tournament.pairs_count }} paire{{ tournament.pairs_count > 1 ? 's' : '' }} inscrite{{ tournament.pairs_count > 1 ? 's' : '' }}</span>
+            </div>
             <div class="flex flex-row flex-wrap gap-2 pt-1">
               <p-tag [value]="tournament.category" severity="warn"></p-tag>
               <p-tag [value]="tournament.gender" severity="info"></p-tag>

@@ -51,19 +51,9 @@
         <!-- Pair slots — seeding mode -->
         @for (slot of layout().pairSlots; track slot.id) {
           @if (!slot.isChampion) {
-            @if (blockedSlotIds().has(slot.id) && !seedingMap().get(slot.id)) {
-              @if (!allPairsPlaced()) {
-                <!-- Slot bloqué vide, paires restantes : "Non disponible" -->
-                <div class="absolute flex items-center px-2 rounded-lg border border-gris-15 bg-gris-5 opacity-50"
-                     [style.left.px]="slot.x"
-                     [style.top.px]="slot.y - HEADER_HEIGHT - PAIR_H / 2"
-                     [style.width.px]="PAIR_W"
-                     [style.height.px]="PAIR_H">
-                  <i class="bi bi-slash-circle text-gris-30 text-xs mr-1.5 shrink-0"></i>
-                  <span class="text-xs text-gris-30 truncate">Non disponible</span>
-                </div>
-              } @else if (slot.isLeaf || rule1BlockedSlotIds().has(slot.id)) {
-                <!-- Slot bypassed (feuille ou sous-arbre d'un placement direct) : disabled -->
+            @if (!seedingMap().get(slot.id) && slot.state !== SlotState.Interactive) {
+              @if (slot.state === SlotState.Bypassed) {
+                <!-- Slot bypassed : disabled -->
                 <div class="absolute rounded-lg border border-gris-15 bg-gris-5 opacity-50"
                      [style.left.px]="slot.x"
                      [style.top.px]="slot.y - HEADER_HEIGHT - PAIR_H / 2"

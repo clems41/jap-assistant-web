@@ -1,5 +1,11 @@
 import { BracketMatch } from '../../../../../shared/models/tournament.models';
 
+export enum SlotState {
+  Bypassed,
+  WaitingForWinner,
+  Interactive,
+}
+
 export interface PairSlot {
   id: string;
   pairId: number | null;
@@ -7,7 +13,7 @@ export interface PairSlot {
   y: number;
   isWinner: boolean;
   isChampion: boolean;
-  isLeaf: boolean;
+  state: SlotState;
 }
 
 export interface MatchJunction {

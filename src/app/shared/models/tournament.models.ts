@@ -45,7 +45,9 @@ export interface BracketMatch {
   winner_id: number;
   child1: BracketMatch;
   child2: BracketMatch;
-
+  disabled: boolean;
+  pair1_can_be_placed: boolean;
+  pair2_can_be_placed: boolean;
 }
 
 export interface DurationByGameFormat {

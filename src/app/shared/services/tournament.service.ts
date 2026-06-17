@@ -52,7 +52,6 @@ export class TournamentService {
     return this.http.patch<Bracket>(
       `/tournaments/${tournamentId}/bracket/placement`,
       request,
-      { succes_message: 'Placement enregistré' }
     );
   }
 

@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, inject, input, output, signal} from '@angular/core';
-import {Tournament} from '../../../../shared/models/tournament.models';
+import {Tournament, TournamentStatus} from '../../../../shared/models/tournament.models';
 import {PairService} from '../../../../shared/services/pair.service';
 import {Pair, PairRequest} from '../../../../shared/models/pair.models';
 import {LoadingSpinnerComponent} from '../../../../shared/components/loading-spinner/loading-spinner.component';
@@ -10,10 +10,11 @@ import {InputTextModule} from 'primeng/inputtext';
 import {FieldErrorComponent} from '../../../../shared/components/field-error/field-error.component';
 import {isLicenseNumber} from '../../../../shared/validators/form.validators';
 import {InputMaskModule} from 'primeng/inputmask';
-import {NgClass, NgTemplateOutlet} from '@angular/common';
+import {NgClass, NgIf, NgTemplateOutlet} from '@angular/common';
 import {ConfirmationService} from 'primeng/api';
 import {InputNumberModule} from 'primeng/inputnumber';
 import {FileUploadHandlerEvent, FileUploadModule} from 'primeng/fileupload';
+import {TOGGLEBUTTON_VALUE_ACCESSOR} from 'primeng/togglebutton';
 
 @Component({
   selector: 'app-players',
@@ -29,6 +30,7 @@ import {FileUploadHandlerEvent, FileUploadModule} from 'primeng/fileupload';
     NgTemplateOutlet,
     InputNumberModule,
     FileUploadModule,
+    NgIf,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './players.component.html'
@@ -61,6 +63,10 @@ export class PlayersComponent {
       player2_phone_number: ['', []],
       player2_ranking: [null, [Validators.min(1)]],
     })
+  }
+
+  get playersAreLocked(): boolean {
+    return this.tournament().status === TournamentStatus.STARTED || this.tournament().status === TournamentStatus.FINISHED
   }
 
   pairDataIsComplete(pair: Pair): boolean {
@@ -226,4 +232,7 @@ export class PlayersComponent {
       },
     });
   }
+
+  protected readonly TOGGLEBUTTON_VALUE_ACCESSOR = TOGGLEBUTTON_VALUE_ACCESSOR;
+  protected readonly TournamentStatus = TournamentStatus;
 }

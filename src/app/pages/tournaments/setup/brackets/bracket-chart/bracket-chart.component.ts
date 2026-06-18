@@ -13,7 +13,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   Bracket,
   BracketMatch,
-  SeedingRequest,
+  SeedingRequest, Tournament, TournamentStatus,
 } from '../../../../../shared/models/tournament.models';
 import { Pair } from '../../../../../shared/models/pair.models';
 import { ButtonModule } from 'primeng/button';
@@ -53,6 +53,7 @@ import {NgIf} from '@angular/common';
 })
 export class BracketChartComponent {
   bracket = input.required<Bracket>();
+  tournament = input.required<Tournament>();
   pairs = input.required<Pair[]>();
 
   scoreChanged = output<{ matchId: number; score: string; winnerId: number }>();
@@ -311,4 +312,6 @@ export class BracketChartComponent {
       totalHeight: bracketHeight + HEADER_HEIGHT,
     };
   }
+
+  protected readonly TournamentStatus = TournamentStatus;
 }

@@ -4,6 +4,7 @@
     <app-bracket-chart
       [bracket]="b"
       [pairs]="pairs()"
+      [tournament]="tournament()"
       (scoreChanged)="onScoreChanged($event)"
       (seedingChanged)="onSeedingChanged($event)"
       (deleteRequested)="onDeleteBracketRequested()">

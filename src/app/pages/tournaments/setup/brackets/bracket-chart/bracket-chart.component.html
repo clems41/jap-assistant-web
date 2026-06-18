@@ -1,8 +1,9 @@
-  <div class="flex font-poppins bracket-area overflow-hidden -mt-3">
+<div class="flex font-poppins bracket-area overflow-hidden -mt-3">
 
-    <!-- Bracket scrollable -->
-    <div class="flex-1 relative">
-    <div class="absolute top-4 right-10 z-10" *ngIf="allPairsPlaced()">
+  <!-- Bracket scrollable -->
+  <div class="flex-1 relative">
+    <div class="absolute top-4 right-10 z-10"
+         *ngIf="allPairsPlaced() && tournament().status != TournamentStatus.FINISHED">
       <p-button label="Supprimer le tableau"
                 icon="pi pi-trash"
                 severity="danger"
@@ -32,173 +33,177 @@
           </div>
         </div>
 
-      <div class="relative" [style.width.px]="layout().totalWidth" [style.height.px]="layout().totalHeight - HEADER_HEIGHT">
+        <div class="relative" [style.width.px]="layout().totalWidth"
+             [style.height.px]="layout().totalHeight - HEADER_HEIGHT">
 
-        <!-- SVG connectors -->
-        <svg class="absolute inset-0 overflow-visible pointer-events-none"
-             [attr.width]="layout().totalWidth"
-             [attr.height]="layout().totalHeight - HEADER_HEIGHT">
-          <g [attr.transform]="'translate(0,' + (-HEADER_HEIGHT) + ')'">
-            @for (c of layout().connectors; track c.id) {
-              <path [attr.d]="c.path"
-                    fill="none"
-                    stroke-width="2"
-                    [attr.stroke]="c.isWinner ? 'var(--color-success-100)' : 'var(--color-gris-30)'" />
-            }
-          </g>
-        </svg>
+          <!-- SVG connectors -->
+          <svg class="absolute inset-0 overflow-visible pointer-events-none"
+               [attr.width]="layout().totalWidth"
+               [attr.height]="layout().totalHeight - HEADER_HEIGHT">
+            <g [attr.transform]="'translate(0,' + (-HEADER_HEIGHT) + ')'">
+              @for (c of layout().connectors; track c.id) {
+                <path [attr.d]="c.path"
+                      fill="none"
+                      stroke-width="2"
+                      [attr.stroke]="c.isWinner ? 'var(--color-success-100)' : 'var(--color-gris-30)'"/>
+              }
+            </g>
+          </svg>
 
-        <!-- Pair slots — seeding mode -->
-        @for (slot of layout().pairSlots; track slot.id) {
-          @if (!slot.isChampion) {
-            @if (!seedingMap().get(slot.id) && slot.state !== SlotState.Interactive) {
-              @if (slot.state === SlotState.Bypassed) {
-                <!-- Slot bypassed : disabled -->
-                <div class="absolute rounded-lg border border-gris-15 bg-gris-5 opacity-50"
-                     [style.left.px]="slot.x"
-                     [style.top.px]="slot.y - HEADER_HEIGHT - PAIR_H / 2"
-                     [style.width.px]="PAIR_W"
-                     [style.height.px]="PAIR_H">
-                </div>
+          <!-- Pair slots — seeding mode -->
+          @for (slot of layout().pairSlots; track slot.id) {
+            @if (!slot.isChampion) {
+              @if (!seedingMap().get(slot.id) && slot.state !== SlotState.Interactive) {
+                @if (slot.state === SlotState.Bypassed) {
+                  <!-- Slot bypassed : disabled -->
+                  <div class="absolute rounded-lg border border-gris-15 bg-gris-5 opacity-50"
+                       [style.left.px]="slot.x"
+                       [style.top.px]="slot.y - HEADER_HEIGHT - PAIR_H / 2"
+                       [style.width.px]="PAIR_W"
+                       [style.height.px]="PAIR_H">
+                  </div>
+                } @else {
+                  <!-- Non-leaf bloqué par Règle 2 : blanc (recevra le gagnant) -->
+                  <div class="absolute rounded-lg border border-gris-15 bg-blanc-100"
+                       [style.left.px]="slot.x"
+                       [style.top.px]="slot.y - HEADER_HEIGHT - PAIR_H / 2"
+                       [style.width.px]="PAIR_W"
+                       [style.height.px]="PAIR_H">
+                  </div>
+                }
               } @else {
-                <!-- Non-leaf bloqué par Règle 2 : blanc (recevra le gagnant) -->
-                <div class="absolute rounded-lg border border-gris-15 bg-blanc-100"
+                <!-- Slot interactif -->
+                <div class="absolute flex items-center px-2 rounded-lg border transition-colors"
+                     cdkDropList
+                     [id]="'drop-' + slot.id"
+                     [cdkDropListData]="slot"
+                     [cdkDropListConnectedTo]="['pairs-panel-list']"
+                     [cdkDropListEnterPredicate]="slotEnterPredicate"
+                     [cdkDropListSortingDisabled]="true"
+                     (cdkDropListDropped)="onDropIntoSlot($event, slot)"
                      [style.left.px]="slot.x"
                      [style.top.px]="slot.y - HEADER_HEIGHT - PAIR_H / 2"
                      [style.width.px]="PAIR_W"
-                     [style.height.px]="PAIR_H">
+                     [style.height.px]="PAIR_H"
+                     [class]="seedingMap().get(slot.id)
+                     ? 'border-gris-15 bg-blanc-100'
+                     : 'border-dashed border-primary-30 bg-primary-5'">
+                  @if (seedingMap().get(slot.id); as placedPairId) {
+                    @let players = getPairPlayerNames(placedPairId);
+                    @if (getSeedRank(placedPairId); as rank) {
+                      <div class="absolute -top-2 -right-2 z-10">
+                        <p-tag [value]="rank.toString()" severity="warn"
+                               styleClass="!text-xs !rounded-full !leading-none"></p-tag>
+                      </div>
+                    }
+                    <div class="flex items-center w-full min-w-0 gap-1">
+                      <div class="flex flex-col flex-1 min-w-0">
+                        <span class="text-xs leading-tight truncate font-medium">{{ players[0] }}</span>
+                        <span class="text-xs leading-tight truncate text-gris-50">{{ players[1] }}</span>
+                      </div>
+                      @if (!lockedSlotIds().has(slot.id)) {
+                        <button type="button"
+                                class="shrink-0 text-gris-50 hover:text-error-100 transition-colors"
+                                (click)="onRemoveFromSlot(slot.id)">
+                          <i class="bi bi-x-lg text-xs"></i>
+                        </button>
+                      }
+                    </div>
+                  } @else {
+                    <span class="text-xs text-primary-50 truncate">Déposer ici</span>
+                  }
                 </div>
               }
             } @else {
-              <!-- Slot interactif -->
-              <div class="absolute flex items-center px-2 rounded-lg border transition-colors"
-                   cdkDropList
-                   [id]="'drop-' + slot.id"
-                   [cdkDropListData]="slot"
-                   [cdkDropListConnectedTo]="['pairs-panel-list']"
-                   [cdkDropListEnterPredicate]="slotEnterPredicate"
-                   [cdkDropListSortingDisabled]="true"
-                   (cdkDropListDropped)="onDropIntoSlot($event, slot)"
-                   [style.left.px]="slot.x"
-                   [style.top.px]="slot.y - HEADER_HEIGHT - PAIR_H / 2"
-                   [style.width.px]="PAIR_W"
-                   [style.height.px]="PAIR_H"
-                   [class]="seedingMap().get(slot.id)
-                     ? 'border-gris-15 bg-blanc-100'
-                     : 'border-dashed border-primary-30 bg-primary-5'">
-                @if (seedingMap().get(slot.id); as placedPairId) {
-                  @let players = getPairPlayerNames(placedPairId);
-                  @if (getSeedRank(placedPairId); as rank) {
-                    <div class="absolute -top-2 -right-2 z-10">
-                      <p-tag [value]="rank.toString()" severity="warn" styleClass="!text-xs !rounded-full !leading-none"></p-tag>
-                    </div>
-                  }
-                  <div class="flex items-center w-full min-w-0 gap-1">
-                    <div class="flex flex-col flex-1 min-w-0">
-                      <span class="text-xs leading-tight truncate font-medium">{{ players[0] }}</span>
-                      <span class="text-xs leading-tight truncate text-gris-50">{{ players[1] }}</span>
-                    </div>
-                    @if (!lockedSlotIds().has(slot.id)) {
-                      <button type="button"
-                              class="shrink-0 text-gris-50 hover:text-error-100 transition-colors"
-                              (click)="onRemoveFromSlot(slot.id)">
-                        <i class="bi bi-x-lg text-xs"></i>
-                      </button>
-                    }
+              <!-- Champion : read-only -->
+              <div
+                class="absolute flex items-center px-3 rounded-lg border border-primary-100 bg-primary-5 shadow-md transition-colors"
+                [style.left.px]="slot.x"
+                [style.top.px]="slot.y - HEADER_HEIGHT - PAIR_H / 2"
+                [style.width.px]="PAIR_W"
+                [style.height.px]="PAIR_H">
+                <i class="bi bi-trophy-fill text-primary-100 mr-2 shrink-0"></i>
+                @if (slot.pairId) {
+                  @let players = getPairPlayerNames(slot.pairId);
+                  <div class="flex flex-col flex-1 min-w-0">
+                    <span class="text-xs leading-tight truncate font-semibold text-primary-120">{{ players[0] }}</span>
+                    <span class="text-xs leading-tight truncate text-primary-80">{{ players[1] }}</span>
                   </div>
                 } @else {
-                  <span class="text-xs text-primary-50 truncate">Déposer ici</span>
+                  <span class="text-body-light text-primary-120 font-semibold">—</span>
                 }
               </div>
             }
-          } @else {
-            <!-- Champion : read-only -->
-            <div class="absolute flex items-center px-3 rounded-lg border border-primary-100 bg-primary-5 shadow-md transition-colors"
-                 [style.left.px]="slot.x"
-                 [style.top.px]="slot.y - HEADER_HEIGHT - PAIR_H / 2"
-                 [style.width.px]="PAIR_W"
-                 [style.height.px]="PAIR_H">
-              <i class="bi bi-trophy-fill text-primary-100 mr-2 shrink-0"></i>
-              @if (slot.pairId) {
-                @let players = getPairPlayerNames(slot.pairId);
-                <div class="flex flex-col flex-1 min-w-0">
-                  <span class="text-xs leading-tight truncate font-semibold text-primary-120">{{ players[0] }}</span>
-                  <span class="text-xs leading-tight truncate text-primary-80">{{ players[1] }}</span>
-                </div>
-              } @else {
-                <span class="text-body-light text-primary-120 font-semibold">—</span>
-              }
-            </div>
           }
-        }
 
-        <!-- Junction badges -->
-        @for (junction of layout().junctions; track junction.match.id) {
-          @let hasBothPairs = !!junction.match.pair1 && !!junction.match.pair2;
-          <button type="button"
-                  class="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border
+          <!-- Junction badges -->
+          @for (junction of layout().junctions; track junction.match.id) {
+            @let hasBothPairs = !!junction.match.pair1 && !!junction.match.pair2;
+            <button type="button"
+                    class="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border
                          bg-blanc-100 shadow-sm px-2 py-0.5 text-label text-gris-80
                          min-w-12 text-center transition-colors focus:outline-none"
-                  [style.left.px]="junction.x"
-                  [style.top.px]="junction.y - HEADER_HEIGHT"
-                  [class.border-success-50]="junction.match.winner_id"
-                  [class.border-gris-15]="!junction.match.winner_id"
-                  [class.cursor-pointer]="hasBothPairs"
-                  [class.cursor-not-allowed]="!hasBothPairs"
-                  [class.opacity-40]="!hasBothPairs"
-                  [disabled]="!hasBothPairs"
-                  [title]="junction.match.round_display + ' #' + junction.match.match_number"
-                  (mousedown)="$event.stopPropagation()"
-                  (click)="$event.stopPropagation(); onMatchClick(junction.match)">
-            {{ junction.match.score || '+' }}
-          </button>
-        }
+                    [style.left.px]="junction.x"
+                    [style.top.px]="junction.y - HEADER_HEIGHT"
+                    [class.border-success-50]="junction.match.winner_id"
+                    [class.border-gris-15]="!junction.match.winner_id"
+                    [class.cursor-pointer]="hasBothPairs"
+                    [class.cursor-not-allowed]="!hasBothPairs"
+                    [class.opacity-40]="!hasBothPairs"
+                    [disabled]="!hasBothPairs"
+                    [title]="junction.match.round_display + ' #' + junction.match.match_number"
+                    (mousedown)="$event.stopPropagation()"
+                    (click)="$event.stopPropagation(); onMatchClick(junction.match)">
+              {{ junction.match.score || '+' }}
+            </button>
+          }
 
-      </div>
-      </div>
-    </div>
-    </div>
-
-    <!-- Panneau paires (droite) -->
-    @if (!allPairsPlaced()) {
-      <div class="w-80 shrink-0 flex flex-col border-l border-gris-15 overflow-y-auto">
-        <!-- Header panneau -->
-        <div class="flex flex-col px-4 py-3 border-b border-gris-15 bg-blanc-100 sticky top-0 gap-2">
-          <div class="flex items-center justify-between">
-            <span class="text-body-bold text-contrast-100">Liste des paires</span>
-            <span class="text-body-light text-gris-80 ml-auto">{{ pairs().length - unplacedPairs().length }}/{{ pairs().length }} placées</span>
-          </div>
-          <div class="flex items-center gap-4">
-            <span class="text-body-light text-gris-80">Dimension : <b class="text-contrast-100">{{ bracket().dimension }}</b></span>
-            <span class="text-body-light text-gris-80">TS : <b class="text-contrast-100">{{ bracket().nb_top_seeds }}</b></span>
-          </div>
         </div>
+      </div>
+    </div>
+  </div>
 
-        <!-- Liste des paires non placées -->
-        <div cdkDropList
-             id="pairs-panel-list"
-             [cdkDropListData]="unplacedPairs()"
-             [cdkDropListConnectedTo]="dropListIds()"
-             [cdkDropListSortingDisabled]="true"
-             class="flex flex-col gap-2 p-3 flex-1 min-h-20">
-          @for (pair of unplacedPairs(); track pair.id) {
-            <div cdkDrag
-                 [cdkDragData]="pair.id"
-                 class="flex items-center gap-2 px-3 py-2 rounded-lg border border-gris-15
+  <!-- Panneau paires (droite) -->
+  @if (!allPairsPlaced()) {
+    <div class="w-80 shrink-0 flex flex-col border-l border-gris-15 overflow-y-auto">
+      <!-- Header panneau -->
+      <div class="flex flex-col px-4 py-3 border-b border-gris-15 bg-blanc-100 sticky top-0 gap-2">
+        <div class="flex items-center justify-between">
+          <span class="text-body-bold text-contrast-100">Liste des paires</span>
+          <span class="text-body-light text-gris-80 ml-auto">{{ pairs().length - unplacedPairs().length }}
+            /{{ pairs().length }} placées</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <span class="text-body-light text-gris-80">Dimension : <b
+            class="text-contrast-100">{{ bracket().dimension }}</b></span>
+          <span class="text-body-light text-gris-80">TS : <b class="text-contrast-100">{{ bracket().nb_top_seeds }}</b></span>
+        </div>
+      </div>
+
+      <!-- Liste des paires non placées -->
+      <div cdkDropList
+           id="pairs-panel-list"
+           [cdkDropListData]="unplacedPairs()"
+           [cdkDropListConnectedTo]="dropListIds()"
+           [cdkDropListSortingDisabled]="true"
+           class="flex flex-col gap-2 p-3 flex-1 min-h-20">
+        @for (pair of unplacedPairs(); track pair.id) {
+          <div cdkDrag
+               [cdkDragData]="pair.id"
+               class="flex items-center gap-2 px-3 py-2 rounded-lg border border-gris-15
                       bg-blanc-100 shadow-sm cursor-grab active:cursor-grabbing
                       hover:border-primary-50 transition-colors">
-              @if (getSeedRank(pair.id); as rank) {
-                <p-tag [value]="'TS' + rank" severity="warn" styleClass="shrink-0 !text-xs !px-1 !py-0"></p-tag>
-              }
-              <span class="text-body-light truncate flex-1">{{ getPairName(pair.id) }}</span>
-            </div>
-          }
-          @empty {
-            <p class="text-gris-50 text-body-light text-center py-6 text-xs">
-              Toutes les paires sont placées
-            </p>
-          }
-          <div class="flex justify-center gap-4">
+            @if (getSeedRank(pair.id); as rank) {
+              <p-tag [value]="'TS' + rank" severity="warn" styleClass="shrink-0 !text-xs !px-1 !py-0"></p-tag>
+            }
+            <span class="text-body-light truncate flex-1">{{ getPairName(pair.id) }}</span>
+          </div>
+        } @empty {
+          <p class="text-gris-50 text-body-light text-center py-6 text-xs">
+            Toutes les paires sont placées
+          </p>
+        }
+        <div class="flex justify-center gap-4" *ngIf="tournament().status != TournamentStatus.FINISHED">
           <p-button label="Supprimer le tableau"
                     icon="pi pi-trash"
                     severity="danger"
@@ -207,12 +212,12 @@
                     (onClick)="deleteRequested.emit()">
           </p-button>
         </div>
-        </div>
       </div>
-    }
+    </div>
+  }
 
 
-  </div>
+</div>
 
 <!-- Score dialog -->
 @if (selectedMatch(); as match) {
@@ -239,7 +244,7 @@
               <p-radiobutton
                 name="winnerId"
                 [value]="match.pair1"
-                formControlName="winnerId" />
+                formControlName="winnerId"/>
               <span class="text-body-regular">{{ getPairName(match.pair1) }}</span>
             </div>
           }
@@ -251,7 +256,7 @@
               <p-radiobutton
                 name="winnerId"
                 [value]="match.pair2"
-                formControlName="winnerId" />
+                formControlName="winnerId"/>
               <span class="text-body-regular">{{ getPairName(match.pair2) }}</span>
             </div>
           }
@@ -264,15 +269,15 @@
                pInputText
                formControlName="score"
                placeholder="ex : 6-3 7-5"
-               class="w-full" />
+               class="w-full"/>
       </div>
 
     </form>
 
     <ng-template pTemplate="footer">
       <div class="flex justify-end gap-2">
-        <p-button label="Annuler" severity="secondary" (onClick)="closeDialog()" />
-        <p-button label="Enregistrer" [disabled]="scoreForm.invalid" (onClick)="saveScore()" />
+        <p-button label="Annuler" severity="secondary" (onClick)="closeDialog()"/>
+        <p-button label="Enregistrer" [disabled]="scoreForm.invalid" (onClick)="saveScore()"/>
       </div>
     </ng-template>
   </p-dialog>

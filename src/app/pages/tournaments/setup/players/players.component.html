@@ -212,24 +212,22 @@
 
   <p class="text-body-medium text-gris-100 mb-1">
     <i class="bi bi-exclamation-triangle"></i>
-    Le fichier CSV doit contenir les colonnes suivantes dans cet ordre (format FFT JAP) :
+    Le fichier XLS est celui fourni par l'application beach-padel.app.fft.fr et doit contenir l'onglet 'Inscriptions'.
+    Cet onglet contient les champs suivants :
   </p>
   <code class="block text-body-light bg-gris-5 text-gris-120 rounded px-3 py-2 mb-3">
-    Epreuve,	Catégorie d'âge,	Rang,	Nom,	Prénom,	Naissance,	Licence,	Club,	Classement,	Courriel,	Portable,
-    Nom partenaire,	Prénom partenaire,	Poids paire
+    Epreuve, Catégorie d'âge,	Rang, Nom J1,	Prénom J1,	Naissance J1,	Licence J1,	Club J1,	Classement J1,	Courriel J1,	Portable J1,	Nom J2,	Prénom J2,	Naissance J2,	Licence J2,	Club J2,	Classement J2,	Courriel J2,	Portable J2,	Poids paire
   </code>
 
 
   <p class="text-body-light text-gris-100 py-1">
-    Les paires déjà enregistrées seront mises à jour avec les données du CSV. <br>
-    Cependant, les paires déjà enregistrées, non présentes dans le CSV seront conservées.
+    Les paires déjà enregistrées seront mises à jour avec les données du XLS. <br>
+    Cependant, les paires déjà enregistrées, non présentes dans le XLS seront conservées.
     Vous devrez les supprimer manuellement si elles ne font plus partie de la liste des paires inscrites.
   </p>
 
   <div class="flex flex-row gap-3 pt-4 justify-center">
-    <p-button label="Télécharger le modèle CSV" icon="bi bi-download" fluid="" severity="contrast" outlined="true"
-              (click)="downloadExampleCsv()" />
-    <p-fileupload mode="basic" chooseLabel="Importer un CSV" chooseIcon="pi pi-upload" accept=".csv"
+    <p-fileupload mode="basic" chooseLabel="Importer un XLS" chooseIcon="pi pi-upload" accept=".xls"
                   maxFileSize="1000000" [auto]="true" [customUpload]="true"
                   (uploadHandler)="importPairs($event)" [multiple]="false" />
   </div>

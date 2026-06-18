@@ -14,7 +14,6 @@ import {NgClass, NgIf, NgTemplateOutlet} from '@angular/common';
 import {ConfirmationService} from 'primeng/api';
 import {InputNumberModule} from 'primeng/inputnumber';
 import {FileUploadHandlerEvent, FileUploadModule} from 'primeng/fileupload';
-import {TOGGLEBUTTON_VALUE_ACCESSOR} from 'primeng/togglebutton';
 
 @Component({
   selector: 'app-players',
@@ -75,13 +74,6 @@ export class PlayersComponent {
 
   showImportPairsDialog(): void {
     this.importPairsDialogVisible.set(true);
-  }
-
-  downloadExampleCsv(): void {
-    const link = document.createElement('a');
-    link.href = 'assets/example-paires.csv';
-    link.download = 'example-paires.csv';
-    link.click();
   }
 
   showAddPairDialog(): void {
@@ -232,7 +224,4 @@ export class PlayersComponent {
       },
     });
   }
-
-  protected readonly TOGGLEBUTTON_VALUE_ACCESSOR = TOGGLEBUTTON_VALUE_ACCESSOR;
-  protected readonly TournamentStatus = TournamentStatus;
 }

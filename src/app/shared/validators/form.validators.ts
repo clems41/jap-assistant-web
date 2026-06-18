@@ -20,12 +20,6 @@ export function isLicenseNumber(control: AbstractControl): ValidationErrors | nu
   return null;
 }
 
-export function validScoreBasedOnGameFormat(group: AbstractControl): ValidationErrors | null {
-  const password = group.get('password')?.value;
-  const confirm = group.get('password_confirm')?.value;
-  return password === confirm ? null : {passwordMismatch: true};
-}
-
 export function minDate(minDate: Date, checkHours: boolean = false): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     if (!control.value) {

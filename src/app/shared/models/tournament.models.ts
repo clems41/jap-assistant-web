@@ -29,7 +29,11 @@ export interface Tournament {
 export interface Bracket {
   id: number;
   dimension: number;
-  nb_top_seeds: number;
+  nb_pair_round_64: number;
+  nb_pair_round_32: number;
+  nb_pair_round_16: number;
+  nb_pair_round_8: number;
+  nb_pair_round_4: number;
   root_match: BracketMatch;
 }
 
@@ -82,7 +86,11 @@ export interface TournamentRequest {
 
 export interface GenerateBracketRequest {
   dimension: number;
-  nb_top_seeds: number;
+  nb_pair_round_64: number;
+  nb_pair_round_32: number;
+  nb_pair_round_16: number;
+  nb_pair_round_8: number;
+  nb_pair_round_4: number;
 }
 
 export interface ScoreRequest {

@@ -137,7 +137,7 @@ export class BracketChartComponent {
 
   getSeedRank(pairId: number): number | null {
     const idx = this.sortedPairs().findIndex(p => p.id === pairId);
-    return idx >= 0 && idx < this.bracket().nb_top_seeds ? idx + 1 : null;
+    return idx >= 0 ? idx + 1 : null;
   }
 
   readonly slotEnterPredicate = (_drag: CdkDrag, list: CdkDropList): boolean => {

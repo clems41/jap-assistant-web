@@ -24,6 +24,7 @@
           <i class="bi bi-exclamation-triangle-fill text-primary-100 ml-1"></i>
         }
       </p-tab>
+      <p-tab value="classification" *ngIf="tournamentContainsBracket && hasClassificationBrackets">Tableaux de classement</p-tab>
     </p-tablist>
     <p-tabpanels>
       <p-tabpanel value="infos">
@@ -59,6 +60,16 @@
           [availableGameFormats]="gameFormats()"
           (bracketChange)="bracket.set($event)"
         ></app-brackets>
+      </p-tabpanel>
+      <p-tabpanel value="classification">
+        @if (bracket(); as b) {
+          <app-classification-brackets
+            [tournament]="t"
+            [pairs]="pairs()"
+            [bracket]="b"
+            (bracketChange)="bracket.set($event)">
+          </app-classification-brackets>
+        }
       </p-tabpanel>
     </p-tabpanels>
   </p-tabs>

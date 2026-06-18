@@ -2,16 +2,17 @@
 
   <!-- Bracket scrollable -->
   <div class="flex-1 relative">
-    <div class="absolute top-4 right-10 z-10"
-         *ngIf="allPairsPlaced() && tournament().status != TournamentStatus.FINISHED">
-      <p-button label="Supprimer le tableau"
-                icon="pi pi-trash"
-                severity="danger"
-                [outlined]="true"
-                size="small"
-                (onClick)="deleteRequested.emit()">
-      </p-button>
-    </div>
+    @if (mode() === 'placement' && allPairsPlaced() && tournament().status != TournamentStatus.FINISHED) {
+      <div class="absolute top-4 right-10 z-10">
+        <p-button label="Supprimer le tableau"
+                  icon="pi pi-trash"
+                  severity="danger"
+                  [outlined]="true"
+                  size="small"
+                  (onClick)="deleteRequested.emit()">
+        </p-button>
+      </div>
+    }
     <div class="overflow-auto h-full pb-6 px-4">
       <div class="mx-auto" [style.width.px]="layout().totalWidth">
 
@@ -52,76 +53,7 @@
 
           <!-- Pair slots — seeding mode -->
           @for (slot of layout().pairSlots; track slot.id) {
-            @if (!slot.isChampion) {
-              @if (!seedingMap().get(slot.id) && slot.state !== SlotState.Interactive) {
-                @if (slot.state === SlotState.Bypassed) {
-                  <!-- Slot bypassed : disabled -->
-                  <div class="absolute rounded-lg border border-gris-15 bg-gris-5 opacity-50"
-                       [style.left.px]="slot.x"
-                       [style.top.px]="slot.y - HEADER_HEIGHT - PAIR_H / 2"
-                       [style.width.px]="PAIR_W"
-                       [style.height.px]="PAIR_H">
-                  </div>
-                } @else {
-                  <!-- Non-leaf bloqué par Règle 2 : blanc (recevra le gagnant) -->
-                  <div class="absolute rounded-lg border border-gris-15 bg-blanc-100"
-                       [style.left.px]="slot.x"
-                       [style.top.px]="slot.y - HEADER_HEIGHT - PAIR_H / 2"
-                       [style.width.px]="PAIR_W"
-                       [style.height.px]="PAIR_H">
-                  </div>
-                }
-              } @else {
-                <!-- Slot interactif -->
-                @let dropState = getSlotDropState(slot);
-                <div class="absolute flex items-center px-2 rounded-lg border transition-colors"
-                     cdkDropList
-                     [id]="'drop-' + slot.id"
-                     [cdkDropListData]="slot"
-                     [cdkDropListConnectedTo]="['pairs-panel-list']"
-                     [cdkDropListEnterPredicate]="slotEnterPredicate"
-                     [cdkDropListSortingDisabled]="true"
-                     (cdkDropListDropped)="onDropIntoSlot($event, slot)"
-                     [style.left.px]="slot.x"
-                     [style.top.px]="slot.y - HEADER_HEIGHT - PAIR_H / 2"
-                     [style.width.px]="PAIR_W"
-                     [style.height.px]="PAIR_H"
-                     [class]="dropState === 'occupied'
-                     ? 'border-gris-15 bg-blanc-100'
-                     : dropState === 'unavailable'
-                       ? 'border-dashed border-gris-30 bg-gris-5 opacity-60 cursor-not-allowed'
-                       : 'border-dashed border-primary-30 bg-primary-5'">
-                  @if (seedingMap().get(slot.id); as placedPairId) {
-                    @let players = getPairPlayerNames(placedPairId);
-                    @if (getSeedBadge(placedPairId); as badge) {
-                      <div class="absolute -top-2 -right-2 z-10">
-                        <p-tag [value]="badge.rank.toString()" [severity]="badge.severity"
-                               styleClass="!text-xs !rounded-full !leading-none"></p-tag>
-                      </div>
-                    }
-                    <div class="flex items-center w-full min-w-0 gap-1">
-                      <div class="flex flex-col flex-1 min-w-0">
-                        <span class="text-xs leading-tight truncate font-medium">{{ players[0] }}</span>
-                        <span class="text-xs leading-tight truncate text-gris-50">{{ players[1] }}</span>
-                      </div>
-                      @if (!lockedSlotIds().has(slot.id)) {
-                        <button type="button"
-                                class="shrink-0 text-gris-50 hover:text-error-100 transition-colors"
-                                (click)="onRemoveFromSlot(slot.id)">
-                          <i class="bi bi-x-lg text-xs"></i>
-                        </button>
-                      }
-                    </div>
-                  } @else {
-                    <span class="text-xs truncate"
-                          [class.text-primary-50]="dropState === 'available'"
-                          [class.text-gris-50]="dropState === 'unavailable'">
-                      {{ dropState === 'unavailable' ? 'Non disponible' : 'Déposer ici' }}
-                    </span>
-                  }
-                </div>
-              }
-            } @else {
+            @if (slot.isChampion) {
               <!-- Champion : read-only -->
               <div
                 class="absolute flex items-center px-3 rounded-lg border border-primary-100 bg-primary-5 shadow-md transition-colors"
@@ -138,6 +70,90 @@
                   </div>
                 } @else {
                   <span class="text-body-light text-primary-120 font-semibold">—</span>
+                }
+              </div>
+            } @else if (mode() === 'score-only') {
+              <!-- Lecture seule : pas de placement de paires dans les tableaux de classement -->
+              <div class="absolute flex items-center px-2 rounded-lg border border-gris-15 bg-blanc-100"
+                   [style.left.px]="slot.x"
+                   [style.top.px]="slot.y - HEADER_HEIGHT - PAIR_H / 2"
+                   [style.width.px]="PAIR_W"
+                   [style.height.px]="PAIR_H">
+                @if (slot.pairId) {
+                  @let players = getPairPlayerNames(slot.pairId);
+                  <div class="flex flex-col flex-1 min-w-0">
+                    <span class="text-xs leading-tight truncate font-medium">{{ players[0] }}</span>
+                    <span class="text-xs leading-tight truncate text-gris-50">{{ players[1] }}</span>
+                  </div>
+                } @else {
+                  <span class="text-xs text-gris-30">—</span>
+                }
+              </div>
+            } @else if (!seedingMap().get(slot.id) && slot.state !== SlotState.Interactive) {
+              @if (slot.state === SlotState.Bypassed) {
+                <!-- Slot bypassed : disabled -->
+                <div class="absolute rounded-lg border border-gris-15 bg-gris-5 opacity-50"
+                     [style.left.px]="slot.x"
+                     [style.top.px]="slot.y - HEADER_HEIGHT - PAIR_H / 2"
+                     [style.width.px]="PAIR_W"
+                     [style.height.px]="PAIR_H">
+                </div>
+              } @else {
+                <!-- Non-leaf bloqué par Règle 2 : blanc (recevra le gagnant) -->
+                <div class="absolute rounded-lg border border-gris-15 bg-blanc-100"
+                     [style.left.px]="slot.x"
+                     [style.top.px]="slot.y - HEADER_HEIGHT - PAIR_H / 2"
+                     [style.width.px]="PAIR_W"
+                     [style.height.px]="PAIR_H">
+                </div>
+              }
+            } @else {
+              <!-- Slot interactif -->
+              @let dropState = getSlotDropState(slot);
+              <div class="absolute flex items-center px-2 rounded-lg border transition-colors"
+                   cdkDropList
+                   [id]="'drop-' + slot.id"
+                   [cdkDropListData]="slot"
+                   [cdkDropListConnectedTo]="['pairs-panel-list']"
+                   [cdkDropListEnterPredicate]="slotEnterPredicate"
+                   [cdkDropListSortingDisabled]="true"
+                   (cdkDropListDropped)="onDropIntoSlot($event, slot)"
+                   [style.left.px]="slot.x"
+                   [style.top.px]="slot.y - HEADER_HEIGHT - PAIR_H / 2"
+                   [style.width.px]="PAIR_W"
+                   [style.height.px]="PAIR_H"
+                   [class]="dropState === 'occupied'
+                   ? 'border-gris-15 bg-blanc-100'
+                   : dropState === 'unavailable'
+                     ? 'border-dashed border-gris-30 bg-gris-5 opacity-60 cursor-not-allowed'
+                     : 'border-dashed border-primary-30 bg-primary-5'">
+                @if (seedingMap().get(slot.id); as placedPairId) {
+                  @let players = getPairPlayerNames(placedPairId);
+                  @if (getSeedBadge(placedPairId); as badge) {
+                    <div class="absolute -top-2 -right-2 z-10">
+                      <p-tag [value]="badge.rank.toString()" [severity]="badge.severity"
+                             styleClass="!text-xs !rounded-full !leading-none"></p-tag>
+                    </div>
+                  }
+                  <div class="flex items-center w-full min-w-0 gap-1">
+                    <div class="flex flex-col flex-1 min-w-0">
+                      <span class="text-xs leading-tight truncate font-medium">{{ players[0] }}</span>
+                      <span class="text-xs leading-tight truncate text-gris-50">{{ players[1] }}</span>
+                    </div>
+                    @if (!lockedSlotIds().has(slot.id)) {
+                      <button type="button"
+                              class="shrink-0 text-gris-50 hover:text-error-100 transition-colors"
+                              (click)="onRemoveFromSlot(slot.id)">
+                        <i class="bi bi-x-lg text-xs"></i>
+                      </button>
+                    }
+                  </div>
+                } @else {
+                  <span class="text-xs truncate"
+                        [class.text-primary-50]="dropState === 'available'"
+                        [class.text-gris-50]="dropState === 'unavailable'">
+                    {{ dropState === 'unavailable' ? 'Non disponible' : 'Déposer ici' }}
+                  </span>
                 }
               </div>
             }
@@ -171,7 +187,7 @@
   </div>
 
   <!-- Panneau paires (droite) -->
-  @if (!allPairsPlaced()) {
+  @if (mode() === 'placement' && !allPairsPlaced()) {
     <div class="w-80 shrink-0 flex flex-col border-l border-gris-15 overflow-y-auto">
       <!-- Header panneau -->
       <div class="flex flex-col px-4 py-3 border-b border-gris-15 bg-blanc-100 sticky top-0 gap-2">
@@ -212,15 +228,17 @@
             Toutes les paires sont placées
           </p>
         }
-        <div class="flex justify-center gap-4" *ngIf="tournament().status != TournamentStatus.FINISHED">
-          <p-button label="Supprimer le tableau"
-                    icon="pi pi-trash"
-                    severity="danger"
-                    [outlined]="true"
-                    size="small"
-                    (onClick)="deleteRequested.emit()">
-          </p-button>
-        </div>
+        @if (tournament().status != TournamentStatus.FINISHED) {
+          <div class="flex justify-center gap-4">
+            <p-button label="Supprimer le tableau"
+                      icon="pi pi-trash"
+                      severity="danger"
+                      [outlined]="true"
+                      size="small"
+                      (onClick)="deleteRequested.emit()">
+            </p-button>
+          </div>
+        }
       </div>
     </div>
   }

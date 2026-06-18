@@ -1,0 +1,29 @@
+<div class="flex flex-col gap-2 border-t border-gris-15 pt-4 first:border-t-0 first:pt-0">
+  <div class="flex items-baseline gap-2 px-4">
+    <span class="text-body-bold text-contrast-100">
+      Places {{ classificationBracket().start_place }} à {{ classificationBracket().end_place }}
+    </span>
+    <span class="text-body-light text-gris-50">
+      — Perdants de {{ classificationBracket().source_round_display }}
+    </span>
+  </div>
+
+  <div class="-mx-4 sm:-mx-20 md:-mx-40 lg:-mx-60">
+    <app-bracket-chart
+      [bracket]="classificationBracket()"
+      [pairs]="pairs()"
+      [tournament]="tournament()"
+      mode="score-only"
+      (scoreChanged)="scoreChanged.emit($event)">
+    </app-bracket-chart>
+  </div>
+
+  @for (child of classificationBracket().children; track child.id) {
+    <app-classification-bracket-node
+      [classificationBracket]="child"
+      [tournament]="tournament()"
+      [pairs]="pairs()"
+      (scoreChanged)="scoreChanged.emit($event)">
+    </app-classification-bracket-node>
+  }
+</div>

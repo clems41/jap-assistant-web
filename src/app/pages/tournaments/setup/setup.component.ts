@@ -9,6 +9,7 @@ import {SettingsComponent} from './settings/settings.component';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {NgIf} from '@angular/common';
 import {BracketsComponent} from './brackets/brackets.component';
+import {ClassificationBracketsComponent} from './classification-brackets/classification-brackets.component';
 import {PairService} from '../../../shared/services/pair.service';
 import {Pair} from '../../../shared/models/pair.models';
 import {map} from 'rxjs';
@@ -25,6 +26,7 @@ import {collectPlacedPairIds} from '../../../shared/utils/bracket.utils';
     SettingsComponent,
     NgIf,
     BracketsComponent,
+    ClassificationBracketsComponent,
     BadgeModule,
     OverlayBadgeModule
   ],
@@ -91,6 +93,10 @@ export class SetupComponent implements OnInit {
 
   get bracketNotGenerated(): boolean {
     return this.tournamentContainsBracket && !this.bracket();
+  }
+
+  get hasClassificationBrackets(): boolean {
+    return (this.bracket()?.classification_brackets.length ?? 0) > 0;
   }
 
   getBadgeValue(tab: string): number {

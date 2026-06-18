@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
-  Bracket,
+  BracketBase,
   BracketMatch,
   SeedingRequest, Tournament, TournamentStatus,
 } from '../../../../../shared/models/tournament.models';
@@ -33,8 +33,6 @@ import {
   PairSlot,
   SlotState,
 } from './bracket-chart.models';
-import {NgIf} from '@angular/common';
-
 @Component({
   selector: 'app-bracket-chart',
   standalone: true,
@@ -46,15 +44,15 @@ import {NgIf} from '@angular/common';
     RadioButtonModule,
     TagModule,
     DragDropModule,
-    NgIf,
   ],
   templateUrl: './bracket-chart.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BracketChartComponent {
-  bracket = input.required<Bracket>();
+  bracket = input.required<BracketBase>();
   tournament = input.required<Tournament>();
   pairs = input.required<Pair[]>();
+  mode = input<'placement' | 'score-only'>('placement');
 
   scoreChanged = output<{ matchId: number; score: string; winnerId: number }>();
   seedingChanged = output<SeedingRequest>();
@@ -295,13 +293,13 @@ export class BracketChartComponent {
     this.traverseForSeeding(match.child2 as BracketMatch | null, map);
   }
 
-  private getNbPairForRoundSize(bracket: Bracket, roundSize: number): number {
+  private getNbPairForRoundSize(bracket: BracketBase, roundSize: number): number {
     switch (roundSize) {
-      case 4: return bracket.nb_pair_round_4;
-      case 8: return bracket.nb_pair_round_8;
-      case 16: return bracket.nb_pair_round_16;
-      case 32: return bracket.nb_pair_round_32;
-      case 64: return bracket.nb_pair_round_64;
+      case 4: return bracket.nb_pair_round_4 ?? 0;
+      case 8: return bracket.nb_pair_round_8 ?? 0;
+      case 16: return bracket.nb_pair_round_16 ?? 0;
+      case 32: return bracket.nb_pair_round_32 ?? 0;
+      case 64: return bracket.nb_pair_round_64 ?? 0;
       default: return 0;
     }
   }

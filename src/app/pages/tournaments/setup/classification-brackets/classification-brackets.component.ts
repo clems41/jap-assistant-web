@@ -1,0 +1,69 @@
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, untracked } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { Select } from 'primeng/select';
+import { Bracket, ScoreRequest, Tournament } from '../../../../shared/models/tournament.models';
+import { Pair } from '../../../../shared/models/pair.models';
+import { TournamentService } from '../../../../shared/services/tournament.service';
+import { ClassificationBracketNodeComponent } from './classification-bracket-node/classification-bracket-node.component';
+
+@Component({
+  selector: 'app-classification-brackets',
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    Select,
+    ClassificationBracketNodeComponent,
+  ],
+  templateUrl: './classification-brackets.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ClassificationBracketsComponent {
+  tournament = input.required<Tournament>();
+  pairs = input.required<Pair[]>();
+  bracket = input.required<Bracket>();
+
+  // Le tableau principal (onglet "Tableau principal") conserve sa propre copie du bracket et
+  // n'est pas resynchronisé par les mises à jour de score faites depuis cet onglet : sans impact
+  // aujourd'hui car les deux arbres sont disjoints.
+  bracketChange = output<Bracket>();
+
+  private readonly tournamentService = inject(TournamentService);
+
+  readonly selectedBracketIdControl = new FormControl<number | null>(null);
+  private readonly selectedBracketId = toSignal(this.selectedBracketIdControl.valueChanges, { initialValue: null });
+
+  readonly classificationBrackets = computed(() => this.bracket().classification_brackets ?? []);
+
+  readonly selectOptions = computed(() =>
+    this.classificationBrackets().map(cb => ({
+      label: `Places ${cb.start_place} à ${cb.end_place} — ${cb.source_round_display}`,
+      value: cb.id,
+    }))
+  );
+
+  readonly selectedBracket = computed(() =>
+    this.classificationBrackets().find(cb => cb.id === this.selectedBracketId()) ?? null
+  );
+
+  constructor() {
+    effect(() => {
+      const list = this.classificationBrackets();
+      untracked(() => {
+        if (list.length && !list.some(cb => cb.id === this.selectedBracketIdControl.value)) {
+          this.selectedBracketIdControl.setValue(list[0].id);
+        }
+      });
+    });
+  }
+
+  onScoreChanged(event: { matchId: number; score: string; winnerId: number }): void {
+    const req: ScoreRequest = { score: event.score, winner_id: event.winnerId };
+    this.tournamentService
+      .updateMatchScore(this.tournament().id, event.matchId, req)
+      .subscribe({
+        next: () => this.tournamentService.getTournamentBracket(this.tournament().id)
+          .subscribe({ next: bracket => this.bracketChange.emit(bracket) }),
+      });
+  }
+}

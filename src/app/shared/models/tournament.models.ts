@@ -26,15 +26,32 @@ export interface Tournament {
   updated_at: string;
 }
 
-export interface Bracket {
+export interface BracketBase {
   id: number;
   dimension: number;
+  nb_pair_round_64?: number;
+  nb_pair_round_32?: number;
+  nb_pair_round_16?: number;
+  nb_pair_round_8?: number;
+  nb_pair_round_4?: number;
+  root_match: BracketMatch;
+}
+
+export interface Bracket extends BracketBase {
   nb_pair_round_64: number;
   nb_pair_round_32: number;
   nb_pair_round_16: number;
   nb_pair_round_8: number;
   nb_pair_round_4: number;
-  root_match: BracketMatch;
+  classification_brackets: ClassificationBracket[];
+}
+
+export interface ClassificationBracket extends BracketBase {
+  source_round: string;
+  source_round_display: string;
+  start_place: number;
+  end_place: number;
+  children: ClassificationBracket[];
 }
 
 export interface BracketMatch {

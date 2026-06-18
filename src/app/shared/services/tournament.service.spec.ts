@@ -60,6 +60,9 @@ const mockBracketMatch: BracketMatch = {
   winner_id: 1,
   child1: null as unknown as BracketMatch,
   child2: null as unknown as BracketMatch,
+  disabled: false,
+  pair1_can_be_placed: false,
+  pair2_can_be_placed: false,
 };
 
 // ---------------------------------------------------------------------------

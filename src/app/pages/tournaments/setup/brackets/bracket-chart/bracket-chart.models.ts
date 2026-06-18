@@ -14,6 +14,7 @@ export interface PairSlot {
   isWinner: boolean;
   isChampion: boolean;
   state: SlotState;
+  roundSize: number;
 }
 
 export interface MatchJunction {

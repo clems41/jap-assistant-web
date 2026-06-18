@@ -73,6 +73,7 @@
                 }
               } @else {
                 <!-- Slot interactif -->
+                @let dropState = getSlotDropState(slot);
                 <div class="absolute flex items-center px-2 rounded-lg border transition-colors"
                      cdkDropList
                      [id]="'drop-' + slot.id"
@@ -85,9 +86,11 @@
                      [style.top.px]="slot.y - HEADER_HEIGHT - PAIR_H / 2"
                      [style.width.px]="PAIR_W"
                      [style.height.px]="PAIR_H"
-                     [class]="seedingMap().get(slot.id)
+                     [class]="dropState === 'occupied'
                      ? 'border-gris-15 bg-blanc-100'
-                     : 'border-dashed border-primary-30 bg-primary-5'">
+                     : dropState === 'unavailable'
+                       ? 'border-dashed border-gris-30 bg-gris-5 opacity-60 cursor-not-allowed'
+                       : 'border-dashed border-primary-30 bg-primary-5'">
                   @if (seedingMap().get(slot.id); as placedPairId) {
                     @let players = getPairPlayerNames(placedPairId);
                     @if (getSeedBadge(placedPairId); as badge) {
@@ -110,7 +113,11 @@
                       }
                     </div>
                   } @else {
-                    <span class="text-xs text-primary-50 truncate">Déposer ici</span>
+                    <span class="text-xs truncate"
+                          [class.text-primary-50]="dropState === 'available'"
+                          [class.text-gris-50]="dropState === 'unavailable'">
+                      {{ dropState === 'unavailable' ? 'Non disponible' : 'Déposer ici' }}
+                    </span>
                   }
                 </div>
               }
@@ -189,6 +196,8 @@
         @for (pair of unplacedPairs(); track pair.id) {
           <div cdkDrag
                [cdkDragData]="pair.id"
+               (cdkDragStarted)="onDragStarted($event)"
+               (cdkDragEnded)="onDragEnded($event)"
                class="flex items-center gap-2 px-3 py-2 rounded-lg border border-gris-15
                       bg-blanc-100 shadow-sm cursor-grab active:cursor-grabbing
                       hover:border-primary-50 transition-colors">

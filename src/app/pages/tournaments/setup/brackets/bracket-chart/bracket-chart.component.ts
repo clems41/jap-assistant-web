@@ -21,7 +21,7 @@ import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { TagModule } from 'primeng/tag';
-import { CdkDrag, CdkDragDrop, CdkDropList, DragDropModule } from '@angular/cdk/drag-drop';
+import { CdkDrag, CdkDragDrop, CdkDragEnd, CdkDragStart, CdkDropList, DragDropModule } from '@angular/cdk/drag-drop';
 import {
   BracketLayout,
   CELL_H,
@@ -79,6 +79,7 @@ export class BracketChartComponent {
   });
 
   readonly seedingMap = signal<Map<string, number | null>>(new Map());
+  readonly draggedPairId = signal<number | null>(null);
 
   readonly sortedPairs = computed<Pair[]>(() =>
     [...this.pairs()].sort((a, b) => (a.weight ?? Infinity) - (b.weight ?? Infinity))
@@ -87,25 +88,48 @@ export class BracketChartComponent {
   private static readonly SEED_SEVERITIES = ['warn', 'primary', 'secondary', 'info'];
   private static readonly SEED_ROUND_SIZES = [4, 8, 16, 32, 64];
 
-  // Affecte une couleur de badge par palier de tour d'entrée (du plus protégé au moins protégé) ;
-  // le palier dont la taille égale la dimension du tableau correspond aux paires sans bye et n'a pas de couleur.
-  private readonly seedSeverityByPairId = computed<Map<number, string>>(() => {
+  // Répartit les paires triées par rang dans des paliers ordonnés du tour d'entrée le plus
+  // protégé (taille la plus petite avec un effectif > 0) au tour sans bye (taille = dimension,
+  // qui récupère toutes les paires restantes).
+  private readonly seedTiers = computed<{ roundSize: number; pairIds: number[] }[]>(() => {
     const bracket = this.bracket();
     const sortedPairs = this.sortedPairs();
-    const map = new Map<number, string>();
+    const tiers: { roundSize: number; pairIds: number[] }[] = [];
 
     let pairIndex = 0;
-    let severityIndex = 0;
     for (const roundSize of BracketChartComponent.SEED_ROUND_SIZES) {
-      if (roundSize >= bracket.dimension) break;
-      const count = this.getNbPairForRoundSize(bracket, roundSize);
+      if (roundSize > bracket.dimension) break;
+      const count = roundSize === bracket.dimension
+        ? sortedPairs.length - pairIndex
+        : this.getNbPairForRoundSize(bracket, roundSize);
       if (count > 0) {
-        const severity = BracketChartComponent.SEED_SEVERITIES[severityIndex];
-        for (let i = 0; i < count && pairIndex < sortedPairs.length; i++, pairIndex++) {
-          map.set(sortedPairs[pairIndex].id, severity);
-        }
-        severityIndex++;
+        tiers.push({ roundSize, pairIds: sortedPairs.slice(pairIndex, pairIndex + count).map(p => p.id) });
+        pairIndex += count;
       }
+    }
+    return tiers;
+  });
+
+  // Couleur de badge par paire ; le palier sans bye (taille = dimension) n'a pas de couleur.
+  private readonly seedSeverityByPairId = computed<Map<number, string>>(() => {
+    const bracket = this.bracket();
+    const map = new Map<number, string>();
+
+    let severityIndex = 0;
+    for (const tier of this.seedTiers()) {
+      if (tier.roundSize === bracket.dimension) continue;
+      const severity = BracketChartComponent.SEED_SEVERITIES[severityIndex];
+      for (const pairId of tier.pairIds) map.set(pairId, severity);
+      severityIndex++;
+    }
+    return map;
+  });
+
+  // Taille de tour à laquelle chaque paire doit entrer dans le tableau (avec ou sans bye).
+  private readonly entryRoundSizeByPairId = computed<Map<number, number>>(() => {
+    const map = new Map<number, number>();
+    for (const tier of this.seedTiers()) {
+      for (const pairId of tier.pairIds) map.set(pairId, tier.roundSize);
     }
     return map;
   });
@@ -168,12 +192,34 @@ export class BracketChartComponent {
     return severity ? { rank: idx + 1, severity } : null;
   }
 
-  readonly slotEnterPredicate = (_drag: CdkDrag, list: CdkDropList): boolean => {
+  readonly slotEnterPredicate = (drag: CdkDrag, list: CdkDropList): boolean => {
     const slot = list.data as PairSlot | undefined;
     if (!slot || slot.isChampion || slot.state !== SlotState.Interactive) return false;
     const current = this.seedingMap().get(slot.id);
-    return current === null || current === undefined;
+    if (current !== null && current !== undefined) return false;
+
+    return this.matchesEntryRoundSize(drag.data as number, slot.roundSize);
   };
+
+  onDragStarted(event: CdkDragStart): void {
+    this.draggedPairId.set(event.source.data as number);
+  }
+
+  onDragEnded(_event: CdkDragEnd): void {
+    this.draggedPairId.set(null);
+  }
+
+  getSlotDropState(slot: PairSlot): 'occupied' | 'available' | 'unavailable' {
+    if (this.seedingMap().get(slot.id)) return 'occupied';
+    const draggedPairId = this.draggedPairId();
+    if (draggedPairId === null) return 'available';
+    return this.matchesEntryRoundSize(draggedPairId, slot.roundSize) ? 'available' : 'unavailable';
+  }
+
+  private matchesEntryRoundSize(pairId: number, roundSize: number): boolean {
+    const requiredRoundSize = this.entryRoundSizeByPairId().get(pairId);
+    return requiredRoundSize === undefined || requiredRoundSize === roundSize;
+  }
 
   onDropIntoSlot(event: CdkDragDrop<PairSlot>, targetSlot: PairSlot): void {
     const pairId = event.item.data as number;
@@ -312,8 +358,9 @@ export class BracketChartComponent {
       const pair2Wins = !!match.winner_id && match.winner_id === match.pair2;
 
       const yOffset = HEADER_HEIGHT;
-      pairSlots.push({ id: `${match.id}-p1`, pairId: match.pair1 ?? null, x: pairX, y: pair1Y + yOffset, isWinner: pair1Wins, isChampion: false, state: slotState(match.disabled, match.pair1_can_be_placed) });
-      pairSlots.push({ id: `${match.id}-p2`, pairId: match.pair2 ?? null, x: pairX, y: pair2Y + yOffset, isWinner: pair2Wins, isChampion: false, state: slotState(match.disabled, match.pair2_can_be_placed) });
+      const roundSize = 2 ** (d + 1);
+      pairSlots.push({ id: `${match.id}-p1`, pairId: match.pair1 ?? null, x: pairX, y: pair1Y + yOffset, isWinner: pair1Wins, isChampion: false, state: slotState(match.disabled, match.pair1_can_be_placed), roundSize });
+      pairSlots.push({ id: `${match.id}-p2`, pairId: match.pair2 ?? null, x: pairX, y: pair2Y + yOffset, isWinner: pair2Wins, isChampion: false, state: slotState(match.disabled, match.pair2_can_be_placed), roundSize });
       junctions.push({ match, x: junctionX, y: junctionY + yOffset });
 
       connectors.push({ id: `${match.id}-cp1`, path: `M ${pairRightX} ${pair1Y + yOffset} H ${junctionX} V ${junctionY + yOffset}`, isWinner: pair1Wins });
@@ -332,7 +379,7 @@ export class BracketChartComponent {
 
     const championX = (D + 1) * (PAIR_W + COL_GAP);
     // state non lu pour le slot champion (branche template séparée gérée via isChampion)
-    pairSlots.push({ id: `champion-${root.id}`, pairId: root.winner_id ?? null, x: championX, y: rootJunctionY + HEADER_HEIGHT, isWinner: false, isChampion: true, state: SlotState.Interactive });
+    pairSlots.push({ id: `champion-${root.id}`, pairId: root.winner_id ?? null, x: championX, y: rootJunctionY + HEADER_HEIGHT, isWinner: false, isChampion: true, state: SlotState.Interactive, roundSize: 0 });
     connectors.push({ id: `${root.id}-cc`, path: `M ${junX(0)} ${rootJunctionY + HEADER_HEIGHT} H ${championX}`, isWinner: !!root.winner_id });
 
     const roundHeaders: BracketLayout['roundHeaders'] = [];

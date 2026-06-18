@@ -53,6 +53,7 @@ export class BracketChartComponent {
   tournament = input.required<Tournament>();
   pairs = input.required<Pair[]>();
   mode = input<'placement' | 'score-only'>('placement');
+  startPlace = input<number | null>(null);
 
   scoreChanged = output<{ matchId: number; score: string; winnerId: number }>();
   seedingChanged = output<SeedingRequest>();
@@ -304,6 +305,10 @@ export class BracketChartComponent {
     }
   }
 
+  private formatOrdinalPlace(place: number): string {
+    return place === 1 ? '1er' : `${place}ème`;
+  }
+
   private getDepth(match: BracketMatch | null): number {
     if (!match) return 0;
     return 1 + Math.max(this.getDepth(match.child1), this.getDepth(match.child2));
@@ -385,7 +390,11 @@ export class BracketChartComponent {
       roundHeaders.push({ label, x: colX(d) + PAIR_W / 2 });
     }
     roundHeaders.sort((a, b) => a.x - b.x);
-    roundHeaders.push({ label: 'Gagnant', x: championX + PAIR_W / 2 });
+    const startPlace = this.startPlace();
+    const championLabel = this.mode() === 'score-only' && startPlace !== null
+      ? this.formatOrdinalPlace(startPlace)
+      : 'Gagnant';
+    roundHeaders.push({ label: championLabel, x: championX + PAIR_W / 2 });
 
     return {
       pairSlots,

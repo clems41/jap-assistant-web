@@ -14,6 +14,7 @@
       [pairs]="pairs()"
       [tournament]="tournament()"
       mode="score-only"
+      [startPlace]="classificationBracket().start_place"
       (scoreChanged)="scoreChanged.emit($event)">
     </app-bracket-chart>
   </div>

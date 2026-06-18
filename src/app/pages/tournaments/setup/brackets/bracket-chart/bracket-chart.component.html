@@ -1,4 +1,4 @@
-<div class="flex font-poppins bracket-area overflow-hidden -mt-3">
+<div [class]="mode() === 'placement' ? 'flex font-poppins bracket-area overflow-hidden -mt-3' : 'flex font-poppins overflow-hidden'">
 
   <!-- Bracket scrollable -->
   <div class="flex-1 relative">
@@ -13,7 +13,7 @@
         </p-button>
       </div>
     }
-    <div class="overflow-auto h-full pb-6 px-4">
+    <div [class]="mode() === 'placement' ? 'overflow-auto h-full pb-6 px-4' : 'overflow-auto pb-2 px-4'">
       <div class="mx-auto" [style.width.px]="layout().totalWidth">
 
         <!-- Round headers (sticky) -->
@@ -53,8 +53,8 @@
 
           <!-- Pair slots — seeding mode -->
           @for (slot of layout().pairSlots; track slot.id) {
-            @if (slot.isChampion) {
-              <!-- Champion : read-only -->
+            @if (slot.isChampion && mode() === 'placement') {
+              <!-- Grand vainqueur du tableau principal : read-only -->
               <div
                 class="absolute flex items-center px-3 rounded-lg border border-primary-100 bg-primary-5 shadow-md transition-colors"
                 [style.left.px]="slot.x"
@@ -70,6 +70,24 @@
                   </div>
                 } @else {
                   <span class="text-body-light text-primary-120 font-semibold">—</span>
+                }
+              </div>
+            } @else if (slot.isChampion) {
+              <!-- Meilleur classé du tableau de classement : mise en avant discrète, sans trophée -->
+              <div
+                class="absolute flex items-center px-2 rounded-lg border border-success-50 bg-success-5 transition-colors"
+                [style.left.px]="slot.x"
+                [style.top.px]="slot.y - HEADER_HEIGHT - PAIR_H / 2"
+                [style.width.px]="PAIR_W"
+                [style.height.px]="PAIR_H">
+                @if (slot.pairId) {
+                  @let players = getPairPlayerNames(slot.pairId);
+                  <div class="flex flex-col flex-1 min-w-0">
+                    <span class="text-xs leading-tight truncate font-medium text-success-120">{{ players[0] }}</span>
+                    <span class="text-xs leading-tight truncate text-success-80">{{ players[1] }}</span>
+                  </div>
+                } @else {
+                  <span class="text-xs text-success-80">—</span>
                 }
               </div>
             } @else if (mode() === 'score-only') {

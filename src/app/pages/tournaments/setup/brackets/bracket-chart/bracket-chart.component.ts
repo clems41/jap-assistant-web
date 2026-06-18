@@ -84,6 +84,32 @@ export class BracketChartComponent {
     [...this.pairs()].sort((a, b) => (a.weight ?? Infinity) - (b.weight ?? Infinity))
   );
 
+  private static readonly SEED_SEVERITIES = ['warn', 'primary', 'secondary', 'info'];
+  private static readonly SEED_ROUND_SIZES = [4, 8, 16, 32, 64];
+
+  // Affecte une couleur de badge par palier de tour d'entrée (du plus protégé au moins protégé) ;
+  // le palier dont la taille égale la dimension du tableau correspond aux paires sans bye et n'a pas de couleur.
+  private readonly seedSeverityByPairId = computed<Map<number, string>>(() => {
+    const bracket = this.bracket();
+    const sortedPairs = this.sortedPairs();
+    const map = new Map<number, string>();
+
+    let pairIndex = 0;
+    let severityIndex = 0;
+    for (const roundSize of BracketChartComponent.SEED_ROUND_SIZES) {
+      if (roundSize >= bracket.dimension) break;
+      const count = this.getNbPairForRoundSize(bracket, roundSize);
+      if (count > 0) {
+        const severity = BracketChartComponent.SEED_SEVERITIES[severityIndex];
+        for (let i = 0; i < count && pairIndex < sortedPairs.length; i++, pairIndex++) {
+          map.set(sortedPairs[pairIndex].id, severity);
+        }
+        severityIndex++;
+      }
+    }
+    return map;
+  });
+
   private readonly placedPairIds = computed<Set<number>>(() => {
     const s = new Set<number>();
     for (const v of this.seedingMap().values()) {
@@ -135,9 +161,11 @@ export class BracketChartComponent {
     return [pair.player1.last_name, pair.player2.last_name];
   }
 
-  getSeedRank(pairId: number): number | null {
+  getSeedBadge(pairId: number): { rank: number; severity: string } | null {
     const idx = this.sortedPairs().findIndex(p => p.id === pairId);
-    return idx >= 0 ? idx + 1 : null;
+    if (idx < 0) return null;
+    const severity = this.seedSeverityByPairId().get(pairId);
+    return severity ? { rank: idx + 1, severity } : null;
   }
 
   readonly slotEnterPredicate = (_drag: CdkDrag, list: CdkDropList): boolean => {
@@ -219,6 +247,17 @@ export class BracketChartComponent {
     map.set(`${match.id}-p2`, match.pair2 ?? null);
     this.traverseForSeeding(match.child1 as BracketMatch | null, map);
     this.traverseForSeeding(match.child2 as BracketMatch | null, map);
+  }
+
+  private getNbPairForRoundSize(bracket: Bracket, roundSize: number): number {
+    switch (roundSize) {
+      case 4: return bracket.nb_pair_round_4;
+      case 8: return bracket.nb_pair_round_8;
+      case 16: return bracket.nb_pair_round_16;
+      case 32: return bracket.nb_pair_round_32;
+      case 64: return bracket.nb_pair_round_64;
+      default: return 0;
+    }
   }
 
   private getDepth(match: BracketMatch | null): number {

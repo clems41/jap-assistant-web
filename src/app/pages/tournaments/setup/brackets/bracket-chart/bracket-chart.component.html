@@ -90,9 +90,9 @@
                      : 'border-dashed border-primary-30 bg-primary-5'">
                   @if (seedingMap().get(slot.id); as placedPairId) {
                     @let players = getPairPlayerNames(placedPairId);
-                    @if (getSeedRank(placedPairId); as rank) {
+                    @if (getSeedBadge(placedPairId); as badge) {
                       <div class="absolute -top-2 -right-2 z-10">
-                        <p-tag [value]="rank.toString()" severity="warn"
+                        <p-tag [value]="badge.rank.toString()" [severity]="badge.severity"
                                styleClass="!text-xs !rounded-full !leading-none"></p-tag>
                       </div>
                     }
@@ -192,8 +192,9 @@
                class="flex items-center gap-2 px-3 py-2 rounded-lg border border-gris-15
                       bg-blanc-100 shadow-sm cursor-grab active:cursor-grabbing
                       hover:border-primary-50 transition-colors">
-            @if (getSeedRank(pair.id); as rank) {
-              <p-tag [value]="'TS' + rank" severity="warn" styleClass="shrink-0 !text-xs !px-1 !py-0"></p-tag>
+            @if (getSeedBadge(pair.id); as badge) {
+              <p-tag [value]="'TS' + badge.rank" [severity]="badge.severity"
+                     styleClass="shrink-0 !text-xs !px-1 !py-0"></p-tag>
             }
             <span class="text-body-light truncate flex-1">{{ getPairName(pair.id) }}</span>
           </div>

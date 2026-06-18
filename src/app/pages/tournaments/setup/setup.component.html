@@ -20,6 +20,9 @@
         @if (getBadgeValue('brackets') > 0) {
           <p-badge [value]="getBadgeValue('brackets')" />
         }
+        @if (bracketNotGenerated) {
+          <i class="bi bi-exclamation-triangle-fill text-primary-100 ml-1"></i>
+        }
       </p-tab>
     </p-tablist>
     <p-tabpanels>

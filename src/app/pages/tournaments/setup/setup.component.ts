@@ -89,6 +89,10 @@ export class SetupComponent implements OnInit {
       this.tournament()?.status === TournamentStatus.SET;
   }
 
+  get bracketNotGenerated(): boolean {
+    return this.tournamentContainsBracket && !this.bracket();
+  }
+
   getBadgeValue(tab: string): number {
     const t = this.tournament();
     switch (tab) {

@@ -191,3 +191,32 @@ h3 {
   line-height: var(--text-title-3--line-height);
   font-weight: var(--text-title-3--font-weight);
 }
+
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 10mm;
+  }
+
+  body.is-printing-target {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* Le contenu à imprimer est déplacé dans #print-stage (cf. PrintService) ;
+     tout le reste de l'app (header, onglets, panneau des paires…) est retiré du flux. */
+  body.is-printing-target > *:not(#print-stage) {
+    display: none !important;
+  }
+
+  /* Marges négatives utilisées à l'écran pour faire déborder le tableau de son conteneur :
+     à l'échelle d'une page A4, elles décaleraient le tableau hors de la zone imprimable. */
+  body.is-printing-target .bracket-breakout {
+    margin: 0 !important;
+  }
+
+  .bracket-print-scale {
+    transform: scale(var(--print-scale, 1));
+    transform-origin: top left;
+  }
+}

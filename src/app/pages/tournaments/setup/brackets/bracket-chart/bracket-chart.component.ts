@@ -3,11 +3,13 @@ import {
   Component,
   computed,
   effect,
+  ElementRef,
   inject,
   input,
   output,
   signal,
   untracked,
+  viewChild,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
@@ -22,6 +24,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { TagModule } from 'primeng/tag';
 import { CdkDrag, CdkDragDrop, CdkDragEnd, CdkDragStart, CdkDropList, DragDropModule } from '@angular/cdk/drag-drop';
+import { PrintService } from '../../../../../shared/services/print.service';
 import {
   BracketLayout,
   CELL_H,
@@ -31,6 +34,7 @@ import {
   PAIR_H,
   PAIR_W,
   PairSlot,
+  PRINT_PAGE_WIDTH,
   SlotState,
 } from './bracket-chart.models';
 @Component({
@@ -61,15 +65,20 @@ export class BracketChartComponent {
   scoreDeleteRequested = output<number>();
 
   private readonly fb = inject(FormBuilder);
+  private readonly printService = inject(PrintService);
 
   readonly PAIR_W = PAIR_W;
   readonly PAIR_H = PAIR_H;
   readonly HEADER_HEIGHT = HEADER_HEIGHT;
   readonly SlotState = SlotState;
 
+  private readonly printArea = viewChild<ElementRef<HTMLElement>>('printArea');
+
   private pairsMap = computed(() => new Map(this.pairs().map(p => [p.id, p])));
 
   layout = computed<BracketLayout>(() => this.computeLayout(this.bracket().root_match));
+
+  readonly printScale = computed(() => Math.min(1, PRINT_PAGE_WIDTH / (this.layout().totalWidth || 1)));
 
   selectedMatch = signal<BracketMatch | null>(null);
 
@@ -280,6 +289,11 @@ export class BracketChartComponent {
 
   openDrawTool(): void {
     window.open('/draw', 'jap-draw-tool', 'width=520,height=720,noopener');
+  }
+
+  onPrint(): void {
+    const el = this.printArea()?.nativeElement;
+    if (el) this.printService.printElement(el);
   }
 
   private collectLockedSlots(

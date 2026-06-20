@@ -1,25 +1,51 @@
 @if (classificationBrackets().length) {
   <div class="flex flex-col gap-4 -mt-3">
-    <div class="flex flex-col w-72 px-4">
-      <label for="classification-select" class="text-label text-gris-80">Tableau de classement</label>
-      <p-select [options]="selectOptions()"
-                [formControl]="selectedBracketIdControl"
-                optionLabel="label"
-                optionValue="value"
-                inputId="classification-select"
-                appendTo="body"
-                fluid=""/>
+    <div class="flex items-end gap-3 px-4">
+      <div class="flex flex-col w-72">
+        <label for="classification-select" class="text-label text-gris-80">Tableau de classement</label>
+        <p-select [options]="selectOptions()"
+                  [formControl]="selectedBracketIdControl"
+                  optionLabel="label"
+                  optionValue="value"
+                  inputId="classification-select"
+                  appendTo="body"
+                  fluid=""/>
+      </div>
+      <p-button label="Imprimer tous les tableaux"
+                icon="pi pi-print"
+                severity="secondary"
+                [outlined]="true"
+                size="small"
+                (onClick)="printAll()">
+      </p-button>
     </div>
 
-    @if (selectedBracket(); as sb) {
-      <app-classification-bracket-node
-        [classificationBracket]="sb"
-        [tournament]="tournament()"
-        [pairs]="pairs()"
-        (scoreChanged)="onScoreChanged($event)"
-        (scoreDeleteRequested)="onScoreDeleteRequested($event)">
-      </app-classification-bracket-node>
-    }
+    <div #printArea>
+      @if (printingAll()) {
+        @for (root of classificationBrackets(); track root.id) {
+          <div class="break-inside-avoid">
+            <app-classification-bracket-node
+              [classificationBracket]="root"
+              [tournament]="tournament()"
+              [pairs]="pairs()"
+              (scoreChanged)="onScoreChanged($event)"
+              (scoreDeleteRequested)="onScoreDeleteRequested($event)">
+            </app-classification-bracket-node>
+          </div>
+        }
+      } @else {
+        @let sb = selectedBracket();
+        @if (sb) {
+          <app-classification-bracket-node
+            [classificationBracket]="sb"
+            [tournament]="tournament()"
+            [pairs]="pairs()"
+            (scoreChanged)="onScoreChanged($event)"
+            (scoreDeleteRequested)="onScoreDeleteRequested($event)">
+          </app-classification-bracket-node>
+        }
+      }
+    </div>
   </div>
 } @else {
   <p class="text-gris-50 text-body-light text-center py-10">Aucun tableau de classement disponible.</p>

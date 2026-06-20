@@ -48,3 +48,4 @@ export const PAIR_H = 52;
 export const CELL_H = 64;
 export const COL_GAP = 80;
 export const HEADER_HEIGHT = 40;
+export const PRINT_PAGE_WIDTH = 1000;

@@ -2,19 +2,28 @@
 
   <!-- Bracket scrollable -->
   <div class="flex-1 relative">
-    @if (mode() === 'placement' && allPairsPlaced() && tournament().status != TournamentStatus.FINISHED) {
-      <div class="absolute top-4 right-10 z-10">
-        <p-button label="Supprimer le tableau"
-                  icon="pi pi-trash"
-                  severity="danger"
+    @if (mode() === 'placement' && allPairsPlaced()) {
+      <div class="absolute top-4 right-10 z-10 flex flex-col justify-center items-center gap-2">
+        <p-button label="Imprimer le tableau"
+                  icon="pi pi-print"
+                  severity="secondary"
                   [outlined]="true"
                   size="small"
-                  (onClick)="deleteRequested.emit()">
+                  (onClick)="onPrint()">
         </p-button>
+        @if (tournament().status != TournamentStatus.FINISHED) {
+          <p-button label="Supprimer le tableau"
+                    icon="pi pi-trash"
+                    severity="danger"
+                    [outlined]="true"
+                    size="small"
+                    (onClick)="deleteRequested.emit()">
+          </p-button>
+        }
       </div>
     }
     <div [class]="mode() === 'placement' ? 'overflow-auto h-full pb-6 px-4' : 'overflow-auto pb-2 px-4'">
-      <div class="mx-auto" [style.width.px]="layout().totalWidth">
+      <div #printArea class="mx-auto bracket-print-scale" [style.width.px]="layout().totalWidth" [style.--print-scale]="printScale()">
 
         <!-- Round headers (sticky) -->
         <div class="sticky top-0 z-20 bg-gris-5" [style.height.px]="HEADER_HEIGHT">
@@ -272,8 +281,15 @@
             Toutes les paires sont placées
           </p>
         }
-        @if (tournament().status != TournamentStatus.FINISHED) {
-          <div class="flex justify-center gap-4">
+        <div class="flex flex-col justify-center items-center w-full gap-4">
+          <p-button label="Imprimer le tableau"
+                    icon="pi pi-print"
+                    severity="secondary"
+                    [outlined]="true"
+                    size="small"
+                    (onClick)="onPrint()">
+          </p-button>
+          @if (tournament().status != TournamentStatus.FINISHED) {
             <p-button label="Supprimer le tableau"
                       icon="pi pi-trash"
                       severity="danger"
@@ -281,8 +297,8 @@
                       size="small"
                       (onClick)="deleteRequested.emit()">
             </p-button>
-          </div>
-        }
+          }
+        </div>
       </div>
     </div>
   }

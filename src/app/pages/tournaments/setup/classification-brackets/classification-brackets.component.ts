@@ -1,11 +1,27 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, untracked } from '@angular/core';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  inject,
+  Injector,
+  input,
+  output,
+  signal,
+  untracked,
+  viewChild,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Select } from 'primeng/select';
+import { ButtonModule } from 'primeng/button';
 import { ConfirmationService } from 'primeng/api';
 import { Bracket, ScoreRequest, Tournament } from '../../../../shared/models/tournament.models';
 import { Pair } from '../../../../shared/models/pair.models';
 import { TournamentService } from '../../../../shared/services/tournament.service';
+import { PrintService } from '../../../../shared/services/print.service';
 import { ClassificationBracketNodeComponent } from './classification-bracket-node/classification-bracket-node.component';
 
 @Component({
@@ -14,6 +30,7 @@ import { ClassificationBracketNodeComponent } from './classification-bracket-nod
   imports: [
     ReactiveFormsModule,
     Select,
+    ButtonModule,
     ClassificationBracketNodeComponent,
   ],
   templateUrl: './classification-brackets.component.html',
@@ -31,6 +48,11 @@ export class ClassificationBracketsComponent {
 
   private readonly tournamentService = inject(TournamentService);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly printService = inject(PrintService);
+  private readonly injector = inject(Injector);
+
+  private readonly printArea = viewChild<ElementRef<HTMLElement>>('printArea');
+  readonly printingAll = signal(false);
 
   readonly selectedBracketIdControl = new FormControl<number | null>(null);
   private readonly selectedBracketId = toSignal(this.selectedBracketIdControl.valueChanges, { initialValue: null });
@@ -86,5 +108,13 @@ export class ClassificationBracketsComponent {
           });
       },
     });
+  }
+
+  printAll(): void {
+    this.printingAll.set(true);
+    afterNextRender(() => {
+      const el = this.printArea()?.nativeElement;
+      if (el) this.printService.printElement(el, () => this.printingAll.set(false));
+    }, { injector: this.injector });
   }
 }

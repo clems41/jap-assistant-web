@@ -389,6 +389,46 @@ describe('TournamentService', () => {
     });
   });
 
+  // -------------------------------------------------------------------------
+  // deleteMatchScore()
+  // -------------------------------------------------------------------------
+
+  describe('deleteMatchScore()', () => {
+    it('should call DELETE /api/v1/tournaments/{id}/matches/{matchId}/score with the correct options', () => {
+      httpSpy.delete.and.returnValue(of(undefined));
+
+      service.deleteMatchScore(1, 1).subscribe();
+
+      expect(httpSpy.delete).toHaveBeenCalledOnceWith(
+        '/tournaments/1/matches/1/score',
+        { succes_message: 'Score supprimé' }
+      );
+    });
+
+    it('should complete without a value on success', (done) => {
+      httpSpy.delete.and.returnValue(of(undefined));
+
+      service.deleteMatchScore(1, 1).subscribe({
+        next: (res) => {
+          expect(res).toBeUndefined();
+          done();
+        },
+      });
+    });
+
+    it('should propagate HTTP errors', (done) => {
+      const error = new Error('400 Bad Request');
+      httpSpy.delete.and.returnValue(throwError(() => error));
+
+      service.deleteMatchScore(1, 1).subscribe({
+        error: (err) => {
+          expect(err).toBe(error);
+          done();
+        },
+      });
+    });
+  });
+
   describe('getLeagues()', () => {
     it('should call GET /api/v1/tournaments/enums/leagues at service creation', () => {
       TestBed.resetTestingModule();

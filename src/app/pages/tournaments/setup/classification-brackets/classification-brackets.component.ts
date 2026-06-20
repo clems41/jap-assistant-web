@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, input, ou
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Select } from 'primeng/select';
+import { ConfirmationService } from 'primeng/api';
 import { Bracket, ScoreRequest, Tournament } from '../../../../shared/models/tournament.models';
 import { Pair } from '../../../../shared/models/pair.models';
 import { TournamentService } from '../../../../shared/services/tournament.service';
@@ -29,6 +30,7 @@ export class ClassificationBracketsComponent {
   bracketChange = output<Bracket>();
 
   private readonly tournamentService = inject(TournamentService);
+  private readonly confirmationService = inject(ConfirmationService);
 
   readonly selectedBracketIdControl = new FormControl<number | null>(null);
   private readonly selectedBracketId = toSignal(this.selectedBracketIdControl.valueChanges, { initialValue: null });
@@ -65,5 +67,24 @@ export class ClassificationBracketsComponent {
         next: () => this.tournamentService.getTournamentBracket(this.tournament().id)
           .subscribe({ next: bracket => this.bracketChange.emit(bracket) }),
       });
+  }
+
+  onScoreDeleteRequested(matchId: number): void {
+    this.confirmationService.confirm({
+      message: 'Êtes-vous sûr de vouloir supprimer le score de ce match ? Cette action est irréversible.',
+      header: 'Supprimer le score',
+      closable: true,
+      closeOnEscape: true,
+      icon: 'pi pi-exclamation-triangle',
+      rejectButtonProps: { label: 'Annuler', severity: 'secondary', outlined: true },
+      acceptButtonProps: { label: 'Supprimer', severity: 'danger' },
+      accept: () => {
+        this.tournamentService.deleteMatchScore(this.tournament().id, matchId)
+          .subscribe({
+            next: () => this.tournamentService.getTournamentBracket(this.tournament().id)
+              .subscribe({ next: bracket => this.bracketChange.emit(bracket) }),
+          });
+      },
+    });
   }
 }

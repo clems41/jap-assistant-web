@@ -93,4 +93,21 @@ export class BracketsComponent implements OnInit {
       }});
   }
 
+  onScoreDeleteRequested(matchId: number): void {
+    this.confirmationService.confirm({
+      message: 'Êtes-vous sûr de vouloir supprimer le score de ce match ? Cette action est irréversible.',
+      header: 'Supprimer le score',
+      closable: true,
+      closeOnEscape: true,
+      icon: 'pi pi-exclamation-triangle',
+      rejectButtonProps: { label: 'Annuler', severity: 'secondary', outlined: true },
+      acceptButtonProps: { label: 'Supprimer', severity: 'danger' },
+      accept: () => {
+        this.tournamentService
+          .deleteMatchScore(this.tournament().id, matchId)
+          .subscribe({ next: () => this.loadBracket() });
+      },
+    });
+  }
+
 }

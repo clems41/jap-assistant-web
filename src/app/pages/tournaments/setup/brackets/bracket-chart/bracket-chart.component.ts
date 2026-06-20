@@ -58,6 +58,7 @@ export class BracketChartComponent {
   scoreChanged = output<{ matchId: number; score: string; winnerId: number }>();
   seedingChanged = output<SeedingRequest>();
   deleteRequested = output<void>();
+  scoreDeleteRequested = output<number>();
 
   private readonly fb = inject(FormBuilder);
 
@@ -153,11 +154,15 @@ export class BracketChartComponent {
       .map(s => 'drop-' + s.id)
   );
 
-  readonly lockedSlotIds = computed<Set<string>>(() => {
-    const result = new Set<string>();
-    this.collectLockedSlots(this.bracket().root_match, result);
-    return result;
+  private readonly slotLockInfo = computed<{ locked: Set<string>; promotionSource: Map<string, number> }>(() => {
+    const locked = new Set<string>();
+    const promotionSource = new Map<string, number>();
+    this.collectLockedSlots(this.bracket().root_match, locked, promotionSource);
+    return { locked, promotionSource };
   });
+
+  readonly lockedSlotIds = computed<Set<string>>(() => this.slotLockInfo().locked);
+  readonly promotionSourceMatchId = computed<Map<string, number>>(() => this.slotLockInfo().promotionSource);
 
   constructor() {
     effect(() => {
@@ -238,6 +243,10 @@ export class BracketChartComponent {
     this.emitPlacement(matchId, newMap);
   }
 
+  onDeleteScore(matchId: number): void {
+    this.scoreDeleteRequested.emit(matchId);
+  }
+
   private emitPlacement(matchId: number, map: Map<string, number | null>): void {
     this.seedingChanged.emit({
       placements: [{
@@ -273,21 +282,27 @@ export class BracketChartComponent {
     window.open('/draw', 'jap-draw-tool', 'width=520,height=720,noopener');
   }
 
-  private collectLockedSlots(match: BracketMatch | null, result: Set<string>): void {
+  private collectLockedSlots(
+    match: BracketMatch | null,
+    locked: Set<string>,
+    promotionSource: Map<string, number>,
+  ): void {
     if (!match) return;
     if (match.score || match.winner_id) {
-      result.add(`${match.id}-p1`);
-      result.add(`${match.id}-p2`);
+      locked.add(`${match.id}-p1`);
+      locked.add(`${match.id}-p2`);
     } else {
       if (match.child1?.winner_id && match.child1.winner_id === match.pair1) {
-        result.add(`${match.id}-p1`);
+        locked.add(`${match.id}-p1`);
+        promotionSource.set(`${match.id}-p1`, match.child1.id);
       }
       if (match.child2?.winner_id && match.child2.winner_id === match.pair2) {
-        result.add(`${match.id}-p2`);
+        locked.add(`${match.id}-p2`);
+        promotionSource.set(`${match.id}-p2`, match.child2.id);
       }
     }
-    this.collectLockedSlots(match.child1 as BracketMatch | null, result);
-    this.collectLockedSlots(match.child2 as BracketMatch | null, result);
+    this.collectLockedSlots(match.child1 as BracketMatch | null, locked, promotionSource);
+    this.collectLockedSlots(match.child2 as BracketMatch | null, locked, promotionSource);
   }
 
   private traverseForSeeding(match: BracketMatch | null, map: Map<string, number | null>): void {

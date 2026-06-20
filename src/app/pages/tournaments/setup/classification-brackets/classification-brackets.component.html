@@ -16,7 +16,8 @@
         [classificationBracket]="sb"
         [tournament]="tournament()"
         [pairs]="pairs()"
-        (scoreChanged)="onScoreChanged($event)">
+        (scoreChanged)="onScoreChanged($event)"
+        (scoreDeleteRequested)="onScoreDeleteRequested($event)">
       </app-classification-bracket-node>
     }
   </div>

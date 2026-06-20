@@ -88,7 +88,7 @@ export class SetupComponent implements OnInit {
 
   get tournamentContainsBracket(): boolean {
     return this.configurationThatContainsBrackets.includes(this.tournament()?.configuration ?? '') &&
-      this.tournament()?.status === TournamentStatus.SET;
+      this.tournament()?.status !== TournamentStatus.DRAFT;
   }
 
   get bracketNotGenerated(): boolean {

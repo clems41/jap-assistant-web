@@ -18,4 +18,5 @@ export class ClassificationBracketNodeComponent {
   pairs = input.required<Pair[]>();
 
   scoreChanged = output<{ matchId: number; score: string; winnerId: number }>();
+  scoreDeleteRequested = output<number>();
 }

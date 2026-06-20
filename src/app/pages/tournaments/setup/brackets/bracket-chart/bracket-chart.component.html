@@ -68,6 +68,11 @@
                     <span class="text-xs leading-tight truncate font-semibold text-primary-120">{{ players[0] }}</span>
                     <span class="text-xs leading-tight truncate text-primary-80">{{ players[1] }}</span>
                   </div>
+                  <button type="button"
+                          class="shrink-0 text-gris-50 hover:text-error-100 transition-colors"
+                          (click)="onDeleteScore(bracket().root_match.id)">
+                    <i class="bi bi-x-lg text-xs"></i>
+                  </button>
                 } @else {
                   <span class="text-body-light text-primary-120 font-semibold">—</span>
                 }
@@ -86,6 +91,11 @@
                     <span class="text-xs leading-tight truncate font-medium text-success-120">{{ players[0] }}</span>
                     <span class="text-xs leading-tight truncate text-success-80">{{ players[1] }}</span>
                   </div>
+                  <button type="button"
+                          class="shrink-0 text-gris-50 hover:text-error-100 transition-colors"
+                          (click)="onDeleteScore(bracket().root_match.id)">
+                    <i class="bi bi-x-lg text-xs"></i>
+                  </button>
                 } @else {
                   <span class="text-xs text-success-80">—</span>
                 }
@@ -103,6 +113,13 @@
                     <span class="text-xs leading-tight truncate font-medium">{{ players[0] }}</span>
                     <span class="text-xs leading-tight truncate text-gris-50">{{ players[1] }}</span>
                   </div>
+                  @if (promotionSourceMatchId().get(slot.id); as sourceMatchId) {
+                    <button type="button"
+                            class="shrink-0 text-gris-50 hover:text-error-100 transition-colors"
+                            (click)="onDeleteScore(sourceMatchId)">
+                      <i class="bi bi-x-lg text-xs"></i>
+                    </button>
+                  }
                 } @else {
                   <span class="text-xs text-gris-30">—</span>
                 }
@@ -162,6 +179,13 @@
                       <button type="button"
                               class="shrink-0 text-gris-50 hover:text-error-100 transition-colors"
                               (click)="onRemoveFromSlot(slot.id)">
+                        <i class="bi bi-x-lg text-xs"></i>
+                      </button>
+                    } @else if (promotionSourceMatchId().has(slot.id)) {
+                      @let sourceMatchId = promotionSourceMatchId().get(slot.id)!;
+                      <button type="button"
+                              class="shrink-0 text-gris-50 hover:text-error-100 transition-colors"
+                              (click)="onDeleteScore(sourceMatchId)">
                         <i class="bi bi-x-lg text-xs"></i>
                       </button>
                     }

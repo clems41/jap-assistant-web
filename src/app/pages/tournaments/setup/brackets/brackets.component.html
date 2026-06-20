@@ -7,7 +7,8 @@
       [tournament]="tournament()"
       (scoreChanged)="onScoreChanged($event)"
       (seedingChanged)="onSeedingChanged($event)"
-      (deleteRequested)="onDeleteBracketRequested()">
+      (deleteRequested)="onDeleteBracketRequested()"
+      (scoreDeleteRequested)="onScoreDeleteRequested($event)">
     </app-bracket-chart>
   </div>
 } @else {

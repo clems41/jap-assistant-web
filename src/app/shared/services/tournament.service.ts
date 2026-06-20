@@ -64,6 +64,14 @@ export class TournamentService {
     );
   }
 
+  /** DELETE /api/v1/tournaments/{id}/matches/{matchId}/score/ */
+  deleteMatchScore(tournamentId: number, matchId: number): Observable<void> {
+    return this.http.delete<void>(
+      `/tournaments/${tournamentId}/matches/${matchId}/score`,
+      { succes_message: 'Score supprimé' }
+    );
+  }
+
   /** GET /api/v1/tournaments/{id}/ */
   getTournament(id: number): Observable<Tournament> {
     return this.http.get<Tournament>(`/tournaments/${id}`);

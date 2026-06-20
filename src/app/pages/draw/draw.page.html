@@ -1,0 +1,85 @@
+<div class="flex flex-col min-h-screen bg-gris-5 font-poppins">
+  <header class="bg-contrast-100 text-blanc-100 px-4 py-3">
+    <h1 class="text-title-3 font-bold">Tirage au sort</h1>
+  </header>
+
+  <main class="flex-1 flex flex-col items-center gap-6 px-4 py-6">
+
+    <div class="flex flex-row items-end gap-3">
+      <div class="flex flex-col gap-1">
+        <label for="draw-count">Nombre de jetons</label>
+        <p-select
+          inputId="draw-count"
+          [options]="availableCounts"
+          [ngModel]="selectedCount()"
+          placeholder="Choisir"
+          (onChange)="onCountChange($event.value)">
+        </p-select>
+      </div>
+
+      <p-button
+        label="Mélanger"
+        icon="bi bi-arrow-clockwise"
+        outlined="true"
+        [disabled]="selectedCount() === null"
+        (click)="refresh()">
+      </p-button>
+    </div>
+
+    <div class="flex flex-wrap gap-5 justify-center">
+      @for (chip of chips(); track chip.position) {
+        <button
+          type="button"
+          class="flip-container w-24 h-24 drop-shadow-lg"
+          [attr.aria-pressed]="chip.revealed"
+          [attr.aria-label]="chip.revealed
+            ? 'Jeton ' + chip.position + ', valeur ' + chip.value
+            : 'Jeton ' + chip.position + ', valeur cachée'"
+          (click)="reveal(chip.position)">
+          <div class="flip-card relative w-full h-full" [class.flip-card-flipped]="chip.revealed">
+
+            <!-- Face avant : identité fixe du jeton -->
+            <div class="flip-card-face absolute inset-0">
+              <ng-container [ngTemplateOutlet]="chipFace" [ngTemplateOutletContext]="{
+                number: chip.position,
+                base: 'fill-primary-100',
+                edge: 'fill-primary-15',
+                ring: 'stroke-primary-15',
+                text: 'fill-contrast-100'
+              }"></ng-container>
+            </div>
+
+            <!-- Face arrière : valeur cachée, jamais rendue avant révélation -->
+            <div class="flip-card-face flip-card-face-back absolute inset-0">
+              @if (chip.revealed) {
+                <ng-container [ngTemplateOutlet]="chipFace" [ngTemplateOutletContext]="{
+                  number: chip.value,
+                  base: 'fill-contrast-100',
+                  edge: 'fill-blanc-100',
+                  ring: 'stroke-blanc-50',
+                  text: 'fill-contrast-100'
+                }"></ng-container>
+              }
+            </div>
+
+          </div>
+        </button>
+      }
+    </div>
+
+  </main>
+</div>
+
+<ng-template #chipFace let-number="number" let-base="base" let-edge="edge" let-ring="ring" let-text="text">
+  <svg viewBox="0 0 100 100" class="w-full h-full">
+    <circle cx="50" cy="50" r="47" [attr.class]="base"/>
+    @for (angle of edgeAngles; track angle) {
+      <rect x="46" y="2" width="8" height="14" rx="2" [attr.class]="edge"
+            [attr.transform]="'rotate(' + angle + ' 50 50)'"/>
+    }
+    <circle cx="50" cy="50" r="33" class="fill-blanc-100"/>
+    <circle cx="50" cy="50" r="33" fill="none" stroke-width="2" stroke-dasharray="3 4" [attr.class]="ring"/>
+    <text x="50" y="59" text-anchor="middle" font-size="26" font-weight="700" font-family="Poppins, sans-serif"
+          [attr.class]="text">{{ number }}</text>
+  </svg>
+</ng-template>

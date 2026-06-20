@@ -218,6 +218,8 @@
           <span class="text-body-light text-gris-80">Dimension : <b
             class="text-contrast-100">{{ bracket().dimension }}</b></span>
         </div>
+        <p-button label="Tirage au sort" icon="bi bi-shuffle" outlined="true" size="small" [fluid]="true"
+                  (click)="openDrawTool()"></p-button>
       </div>
 
       <!-- Liste des paires non placées -->

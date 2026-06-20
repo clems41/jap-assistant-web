@@ -96,6 +96,15 @@ export const routes: Routes = [
     ],
   },
 
+  // Standalone draw tool — opened in a separate popup window, no main layout
+  {
+    path: 'draw',
+    canActivate: [authGuard],
+    data: {title: 'Tirage au sort'},
+    loadComponent: () =>
+      import('./pages/draw/draw.page').then(m => m.DrawPageComponent),
+  },
+
   // Wildcard — redirect to root
   {
     path: '**',

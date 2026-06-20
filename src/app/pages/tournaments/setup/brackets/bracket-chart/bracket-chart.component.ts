@@ -269,6 +269,10 @@ export class BracketChartComponent {
     this.selectedMatch.set(null);
   }
 
+  openDrawTool(): void {
+    window.open('/draw', 'jap-draw-tool', 'width=520,height=720,noopener');
+  }
+
   private collectLockedSlots(match: BracketMatch | null, result: Set<string>): void {
     if (!match) return;
     if (match.score || match.winner_id) {

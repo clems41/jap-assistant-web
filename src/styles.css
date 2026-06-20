@@ -137,6 +137,34 @@
   height: calc(100dvh - 14rem);
 }
 
+@utility flip-container {
+  perspective: 1000px;
+}
+
+@utility flip-card {
+  transform-style: preserve-3d;
+  transition: transform .6s;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+@utility flip-card-flipped {
+  transform: rotateY(180deg);
+}
+
+@utility flip-card-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+@utility flip-card-face-back {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: rotateY(180deg);
+}
+
 label {
   color: var(--color-contrast-100);
 }

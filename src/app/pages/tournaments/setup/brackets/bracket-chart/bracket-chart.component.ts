@@ -12,6 +12,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { NgTemplateOutlet } from '@angular/common';
 import {
   BracketBase,
   BracketMatch,
@@ -27,14 +28,14 @@ import { CdkDrag, CdkDragDrop, CdkDragEnd, CdkDragStart, CdkDropList, DragDropMo
 import { PrintService } from '../../../../../shared/services/print.service';
 import {
   BracketLayout,
-  CELL_H,
-  COL_GAP,
+  buildPrintSections,
+  computeLayout,
   HEADER_HEIGHT,
-  MatchJunction,
   PAIR_H,
   PAIR_W,
   PairSlot,
   PRINT_PAGE_WIDTH,
+  PrintSection,
   SlotState,
 } from './bracket-chart.models';
 @Component({
@@ -48,6 +49,7 @@ import {
     RadioButtonModule,
     TagModule,
     DragDropModule,
+    NgTemplateOutlet,
   ],
   templateUrl: './bracket-chart.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -71,14 +73,22 @@ export class BracketChartComponent {
   readonly PAIR_H = PAIR_H;
   readonly HEADER_HEIGHT = HEADER_HEIGHT;
   readonly SlotState = SlotState;
-
-  private readonly printArea = viewChild<ElementRef<HTMLElement>>('printArea');
+  private readonly printSectionsArea = viewChild<ElementRef<HTMLElement>>('printSectionsArea');
 
   private pairsMap = computed(() => new Map(this.pairs().map(p => [p.id, p])));
 
-  layout = computed<BracketLayout>(() => this.computeLayout(this.bracket().root_match));
+  layout = computed<BracketLayout>(() =>
+    computeLayout(this.bracket().root_match, { championLabel: this.computeChampionLabel() }));
 
   readonly printScale = computed(() => Math.min(1, PRINT_PAGE_WIDTH / (this.layout().totalWidth || 1)));
+
+  // Calculé uniquement en mode placement (onglet "Tableau principal") : en mode score-only
+  // (tableaux de classement), le bouton d'impression n'est jamais affiché et ce calcul ne doit
+  // pas s'exécuter pour ne rien changer au comportement de ce chemin existant.
+  readonly printSections = computed<PrintSection[]>(() => {
+    if (this.mode() !== 'placement') return [];
+    return buildPrintSections(this.bracket().root_match, this.computeChampionLabel());
+  });
 
   selectedMatch = signal<BracketMatch | null>(null);
 
@@ -292,7 +302,8 @@ export class BracketChartComponent {
   }
 
   onPrint(): void {
-    const el = this.printArea()?.nativeElement;
+    if (this.mode() !== 'placement') return;
+    const el = this.printSectionsArea()?.nativeElement;
     if (el) this.printService.printElement(el);
   }
 
@@ -342,101 +353,11 @@ export class BracketChartComponent {
     return place === 1 ? '1er' : `${place}ème`;
   }
 
-  private getDepth(match: BracketMatch | null): number {
-    if (!match) return 0;
-    return 1 + Math.max(this.getDepth(match.child1), this.getDepth(match.child2));
-  }
-
-  private countLeaves(match: BracketMatch | null): number {
-    if (!match) return 0;
-    if (!match.child1 && !match.child2) return 1;
-    return this.countLeaves(match.child1) + this.countLeaves(match.child2);
-  }
-
-  private computeLayout(root: BracketMatch): BracketLayout {
-    const pairSlots: PairSlot[] = [];
-    const junctions: MatchJunction[] = [];
-    const connectors: BracketLayout['connectors'] = [];
-    const roundDisplayByDepth = new Map<number, string>();
-
-    const D = this.getDepth(root) - 1;
-    const numLeaves = this.countLeaves(root);
-    const bracketHeight = numLeaves * 2 * CELL_H;
-
-    const colX = (d: number) => (D - d) * (PAIR_W + COL_GAP);
-    const junX = (d: number) => colX(d) + PAIR_W + COL_GAP / 2;
-
-    const slotState = (disabled: boolean, canBePlaced: boolean): SlotState =>
-      disabled ? SlotState.Bypassed
-        : canBePlaced ? SlotState.Interactive
-        : SlotState.WaitingForWinner;
-
-    const layout = (match: BracketMatch, d: number, topY: number, allocH: number): number => {
-      const pairX = colX(d);
-      const pairRightX = pairX + PAIR_W;
-      const junctionX = junX(d);
-
-      roundDisplayByDepth.set(d, match.round_display);
-
-      let pair1Y: number;
-      let pair2Y: number;
-
-      if (!match.child1 && !match.child2) {
-        pair1Y = topY + allocH / 4;
-        pair2Y = topY + 3 * allocH / 4;
-      } else {
-        pair1Y = layout(match.child1, d + 1, topY, allocH / 2);
-        pair2Y = layout(match.child2, d + 1, topY + allocH / 2, allocH / 2);
-      }
-
-      const junctionY = (pair1Y + pair2Y) / 2;
-      const pair1Wins = !!match.winner_id && match.winner_id === match.pair1;
-      const pair2Wins = !!match.winner_id && match.winner_id === match.pair2;
-
-      const yOffset = HEADER_HEIGHT;
-      const roundSize = 2 ** (d + 1);
-      pairSlots.push({ id: `${match.id}-p1`, pairId: match.pair1 ?? null, x: pairX, y: pair1Y + yOffset, isWinner: pair1Wins, isChampion: false, state: slotState(match.disabled, match.pair1_can_be_placed), roundSize });
-      pairSlots.push({ id: `${match.id}-p2`, pairId: match.pair2 ?? null, x: pairX, y: pair2Y + yOffset, isWinner: pair2Wins, isChampion: false, state: slotState(match.disabled, match.pair2_can_be_placed), roundSize });
-      junctions.push({ match, x: junctionX, y: junctionY + yOffset });
-
-      connectors.push({ id: `${match.id}-cp1`, path: `M ${pairRightX} ${pair1Y + yOffset} H ${junctionX} V ${junctionY + yOffset}`, isWinner: pair1Wins });
-      connectors.push({ id: `${match.id}-cp2`, path: `M ${pairRightX} ${pair2Y + yOffset} H ${junctionX} V ${junctionY + yOffset}`, isWinner: pair2Wins });
-      if (match.child1) {
-        connectors.push({ id: `${match.id}-cj1`, path: `M ${junX(d + 1)} ${pair1Y + yOffset} H ${pairX}`, isWinner: pair1Wins });
-      }
-      if (match.child2) {
-        connectors.push({ id: `${match.id}-cj2`, path: `M ${junX(d + 1)} ${pair2Y + yOffset} H ${pairX}`, isWinner: pair2Wins });
-      }
-
-      return junctionY;
-    };
-
-    const rootJunctionY = layout(root, 0, 0, bracketHeight);
-
-    const championX = (D + 1) * (PAIR_W + COL_GAP);
-    // state non lu pour le slot champion (branche template séparée gérée via isChampion)
-    pairSlots.push({ id: `champion-${root.id}`, pairId: root.winner_id ?? null, x: championX, y: rootJunctionY + HEADER_HEIGHT, isWinner: false, isChampion: true, state: SlotState.Interactive, roundSize: 0 });
-    connectors.push({ id: `${root.id}-cc`, path: `M ${junX(0)} ${rootJunctionY + HEADER_HEIGHT} H ${championX}`, isWinner: !!root.winner_id });
-
-    const roundHeaders: BracketLayout['roundHeaders'] = [];
-    for (const [d, label] of roundDisplayByDepth) {
-      roundHeaders.push({ label, x: colX(d) + PAIR_W / 2 });
-    }
-    roundHeaders.sort((a, b) => a.x - b.x);
+  private computeChampionLabel(): string {
     const startPlace = this.startPlace();
-    const championLabel = this.mode() === 'score-only' && startPlace !== null
+    return this.mode() === 'score-only' && startPlace !== null
       ? this.formatOrdinalPlace(startPlace)
       : 'Gagnant';
-    roundHeaders.push({ label: championLabel, x: championX + PAIR_W / 2 });
-
-    return {
-      pairSlots,
-      junctions,
-      connectors,
-      roundHeaders,
-      totalWidth: championX + PAIR_W + 20,
-      totalHeight: bracketHeight + HEADER_HEIGHT,
-    };
   }
 
   protected readonly TournamentStatus = TournamentStatus;

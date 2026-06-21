@@ -306,6 +306,110 @@
 
 </div>
 
+@if (mode() === 'placement') {
+  <div #printSectionsArea id="printSectionsArea" class="hidden print:block">
+    @for (section of printSections(); track $index) {
+      <div class="break-inside-avoid" [class.break-after-page]="!$last">
+        <h2 class="text-body-bold text-contrast-100 mb-2">{{ section.title }}</h2>
+        <div class="relative" [style.width.px]="section.layout.totalWidth" [style.height.px]="section.layout.totalHeight">
+
+          <!-- En-têtes de colonnes : positionnement normal (pas sticky — chaque page a son propre en-tête) -->
+          @for (header of section.layout.roundHeaders; track header.label) {
+            <div class="absolute flex items-center justify-center"
+                 [style.left.px]="header.x - (PAIR_W * section.scale) / 2"
+                 [style.top.px]="0"
+                 [style.width.px]="PAIR_W * section.scale"
+                 [style.height.px]="HEADER_HEIGHT * section.scale - 6">
+              <span class="text-primary-100 font-bold text-sm leading-tight px-1 truncate w-full text-center">
+                {{ header.label }}
+              </span>
+            </div>
+          }
+
+          <!-- Connecteurs SVG -->
+          <svg class="absolute inset-0 overflow-visible pointer-events-none"
+               [attr.width]="section.layout.totalWidth"
+               [attr.height]="section.layout.totalHeight">
+            @for (c of section.layout.connectors; track c.id) {
+              <path [attr.d]="c.path"
+                    fill="none"
+                    stroke-width="2"
+                    [attr.stroke]="c.isWinner ? 'var(--color-success-100)' : 'var(--color-gris-30)'"/>
+            }
+          </svg>
+
+          <!-- Emplacements de paires : rendu lecture seule (pas de glisser-déposer, pas de boutons) -->
+          @for (slot of section.layout.pairSlots; track slot.id) {
+            <ng-container [ngTemplateOutlet]="printSlotTpl"
+                          [ngTemplateOutletContext]="{ slot: slot, scale: section.scale }">
+            </ng-container>
+          }
+
+          <!-- Scores -->
+          @for (junction of section.layout.junctions; track junction.match.id) {
+            <div class="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border
+                       bg-blanc-100 px-2 py-0.5 text-label text-gris-80 min-w-12 text-center"
+                 [style.left.px]="junction.x"
+                 [style.top.px]="junction.y"
+                 [class.border-success-50]="junction.match.winner_id"
+                 [class.border-gris-15]="!junction.match.winner_id">
+              {{ junction.match.score || '' }}
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+}
+
+<ng-template #printSlotTpl let-slot="slot" let-scale="scale">
+  @if (slot.isChampion) {
+    <div class="absolute flex items-center px-2 rounded-lg border border-primary-100 bg-primary-5"
+         [style.left.px]="slot.x"
+         [style.top.px]="slot.y - (PAIR_H * scale) / 2"
+         [style.width.px]="PAIR_W * scale"
+         [style.height.px]="PAIR_H * scale">
+      <i class="bi bi-trophy-fill text-primary-100 mr-1 shrink-0 text-xs"></i>
+      @if (slot.pairId) {
+        @let players = getPairPlayerNames(slot.pairId);
+        <div class="flex flex-col flex-1 min-w-0">
+          <span class="text-xs leading-tight truncate font-semibold text-primary-120">{{ players[0] }}</span>
+          <span class="text-xs leading-tight truncate text-primary-80">{{ players[1] }}</span>
+        </div>
+      } @else {
+        <span class="text-xs text-primary-120 font-semibold">—</span>
+      }
+    </div>
+  } @else if (slot.state === SlotState.Bypassed) {
+    <div class="absolute rounded-lg border border-gris-15 bg-gris-5 opacity-50"
+         [style.left.px]="slot.x"
+         [style.top.px]="slot.y - (PAIR_H * scale) / 2"
+         [style.width.px]="PAIR_W * scale"
+         [style.height.px]="PAIR_H * scale">
+    </div>
+  } @else {
+    <div class="absolute flex items-center px-2 rounded-lg border"
+         [style.left.px]="slot.x"
+         [style.top.px]="slot.y - (PAIR_H * scale) / 2"
+         [style.width.px]="PAIR_W * scale"
+         [style.height.px]="PAIR_H * scale"
+         [class.border-success-50]="slot.isWinner"
+         [class.bg-success-5]="slot.isWinner"
+         [class.border-gris-15]="!slot.isWinner"
+         [class.bg-blanc-100]="!slot.isWinner">
+      @if (slot.pairId) {
+        @let players = getPairPlayerNames(slot.pairId);
+        <div class="flex flex-col flex-1 min-w-0">
+          <span class="text-xs leading-tight truncate font-medium">{{ players[0] }}</span>
+          <span class="text-xs leading-tight truncate text-gris-50">{{ players[1] }}</span>
+        </div>
+      } @else {
+        <span class="text-xs text-gris-30">—</span>
+      }
+    </div>
+  }
+</ng-template>
+
 <!-- Score dialog -->
 @if (selectedMatch(); as match) {
   <p-dialog

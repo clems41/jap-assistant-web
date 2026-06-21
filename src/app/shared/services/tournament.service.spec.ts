@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { HttpRequesterService } from './http-requester.service';
-import {BracketMatch, ScoreRequest, Tournament, TournamentRequest, TournamentStatus} from '../models/tournament.models';
+import {BracketMatch, MatchStatus, ScoreRequest, Tournament, TournamentRequest, TournamentStatus} from '../models/tournament.models';
 import {EnumChoice, PaginatedResponse} from '../models/base.models';
 import {TournamentService} from './tournament.service';
 
@@ -63,6 +63,8 @@ const mockBracketMatch: BracketMatch = {
   disabled: false,
   pair1_can_be_placed: false,
   pair2_can_be_placed: false,
+  status: MatchStatus.FINISHED,
+  finished_at: '2026-04-15T14:30:00Z',
 };
 
 // ---------------------------------------------------------------------------

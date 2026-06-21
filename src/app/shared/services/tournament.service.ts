@@ -72,6 +72,15 @@ export class TournamentService {
     );
   }
 
+  /** POST /api/v1/tournaments/{id}/matches/{matchId}/start/ */
+  startMatch(tournamentId: number, matchId: number): Observable<BracketMatch> {
+    return this.http.post<BracketMatch>(
+      `/tournaments/${tournamentId}/matches/${matchId}/score`,
+      null,
+      { succes_message: 'Match démarré' }
+    );
+  }
+
   /** GET /api/v1/tournaments/{id}/ */
   getTournament(id: number): Observable<Tournament> {
     return this.http.get<Tournament>(`/tournaments/${id}`);

@@ -8,6 +8,12 @@ export enum TournamentStatus {
   FINISHED = 'FINISHED'
 }
 
+export enum MatchStatus {
+  UPCOMING = 'UPCOMING',
+  STARTED = 'STARTED',
+  FINISHED = 'FINISHED'
+}
+
 export interface Tournament {
   id: number;
   owner: number;
@@ -69,6 +75,8 @@ export interface BracketMatch {
   disabled: boolean;
   pair1_can_be_placed: boolean;
   pair2_can_be_placed: boolean;
+  status: MatchStatus;
+  finished_at: string;
 }
 
 export interface DurationByGameFormat {

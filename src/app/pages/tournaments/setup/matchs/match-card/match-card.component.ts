@@ -3,7 +3,7 @@ import {TagModule} from 'primeng/tag';
 import {ButtonModule} from 'primeng/button';
 import {Match, MatchStatus} from '../../../../../shared/models/tournament.models';
 import {Pair} from '../../../../../shared/models/pair.models';
-import {toFrenchDate} from '../../../../../shared/utils/date.utils';
+import {estimatedWaitLabel, toFrenchDate} from '../../../../../shared/utils/date.utils';
 import {formatPairName} from '../../../../../shared/utils/pair.utils';
 
 @Component({
@@ -68,6 +68,14 @@ export class MatchCardComponent {
 
   get isFinished(): boolean {
     return this.match().status === MatchStatus.FINISHED;
+  }
+
+  get waitTimeLabel(): string | null {
+    const match = this.match();
+    if (match.status !== MatchStatus.UPCOMING) {
+      return null;
+    }
+    return estimatedWaitLabel(match.estimated_start_at);
   }
 
   pairLabel(pair: Pair | undefined, pairId: number | null): string {

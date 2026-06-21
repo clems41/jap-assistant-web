@@ -80,6 +80,8 @@ const mockMatch: Match = {
   winner_id: 1,
   status: MatchStatus.FINISHED,
   finished_at: '2026-04-15T14:30:00Z',
+  started_at: '2026-04-15T13:30:00Z',
+  estimated_start_at: null,
 };
 
 // ---------------------------------------------------------------------------

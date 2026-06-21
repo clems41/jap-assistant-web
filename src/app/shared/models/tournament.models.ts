@@ -92,6 +92,8 @@ export interface Match {
   winner_id: number;
   status: MatchStatus;
   finished_at: string;
+  started_at: string | null;
+  estimated_start_at: string | null;
 }
 
 export interface DurationByGameFormat {

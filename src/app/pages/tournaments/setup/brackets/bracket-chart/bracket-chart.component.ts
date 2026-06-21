@@ -11,7 +11,6 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgTemplateOutlet } from '@angular/common';
 import {
   BracketBase,
@@ -20,12 +19,10 @@ import {
 } from '../../../../../shared/models/tournament.models';
 import { Pair } from '../../../../../shared/models/pair.models';
 import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { RadioButtonModule } from 'primeng/radiobutton';
 import { TagModule } from 'primeng/tag';
 import { CdkDrag, CdkDragDrop, CdkDragEnd, CdkDragStart, CdkDropList, DragDropModule } from '@angular/cdk/drag-drop';
 import { PrintService } from '../../../../../shared/services/print.service';
+import { ScoreDialogComponent, ScoreSavedEvent } from '../../score-dialog/score-dialog.component';
 import {
   BracketLayout,
   buildPrintSections,
@@ -42,14 +39,11 @@ import {
   selector: 'app-bracket-chart',
   standalone: true,
   imports: [
-    ReactiveFormsModule,
-    DialogModule,
     ButtonModule,
-    InputTextModule,
-    RadioButtonModule,
     TagModule,
     DragDropModule,
     NgTemplateOutlet,
+    ScoreDialogComponent,
   ],
   templateUrl: './bracket-chart.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -66,7 +60,6 @@ export class BracketChartComponent {
   deleteRequested = output<void>();
   scoreDeleteRequested = output<number>();
 
-  private readonly fb = inject(FormBuilder);
   private readonly printService = inject(PrintService);
 
   readonly PAIR_W = PAIR_W;
@@ -91,11 +84,6 @@ export class BracketChartComponent {
   });
 
   selectedMatch = signal<BracketMatch | null>(null);
-
-  scoreForm = this.fb.group({
-    score: ['', Validators.required],
-    winnerId: [null as number | null, Validators.required],
-  });
 
   readonly seedingMap = signal<Map<string, number | null>>(new Map());
   readonly draggedPairId = signal<number | null>(null);
@@ -277,19 +265,11 @@ export class BracketChartComponent {
   }
 
   onMatchClick(match: BracketMatch): void {
-    this.scoreForm.reset({
-      score: match.score || '',
-      winnerId: match.winner_id || null,
-    });
     this.selectedMatch.set(match);
   }
 
-  saveScore(): void {
-    if (this.scoreForm.invalid) return;
-    const match = this.selectedMatch();
-    if (!match) return;
-    const { score, winnerId } = this.scoreForm.value;
-    this.scoreChanged.emit({ matchId: match.id, score: score!, winnerId: winnerId! });
+  onScoreSaved(event: ScoreSavedEvent): void {
+    this.scoreChanged.emit(event);
     this.closeDialog();
   }
 

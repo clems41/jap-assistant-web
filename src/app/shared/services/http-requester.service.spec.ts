@@ -144,6 +144,44 @@ describe('HttpRequesterService', () => {
       expect(req.request.method).toBe('GET');
       req.flush([]);
     });
+
+    it('should send one repeated query param per array element instead of a joined value', () => {
+      service.get('/tournaments', { status: ['UPCOMING', 'STARTED'] }).subscribe();
+
+      const req = httpMock.expectOne((r) => {
+        const values = r.params.getAll('status');
+        return r.url === `${mockEnvironment.apiBaseUrl}/tournaments/` &&
+          values?.length === 2 &&
+          values.includes('UPCOMING') &&
+          values.includes('STARTED');
+      });
+      expect(req.request.method).toBe('GET');
+      req.flush([]);
+    });
+
+    it('should combine array and scalar params in the same request', () => {
+      service.get('/tournaments', { status: ['FINISHED'], page: 1 }).subscribe();
+
+      const req = httpMock.expectOne((r) =>
+        r.url === `${mockEnvironment.apiBaseUrl}/tournaments/` &&
+        r.params.getAll('status')?.length === 1 &&
+        r.params.get('status') === 'FINISHED' &&
+        r.params.get('page') === '1'
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush([]);
+    });
+
+    it('should omit the param entirely when given an empty array', () => {
+      service.get('/tournaments', { status: [] }).subscribe();
+
+      const req = httpMock.expectOne((r) =>
+        r.url === `${mockEnvironment.apiBaseUrl}/tournaments/` &&
+        !r.params.has('status')
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush([]);
+    });
   });
 
   // ---------------------------------------------------------------------------

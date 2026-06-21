@@ -1,0 +1,25 @@
+@if (loading()) {
+  <app-loading-spinner [loading]="loading()"></app-loading-spinner>
+} @else if (matches().length === 0) {
+  <div class="flex flex-col items-center justify-center w-full gap-2 py-8 text-gris-50">
+    <i class="bi bi-list-task text-4xl"></i>
+    <span class="text-body-light">Aucun match {{ emptyStateLabel() }}</span>
+  </div>
+} @else {
+  <div class="flex flex-col gap-3 w-full">
+    @for (match of matches(); track match.id) {
+      <app-match-card [match]="match" [pair1]="getPair(match.pair1)" [pair2]="getPair(match.pair2)"
+                      [starting]="startingMatchId() === match.id"
+                      (startRequested)="onStartRequested($event)"
+                      (scoreRequested)="onScoreRequested($event)"></app-match-card>
+    }
+  </div>
+}
+
+<app-score-dialog
+  [match]="selectedMatchForScore()"
+  [pair1Name]="scoreDialogPair1Name"
+  [pair2Name]="scoreDialogPair2Name"
+  (scoreSaved)="onScoreSaved($event)"
+  (closed)="onScoreDialogClosed()">
+</app-score-dialog>

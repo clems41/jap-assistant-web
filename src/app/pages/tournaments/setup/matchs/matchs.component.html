@@ -1,0 +1,24 @@
+<p-tabs value="started" [showNavigators]="false">
+  <p-tablist>
+    <p-tab value="started">En cours</p-tab>
+    <p-tab value="upcoming">À venir</p-tab>
+    <p-tab value="finished">Terminés</p-tab>
+  </p-tablist>
+  <p-tabpanels>
+    <p-tabpanel value="started">
+      <app-match-list [tournament]="tournament()" [pairs]="pairs()" [statuses]="startedStatuses"
+                      [refreshTrigger]="refreshTrigger()" emptyStateLabel="en cours"
+                      (refreshNeeded)="onRefreshNeeded()"></app-match-list>
+    </p-tabpanel>
+    <p-tabpanel value="upcoming">
+      <app-match-list [tournament]="tournament()" [pairs]="pairs()" [statuses]="upcomingStatuses"
+                      [refreshTrigger]="refreshTrigger()" emptyStateLabel="à venir"
+                      (refreshNeeded)="onRefreshNeeded()"></app-match-list>
+    </p-tabpanel>
+    <p-tabpanel value="finished">
+      <app-match-list [tournament]="tournament()" [pairs]="pairs()" [statuses]="finishedStatuses"
+                      [sortByFinishedAtDesc]="true" [refreshTrigger]="refreshTrigger()" emptyStateLabel="terminé"
+                      (refreshNeeded)="onRefreshNeeded()"></app-match-list>
+    </p-tabpanel>
+  </p-tabpanels>
+</p-tabs>

@@ -411,65 +411,10 @@
 </ng-template>
 
 <!-- Score dialog -->
-@if (selectedMatch(); as match) {
-  <p-dialog
-    [visible]="true"
-    (visibleChange)="!$event && closeDialog()"
-    [header]="match.round_display + ' #' + match.match_number"
-    [modal]="true"
-    [style]="{width: '360px'}"
-    [draggable]="false"
-    [transitionOptions]="'0ms'"
-    appendTo="body">
-
-    <form [formGroup]="scoreForm" class="flex flex-col gap-5">
-
-      <div class="flex flex-col gap-3">
-        <span class="text-label text-gris-80">Vainqueur</span>
-        <div class="flex flex-col gap-2">
-          @if (match.pair1) {
-            <div class="flex items-center gap-3 p-3 rounded-lg border border-gris-15 cursor-pointer"
-                 [class.border-success-50]="scoreForm.get('winnerId')?.value === match.pair1"
-                 [class.bg-success-5]="scoreForm.get('winnerId')?.value === match.pair1"
-                 (click)="scoreForm.get('winnerId')?.setValue(match.pair1)">
-              <p-radiobutton
-                name="winnerId"
-                [value]="match.pair1"
-                formControlName="winnerId"/>
-              <span class="text-body-regular">{{ getPairName(match.pair1) }}</span>
-            </div>
-          }
-          @if (match.pair2) {
-            <div class="flex items-center gap-3 p-3 rounded-lg border border-gris-15 cursor-pointer"
-                 [class.border-success-50]="scoreForm.get('winnerId')?.value === match.pair2"
-                 [class.bg-success-5]="scoreForm.get('winnerId')?.value === match.pair2"
-                 (click)="scoreForm.get('winnerId')?.setValue(match.pair2)">
-              <p-radiobutton
-                name="winnerId"
-                [value]="match.pair2"
-                formControlName="winnerId"/>
-              <span class="text-body-regular">{{ getPairName(match.pair2) }}</span>
-            </div>
-          }
-        </div>
-      </div>
-
-      <div class="flex flex-col gap-2">
-        <label for="score-input" class="text-label text-gris-80">Score</label>
-        <input id="score-input"
-               pInputText
-               formControlName="score"
-               placeholder="ex : 6-3 7-5"
-               class="w-full"/>
-      </div>
-
-    </form>
-
-    <ng-template pTemplate="footer">
-      <div class="flex justify-end gap-2">
-        <p-button label="Annuler" severity="secondary" (onClick)="closeDialog()"/>
-        <p-button label="Enregistrer" [disabled]="scoreForm.invalid" (onClick)="saveScore()"/>
-      </div>
-    </ng-template>
-  </p-dialog>
-}
+<app-score-dialog
+  [match]="selectedMatch()"
+  [pair1Name]="getPairName(selectedMatch()?.pair1 ?? null)"
+  [pair2Name]="getPairName(selectedMatch()?.pair2 ?? null)"
+  (scoreSaved)="onScoreSaved($event)"
+  (closed)="closeDialog()">
+</app-score-dialog>

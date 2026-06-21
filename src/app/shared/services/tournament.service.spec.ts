@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { HttpRequesterService } from './http-requester.service';
-import {BracketMatch, MatchStatus, ScoreRequest, Tournament, TournamentRequest, TournamentStatus} from '../models/tournament.models';
+import {BracketMatch, Match, MatchStatus, ScoreRequest, Tournament, TournamentRequest, TournamentStatus} from '../models/tournament.models';
 import {EnumChoice, PaginatedResponse} from '../models/base.models';
 import {TournamentService} from './tournament.service';
 
@@ -63,6 +63,21 @@ const mockBracketMatch: BracketMatch = {
   disabled: false,
   pair1_can_be_placed: false,
   pair2_can_be_placed: false,
+  status: MatchStatus.FINISHED,
+  finished_at: '2026-04-15T14:30:00Z',
+};
+
+const mockMatch: Match = {
+  id: 1,
+  round: 'FINALE',
+  round_display: 'Finale',
+  match_number: 1,
+  order: 1,
+  pair1: 1,
+  pair2: 2,
+  game_format: 'C1',
+  score: '6-3 6-4',
+  winner_id: 1,
   status: MatchStatus.FINISHED,
   finished_at: '2026-04-15T14:30:00Z',
 };
@@ -423,6 +438,59 @@ describe('TournamentService', () => {
       httpSpy.delete.and.returnValue(throwError(() => error));
 
       service.deleteMatchScore(1, 1).subscribe({
+        error: (err) => {
+          expect(err).toBe(error);
+          done();
+        },
+      });
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // getMatches()
+  // -------------------------------------------------------------------------
+
+  describe('getMatches()', () => {
+    it('should call GET /api/v1/tournaments/{id}/matches with no params when no statuses given', () => {
+      httpSpy.get.and.returnValue(of([mockMatch]));
+
+      service.getMatches(1).subscribe();
+
+      expect(httpSpy.get).toHaveBeenCalledOnceWith('/tournaments/1/matches', undefined);
+    });
+
+    it('should call GET /api/v1/tournaments/{id}/matches with repeatable status params when statuses given', () => {
+      httpSpy.get.and.returnValue(of([mockMatch]));
+
+      service.getMatches(1, [MatchStatus.UPCOMING, MatchStatus.STARTED]).subscribe();
+
+      expect(httpSpy.get).toHaveBeenCalledOnceWith('/tournaments/1/matches', {
+        status: [MatchStatus.UPCOMING, MatchStatus.STARTED],
+      });
+    });
+
+    it('should treat an empty statuses array as no filter', () => {
+      httpSpy.get.and.returnValue(of([mockMatch]));
+
+      service.getMatches(1, []).subscribe();
+
+      expect(httpSpy.get).toHaveBeenCalledOnceWith('/tournaments/1/matches', undefined);
+    });
+
+    it('should return the list of matches on success', (done) => {
+      httpSpy.get.and.returnValue(of([mockMatch]));
+
+      service.getMatches(1).subscribe((res) => {
+        expect(res).toEqual([mockMatch]);
+        done();
+      });
+    });
+
+    it('should propagate HTTP errors', (done) => {
+      const error = new Error('500 Internal Server Error');
+      httpSpy.get.and.returnValue(throwError(() => error));
+
+      service.getMatches(1).subscribe({
         error: (err) => {
           expect(err).toBe(error);
           done();

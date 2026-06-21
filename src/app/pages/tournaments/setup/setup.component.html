@@ -25,6 +25,7 @@
         }
       </p-tab>
       <p-tab value="classification" *ngIf="tournamentContainsBracket && hasClassificationBrackets">Tableaux de classement</p-tab>
+      <p-tab value="matchs" *ngIf="tournamentContainsBracket">Matchs</p-tab>
     </p-tablist>
     <p-tabpanels>
       <p-tabpanel value="infos">
@@ -70,6 +71,12 @@
             (bracketChange)="bracket.set($event)">
           </app-classification-brackets>
         }
+      </p-tabpanel>
+      <p-tabpanel value="matchs">
+        <app-matchs
+          [tournament]="t"
+          [pairs]="pairs()">
+        </app-matchs>
       </p-tabpanel>
     </p-tabpanels>
   </p-tabs>

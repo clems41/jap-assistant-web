@@ -79,6 +79,21 @@ export interface BracketMatch {
   finished_at: string;
 }
 
+export interface Match {
+  id: number;
+  round: string;
+  round_display: string;
+  match_number: number;
+  order: number;
+  pair1: number | null;
+  pair2: number | null;
+  game_format: string;
+  score: string;
+  winner_id: number;
+  status: MatchStatus;
+  finished_at: string;
+}
+
 export interface DurationByGameFormat {
   format: string;
   duration: number;

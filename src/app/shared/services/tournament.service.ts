@@ -5,6 +5,7 @@ import {
   Bracket,
   BracketMatch,
   DurationByGameFormat, GenerateBracketRequest,
+  Match, MatchStatus,
   PaginatedTournamentRequest, ScoreRequest, SeedingRequest, TimeSlot, TimeSlotRequest,
   Tournament, TournamentInformationsResponse,
   TournamentRequest,
@@ -75,9 +76,17 @@ export class TournamentService {
   /** POST /api/v1/tournaments/{id}/matches/{matchId}/start/ */
   startMatch(tournamentId: number, matchId: number): Observable<BracketMatch> {
     return this.http.post<BracketMatch>(
-      `/tournaments/${tournamentId}/matches/${matchId}/score`,
+      `/tournaments/${tournamentId}/matches/${matchId}/start`,
       null,
       { succes_message: 'Match démarré' }
+    );
+  }
+
+  /** GET /api/v1/tournaments/{id}/matches/ */
+  getMatches(tournamentId: number, statuses?: MatchStatus[]): Observable<Match[]> {
+    return this.http.get<Match[]>(
+      `/tournaments/${tournamentId}/matches`,
+      statuses?.length ? { status: statuses } : undefined,
     );
   }
 

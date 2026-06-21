@@ -10,6 +10,7 @@ import {toSignal} from '@angular/core/rxjs-interop';
 import {NgIf} from '@angular/common';
 import {BracketsComponent} from './brackets/brackets.component';
 import {ClassificationBracketsComponent} from './classification-brackets/classification-brackets.component';
+import {MatchsComponent} from './matchs/matchs.component';
 import {PairService} from '../../../shared/services/pair.service';
 import {Pair} from '../../../shared/models/pair.models';
 import {map} from 'rxjs';
@@ -27,6 +28,7 @@ import {collectPlacedPairIds} from '../../../shared/utils/bracket.utils';
     NgIf,
     BracketsComponent,
     ClassificationBracketsComponent,
+    MatchsComponent,
     BadgeModule,
     OverlayBadgeModule
   ],

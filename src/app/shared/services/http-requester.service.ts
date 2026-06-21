@@ -82,7 +82,12 @@ export class HttpRequesterService {
     if (!params) return new HttpParams();
     return Object.entries(params)
       .filter(([, v]) => v !== undefined && v !== null)
-      .reduce((acc, [k, v]) => acc.set(k, String(v)), new HttpParams());
+      .reduce((acc, [k, v]) => {
+        if (Array.isArray(v)) {
+          return v.reduce((inner, item) => inner.append(k, String(item)), acc);
+        }
+        return acc.set(k, String(v));
+      }, new HttpParams());
   }
 
   private buildHeaders(): HttpHeaders {

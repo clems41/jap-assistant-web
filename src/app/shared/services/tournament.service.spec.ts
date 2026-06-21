@@ -94,8 +94,9 @@ describe('TournamentService', () => {
 
   /**
    * Crée un nouveau module de test et injecte TournamentService.
-   * `enumReturnValue` est retourné par httpSpy.get pour les 4 observables
-   * cachés créés à la construction du service.
+   * `enumReturnValue` est retourné par httpSpy.get pour les observables
+   * cachés (categories, genders, leagues, ...), déclenchés via defer()
+   * à la première souscription plutôt qu'à la construction du service.
    */
   function buildService(enumReturnValue = of(mockEnumChoices)): { service: TournamentService; spy: jasmine.SpyObj<HttpRequesterService> } {
     const spy = jasmine.createSpyObj<HttpRequesterService>('HttpRequesterService', ['get', 'post', 'put', 'patch', 'delete']);
@@ -107,9 +108,9 @@ describe('TournamentService', () => {
   }
 
   beforeEach(() => {
-    // Le spy doit retourner un Observable AVANT l'injection car les 4 méthodes
-    // cachées (categories, genders, leagues, lastLeague) appellent httpSpy.get
-    // à la construction du service via les class fields.
+    // Le spy doit retourner un Observable car les méthodes cachées
+    // (categories, genders, leagues, ...) utilisent defer() + shareReplay :
+    // l'appel HTTP se déclenche à la première souscription, pas avant.
     ({ service, spy: httpSpy } = buildService());
     // Remet le compteur d'appels à zéro pour ne pas polluer les assertions
     // des tests qui vérifient toHaveBeenCalledOnceWith.
@@ -309,13 +310,9 @@ describe('TournamentService', () => {
   // -------------------------------------------------------------------------
 
   describe('getCategories()', () => {
-    it('should call GET /api/v1/tournaments/enums/categories at service creation', () => {
-      // L'appel HTTP se fait à la construction du service (class field),
-      // pas lors de la souscription (shareReplay cache le résultat).
-      // On recrée un service pour vérifier l'URL avant le calls.reset().
-      TestBed.resetTestingModule();
-      const { spy } = buildService();
-      expect(spy.get).toHaveBeenCalledWith('/tournaments/enums/categories');
+    it('should call GET /api/v1/tournaments/enums/categories when subscribed', () => {
+      service.getCategories().subscribe();
+      expect(httpSpy.get).toHaveBeenCalledWith('/tournaments/enums/categories');
     });
 
     it('should return the cached list of category choices', (done) => {
@@ -340,10 +337,9 @@ describe('TournamentService', () => {
   // -------------------------------------------------------------------------
 
   describe('getGenders()', () => {
-    it('should call GET /api/v1/tournaments/enums/genders at service creation', () => {
-      TestBed.resetTestingModule();
-      const { spy } = buildService();
-      expect(spy.get).toHaveBeenCalledWith('/tournaments/enums/genders');
+    it('should call GET /api/v1/tournaments/enums/genders when subscribed', () => {
+      service.getGenders().subscribe();
+      expect(httpSpy.get).toHaveBeenCalledWith('/tournaments/enums/genders');
     });
 
     it('should return the cached list of gender choices', (done) => {
@@ -502,10 +498,9 @@ describe('TournamentService', () => {
   });
 
   describe('getLeagues()', () => {
-    it('should call GET /api/v1/tournaments/enums/leagues at service creation', () => {
-      TestBed.resetTestingModule();
-      const { spy } = buildService();
-      expect(spy.get).toHaveBeenCalledWith('/tournaments/enums/leagues');
+    it('should call GET /api/v1/tournaments/enums/leagues when subscribed', () => {
+      service.getLeagues().subscribe();
+      expect(httpSpy.get).toHaveBeenCalledWith('/tournaments/enums/leagues');
     });
 
     it('should return the cached list of league choices', (done) => {

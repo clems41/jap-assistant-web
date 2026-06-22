@@ -46,10 +46,10 @@ export class AuthService {
 
   /**
    * Changes the authenticated user's password.
-   * POST /auth/change-password
+   * POST /auth/me/change-password
    */
   changePassword(input: ChangePasswordRequest): Observable<ChangePasswordResponse> {
-    return this.http.post<ChangePasswordResponse>('/auth/change-password', input);
+    return this.http.post<ChangePasswordResponse>('/auth/me/change-password', input);
   }
 
   /**

@@ -34,6 +34,10 @@ export class MainLayoutComponent {
 
   readonly pageTitle = toSignal(this.navigationEnd$, { initialValue: null });
 
+  protected goHome(): void {
+    this.router.navigate(['/home']).then();
+  }
+
   protected logout(): void {
     this.authService.logout();
     this.router.navigate(['/auth/login']).then();

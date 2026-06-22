@@ -26,6 +26,14 @@
       <div class="flex flex-row gap-3">
         <button
           class="w-9 h-9 bg-primary-15 rounded-full flex items-center justify-center hover:cursor-pointer hover:border border-primary-80"
+          (click)="goHome()"
+          title="Accueil"
+          aria-label="Accueil">
+          <i class="bi bi-house-door text-2xl text-primary-100"></i>
+        </button>
+
+        <button
+          class="w-9 h-9 bg-primary-15 rounded-full flex items-center justify-center hover:cursor-pointer hover:border border-primary-80"
           (click)="userProfile()">
           <i class="bi bi-person text-2xl text-primary-100"></i>
         </button>

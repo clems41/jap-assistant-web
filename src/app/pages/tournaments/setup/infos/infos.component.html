@@ -1,4 +1,7 @@
 <app-loading-spinner [loading]="loading()"></app-loading-spinner>
+
+<app-qr-code-share [url]="tournament().qr_code_url" [class.hidden]="loading()" class="block w-full p-4" />
+
 <form [class.hidden]="loading()"
       [formGroup]="updateForm"
       class="flex flex-col gap-5 w-full items-center p-4"

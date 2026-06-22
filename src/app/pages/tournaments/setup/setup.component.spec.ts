@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { SetupComponent } from './setup.component';
 import { TournamentService } from '../../../shared/services/tournament.service';
 import { PairService } from '../../../shared/services/pair.service';
@@ -22,6 +22,7 @@ const mockTournament: Tournament = {
   configuration: 'POULES',
   estimated_match_duration: 60,
   pairs_count: 0,
+  qr_code_url: 'https://example.com/public/tournaments/ABCDEF',
   created_at: '2026-01-01T00:00:00Z',
   updated_at: '2026-01-01T00:00:00Z',
 };
@@ -72,6 +73,7 @@ describe('SetupComponent', () => {
         { provide: PairService, useValue: pairServiceSpy },
         { provide: ActivatedRoute, useValue: activatedRouteStub },
         { provide: ConfirmationService, useValue: confirmationServiceSpy },
+        MessageService,
       ],
     });
   });

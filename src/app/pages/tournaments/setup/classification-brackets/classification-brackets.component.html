@@ -11,13 +11,15 @@
                   appendTo="body"
                   fluid=""/>
       </div>
-      <p-button label="Imprimer tous les tableaux"
-                icon="pi pi-print"
-                severity="secondary"
-                [outlined]="true"
-                size="small"
-                (onClick)="printAll()">
-      </p-button>
+      @if (interactive()) {
+        <p-button label="Imprimer tous les tableaux"
+                  icon="pi pi-print"
+                  severity="secondary"
+                  [outlined]="true"
+                  size="small"
+                  (onClick)="printAll()">
+        </p-button>
+      }
     </div>
 
     <div #printArea>

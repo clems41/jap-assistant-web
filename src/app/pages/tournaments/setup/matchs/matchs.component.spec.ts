@@ -20,6 +20,7 @@ const mockTournament: Tournament = {
   configuration: 'POULES',
   estimated_match_duration: 60,
   pairs_count: 8,
+  qr_code_url: 'https://example.com/public/tournaments/ABCDEF',
   created_at: '2026-01-01T00:00:00Z',
   updated_at: '2026-01-01T00:00:00Z',
 };

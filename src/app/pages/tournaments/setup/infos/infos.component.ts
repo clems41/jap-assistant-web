@@ -11,6 +11,7 @@ import {fromBackendToDate, toISODate} from '../../../../shared/utils/date.utils'
 import {Router} from '@angular/router';
 import {ConfirmationService} from 'primeng/api';
 import {LoadingSpinnerComponent} from '../../../../shared/components/loading-spinner/loading-spinner.component';
+import {QrCodeShareComponent} from '../../../../shared/components/qr-code-share/qr-code-share.component';
 
 @Component({
   selector: 'app-infos',
@@ -20,7 +21,8 @@ import {LoadingSpinnerComponent} from '../../../../shared/components/loading-spi
     DatePickerModule,
     ButtonModule,
     InputTextModule,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
+    QrCodeShareComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './infos.component.html'

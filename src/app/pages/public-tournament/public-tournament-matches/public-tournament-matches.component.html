@@ -1,0 +1,57 @@
+<p-tabs value="started" [showNavigators]="false">
+  <p-tablist>
+    <p-tab value="started">En cours</p-tab>
+    <p-tab value="upcoming">À venir</p-tab>
+    <p-tab value="finished">Terminés</p-tab>
+  </p-tablist>
+  <p-tabpanels>
+    <p-tabpanel value="started">
+      @if (startedLoading()) {
+        <app-loading-spinner [loading]="startedLoading()"></app-loading-spinner>
+      } @else if (startedMatches().length === 0) {
+        <div class="flex flex-col items-center justify-center w-full gap-2 py-8 text-gris-50">
+          <i class="bi bi-list-task text-4xl"></i>
+          <span class="text-body-light">Aucun match en cours</span>
+        </div>
+      } @else {
+        <div class="flex flex-col gap-3 w-full">
+          @for (mm of startedMatches(); track mm.match.id) {
+            <app-match-card [match]="mm.match" [pair1]="mm.pair1" [pair2]="mm.pair2" [readonly]="true" />
+          }
+        </div>
+      }
+    </p-tabpanel>
+    <p-tabpanel value="upcoming">
+      @if (upcomingLoading()) {
+        <app-loading-spinner [loading]="upcomingLoading()"></app-loading-spinner>
+      } @else if (upcomingMatches().length === 0) {
+        <div class="flex flex-col items-center justify-center w-full gap-2 py-8 text-gris-50">
+          <i class="bi bi-list-task text-4xl"></i>
+          <span class="text-body-light">Aucun match à venir</span>
+        </div>
+      } @else {
+        <div class="flex flex-col gap-3 w-full">
+          @for (mm of upcomingMatches(); track mm.match.id) {
+            <app-match-card [match]="mm.match" [pair1]="mm.pair1" [pair2]="mm.pair2" [readonly]="true" />
+          }
+        </div>
+      }
+    </p-tabpanel>
+    <p-tabpanel value="finished">
+      @if (finishedLoading()) {
+        <app-loading-spinner [loading]="finishedLoading()"></app-loading-spinner>
+      } @else if (finishedMatches().length === 0) {
+        <div class="flex flex-col items-center justify-center w-full gap-2 py-8 text-gris-50">
+          <i class="bi bi-list-task text-4xl"></i>
+          <span class="text-body-light">Aucun match terminé</span>
+        </div>
+      } @else {
+        <div class="flex flex-col gap-3 w-full">
+          @for (mm of finishedMatches(); track mm.match.id) {
+            <app-match-card [match]="mm.match" [pair1]="mm.pair1" [pair2]="mm.pair2" [readonly]="true" />
+          }
+        </div>
+      }
+    </p-tabpanel>
+  </p-tabpanels>
+</p-tabs>

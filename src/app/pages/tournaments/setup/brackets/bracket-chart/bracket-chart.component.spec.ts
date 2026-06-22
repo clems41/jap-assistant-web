@@ -137,6 +137,104 @@ describe('BracketChartComponent — impression multi-pages', () => {
     expect(sections[0].textContent).toContain('Nom1A');
   });
 
+  describe('interactive=false (mode lecture seule, ex. accès public)', () => {
+    function setupAllPlacedFixture() {
+      const fixture = TestBed.createComponent(BracketChartComponent);
+      const rootMatch = buildPlayedTree(3); // dimension 8, entièrement joué, toutes les paires placées
+      const bracket: BracketBase = { id: 10, dimension: 8, root_match: rootMatch };
+
+      fixture.componentRef.setInput('bracket', bracket);
+      fixture.componentRef.setInput('tournament', { status: TournamentStatus.STARTED });
+      fixture.componentRef.setInput('pairs', buildPairs(8));
+      fixture.componentRef.setInput('mode', 'placement');
+      fixture.componentRef.setInput('interactive', false);
+      fixture.detectChanges();
+      return fixture;
+    }
+
+    it('onMatchClick ne change pas selectedMatch (no-op) quand interactive=false', () => {
+      const fixture = setupAllPlacedFixture();
+      const someMatch = fixture.componentInstance.bracket().root_match;
+
+      fixture.componentInstance.onMatchClick(someMatch);
+
+      expect(fixture.componentInstance.selectedMatch()).toBeNull();
+    });
+
+    it('onMatchClick change bien selectedMatch quand interactive=true (comportement par défaut inchangé)', () => {
+      const fixture = TestBed.createComponent(BracketChartComponent);
+      const rootMatch = buildPlayedTree(3);
+      const bracket: BracketBase = { id: 11, dimension: 8, root_match: rootMatch };
+      fixture.componentRef.setInput('bracket', bracket);
+      fixture.componentRef.setInput('tournament', { status: TournamentStatus.STARTED });
+      fixture.componentRef.setInput('pairs', buildPairs(8));
+      fixture.componentRef.setInput('mode', 'placement');
+      fixture.detectChanges();
+
+      fixture.componentInstance.onMatchClick(rootMatch);
+
+      expect(fixture.componentInstance.selectedMatch()).toBe(rootMatch);
+    });
+
+    it('n\'affiche pas le bouton "Supprimer le tableau" quand interactive=false, même si le tournoi n\'est pas FINISHED', () => {
+      const fixture = setupAllPlacedFixture();
+      const text: string = fixture.nativeElement.textContent;
+      expect(text).not.toContain('Supprimer le tableau');
+    });
+
+    it('affiche le bouton "Imprimer le tableau" même quand interactive=false', () => {
+      const fixture = setupAllPlacedFixture();
+      const text: string = fixture.nativeElement.textContent;
+      expect(text).toContain('Imprimer le tableau');
+    });
+
+    it('désactive tous les boutons de score (junctions) quand interactive=false, même si les 2 paires sont déterminées', () => {
+      const fixture = setupAllPlacedFixture(); // tableau entièrement joué : hasBothPairs est vrai partout
+      const junctionButtons: NodeListOf<HTMLButtonElement> = fixture.nativeElement.querySelectorAll('button.rounded-full');
+
+      expect(junctionButtons.length).toBeGreaterThan(0);
+      for (const button of Array.from(junctionButtons)) {
+        expect(button.disabled).toBe(true);
+      }
+    });
+
+    it('n\'estompe pas (opacity-40) les scores déjà saisis quand interactive=false : non cliquable mais lisible', () => {
+      const fixture = setupAllPlacedFixture(); // tableau entièrement joué : un score existe sur chaque junction
+      const junctionButtons: NodeListOf<HTMLButtonElement> = fixture.nativeElement.querySelectorAll('button.rounded-full');
+
+      expect(junctionButtons.length).toBeGreaterThan(0);
+      for (const button of Array.from(junctionButtons)) {
+        expect(button.disabled).toBe(true);
+        expect(button.classList.contains('opacity-40')).toBe(false);
+        expect(button.textContent?.trim()).toContain('6-3 6-2');
+      }
+    });
+
+    it('n\'affiche pas le panneau latéral "Liste des paires" quand interactive=false, même si toutes les paires ne sont pas placées', () => {
+      const fixture = TestBed.createComponent(BracketChartComponent);
+      // Tableau de dimension 8 non joué : pair1/pair2 à 0 partout sauf les feuilles -> paires non placées.
+      const rootMatch = makeMatch({ round_display: 'Finale' });
+      rootMatch.child1 = makeMatch({ round_display: 'Demi-finale' });
+      rootMatch.child2 = makeMatch({ round_display: 'Demi-finale' });
+      rootMatch.child1.child1 = makeMatch({ round_display: 'Quart de finale' });
+      rootMatch.child1.child2 = makeMatch({ round_display: 'Quart de finale' });
+      rootMatch.child2.child1 = makeMatch({ round_display: 'Quart de finale' });
+      rootMatch.child2.child2 = makeMatch({ round_display: 'Quart de finale' });
+      const bracket: BracketBase = { id: 12, dimension: 8, root_match: rootMatch };
+
+      fixture.componentRef.setInput('bracket', bracket);
+      fixture.componentRef.setInput('tournament', { status: TournamentStatus.STARTED });
+      fixture.componentRef.setInput('pairs', buildPairs(8));
+      fixture.componentRef.setInput('mode', 'placement');
+      fixture.componentRef.setInput('interactive', false);
+      fixture.detectChanges();
+
+      const text: string = fixture.nativeElement.textContent;
+      expect(text).not.toContain('Liste des paires');
+      expect(fixture.nativeElement.querySelector('#pairs-panel-list')).toBeNull();
+    });
+  });
+
   it('mode score-only (classement) : ne génère aucune section d\'impression dédiée', () => {
     const fixture = TestBed.createComponent(BracketChartComponent);
     const rootMatch = buildPlayedTree(3);

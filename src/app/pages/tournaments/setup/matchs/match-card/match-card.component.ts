@@ -21,6 +21,7 @@ export class MatchCardComponent {
   pair1 = input.required<Pair | undefined>();
   pair2 = input.required<Pair | undefined>();
   starting = input<boolean>(false);
+  readonly = input<boolean>(false);
 
   startRequested = output<number>();
   scoreRequested = output<number>();

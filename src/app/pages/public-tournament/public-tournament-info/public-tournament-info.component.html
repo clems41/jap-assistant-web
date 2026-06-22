@@ -1,0 +1,38 @@
+<div class="flex flex-col rounded-xl overflow-hidden border border-contrast-15 bg-blanc-100 shadow-sm">
+  <div class="h-1 w-full bg-primary-100"></div>
+  <div class="flex flex-col gap-4 p-4">
+    <div class="flex flex-row items-start justify-between gap-2">
+      <span class="text-title-3 text-contrast-100 font-poppins">{{ tournament().name }}</span>
+      <p-tag [value]="statusLabel" [severity]="statusSeverity"></p-tag>
+    </div>
+
+    <div class="flex flex-row flex-wrap gap-2">
+      <p-tag [value]="tournament().category" severity="warn"></p-tag>
+      <p-tag [value]="tournament().gender" severity="info"></p-tag>
+      <p-tag [value]="tournament().league" severity="secondary"></p-tag>
+    </div>
+
+    <div class="flex flex-col gap-2 text-body-regular text-gris-120">
+      <div class="flex flex-row items-center gap-2">
+        <i class="bi bi-calendar3 text-primary-100"></i>
+        <span>{{ toFrenchDate(tournament().start_date) }}</span>
+      </div>
+      <div class="flex flex-row items-center gap-2">
+        <i class="bi bi-pin-map text-primary-100"></i>
+        <span>{{ tournament().location }}</span>
+      </div>
+      <div class="flex flex-row items-center gap-2">
+        <i class="bi bi-controller text-primary-100"></i>
+        <span>{{ tournament().game_format }}</span>
+      </div>
+      <div class="flex flex-row items-center gap-2">
+        <i class="bi bi-gear text-primary-100"></i>
+        <span>{{ tournament().configuration }}</span>
+      </div>
+      <div class="flex flex-row items-center gap-2">
+        <i class="bi bi-people text-primary-100"></i>
+        <span>{{ tournament().pairs_count }} paire{{ tournament().pairs_count > 1 ? 's' : '' }}</span>
+      </div>
+    </div>
+  </div>
+</div>

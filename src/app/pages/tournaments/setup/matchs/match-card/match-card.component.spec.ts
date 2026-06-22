@@ -96,4 +96,26 @@ describe('MatchCardComponent', () => {
       expect(text).not.toContain('Débuté à');
     });
   });
+
+  describe('readonly', () => {
+    it('n\'affiche aucun bouton d\'action quand readonly=true, même si canEnterScore et canStart seraient vrais', () => {
+      const fixture = createFixture(makeMatch({ status: MatchStatus.UPCOMING, pair1: 1, pair2: 2 }));
+      fixture.componentRef.setInput('readonly', true);
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.canEnterScore).toBeTrue();
+      expect(fixture.componentInstance.canStart).toBeTrue();
+
+      const text: string = fixture.nativeElement.textContent;
+      expect(text).not.toContain('Saisir le score');
+      expect(text).not.toContain('Lancer le match');
+      expect(fixture.nativeElement.querySelector('p-button')).toBeNull();
+    });
+
+    it('affiche les boutons d\'action quand readonly=false (défaut)', () => {
+      const fixture = createFixture(makeMatch({ status: MatchStatus.UPCOMING, pair1: 1, pair2: 2 }));
+      const text: string = fixture.nativeElement.textContent;
+      expect(text).toContain('Lancer le match');
+    });
+  });
 });

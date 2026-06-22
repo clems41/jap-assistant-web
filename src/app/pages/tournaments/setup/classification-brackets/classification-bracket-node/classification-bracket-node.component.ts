@@ -14,8 +14,9 @@ import { BracketChartComponent } from '../../brackets/bracket-chart/bracket-char
 })
 export class ClassificationBracketNodeComponent {
   classificationBracket = input.required<ClassificationBracket>();
-  tournament = input.required<Tournament>();
+  tournament = input.required<Pick<Tournament, 'id' | 'status'>>();
   pairs = input.required<Pair[]>();
+  interactive = input<boolean>(true);
 
   scoreChanged = output<{ matchId: number; score: string; winnerId: number }>();
   scoreDeleteRequested = output<number>();

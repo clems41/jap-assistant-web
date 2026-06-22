@@ -15,6 +15,7 @@
       [tournament]="tournament()"
       mode="score-only"
       [startPlace]="classificationBracket().start_place"
+      [interactive]="interactive()"
       (scoreChanged)="scoreChanged.emit($event)"
       (scoreDeleteRequested)="scoreDeleteRequested.emit($event)">
     </app-bracket-chart>
@@ -25,6 +26,7 @@
       [classificationBracket]="child"
       [tournament]="tournament()"
       [pairs]="pairs()"
+      [interactive]="interactive()"
       (scoreChanged)="scoreChanged.emit($event)"
       (scoreDeleteRequested)="scoreDeleteRequested.emit($event)">
     </app-classification-bracket-node>

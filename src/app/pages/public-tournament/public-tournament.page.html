@@ -1,0 +1,80 @@
+@if (tournament(); as t) {
+  <div class="flex flex-col min-h-screen bg-contrast-5 font-poppins">
+    <header class="sticky top-0 z-10 bg-contrast-100 shadow-md">
+      <div class="w-full flex items-center px-4 py-3 gap-3">
+        <div class="flex items-center gap-2 min-h-12 min-w-12 shrink-0">
+          <div class="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center shrink-0">
+            <i class="bi bi-trophy text-blanc-100 text-sm"></i>
+          </div>
+          <span class="text-body-bold text-blanc-100 hidden sm:block">JAP Assistant</span>
+        </div>
+        <div class="flex-1 text-center px-4 min-w-0">
+          <span class="text-body-bold text-blanc-100 truncate">{{ t.name }}</span>
+        </div>
+        <div class="w-8 shrink-0" aria-hidden="true"></div>
+      </div>
+    </header>
+
+    <main class="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-20">
+      <p-tabs value="infos" [showNavigators]="false">
+        <p-tablist>
+          <p-tab value="infos">Informations</p-tab>
+          <p-tab value="matchs">Matchs</p-tab>
+          <p-tab value="bracket">Tableau principal</p-tab>
+          @if (hasClassification()) {
+            <p-tab value="classification">Tableaux de classement</p-tab>
+          }
+        </p-tablist>
+        <p-tabpanels>
+          <p-tabpanel value="infos">
+            <app-public-tournament-info [tournament]="t" />
+          </p-tabpanel>
+          <p-tabpanel value="matchs">
+            <app-public-tournament-matches [code]="t.public_code" />
+          </p-tabpanel>
+          <p-tabpanel value="bracket">
+            @if (bracketResult(); as br) {
+              <app-bracket-chart
+                [bracket]="br.bracket"
+                [pairs]="br.pairs"
+                [tournament]="{ status: t.status }"
+                mode="placement"
+                [interactive]="false"
+              />
+            } @else if (bracketNotGenerated()) {
+              <div class="flex flex-col items-center justify-center w-full gap-2 py-8 text-gris-50">
+                <i class="bi bi-diagram-3 text-4xl"></i>
+                <span class="text-body-light">Le tableau n'a pas encore été généré</span>
+              </div>
+            }
+          </p-tabpanel>
+          @if (hasClassification()) {
+            <p-tabpanel value="classification">
+              @if (bracketResult(); as br) {
+                <app-classification-brackets
+                  [tournament]="classificationTournament(t.status)"
+                  [pairs]="br.pairs"
+                  [bracket]="br.bracket"
+                  [interactive]="false"
+                />
+              }
+            </p-tabpanel>
+          }
+        </p-tabpanels>
+      </p-tabs>
+    </main>
+  </div>
+} @else if (loading()) {
+  <app-loading-spinner [loading]="true" />
+} @else {
+  <div class="flex flex-col min-h-screen items-center justify-center gap-3 bg-contrast-5 font-poppins px-4 text-center">
+    <i class="bi bi-exclamation-circle text-5xl text-gris-50"></i>
+    <h1 class="text-title-3 font-bold text-gris-120">Tournoi introuvable</h1>
+    <p class="text-body-regular text-gris-100">
+      Le lien utilisé est invalide ou le tournoi n'existe plus.
+    </p>
+    <a routerLink="/home" class="text-body-medium text-primary-100 underline">
+      Retour à l'accueil
+    </a>
+  </div>
+}

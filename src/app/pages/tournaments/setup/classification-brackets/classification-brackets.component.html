@@ -28,6 +28,7 @@
               [classificationBracket]="root"
               [tournament]="tournament()"
               [pairs]="pairs()"
+              [interactive]="interactive()"
               (scoreChanged)="onScoreChanged($event)"
               (scoreDeleteRequested)="onScoreDeleteRequested($event)">
             </app-classification-bracket-node>
@@ -40,6 +41,7 @@
             [classificationBracket]="sb"
             [tournament]="tournament()"
             [pairs]="pairs()"
+            [interactive]="interactive()"
             (scoreChanged)="onScoreChanged($event)"
             (scoreDeleteRequested)="onScoreDeleteRequested($event)">
           </app-classification-bracket-node>

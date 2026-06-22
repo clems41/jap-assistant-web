@@ -11,7 +11,7 @@
                   size="small"
                   (onClick)="onPrint()">
         </p-button>
-        @if (tournament().status != TournamentStatus.FINISHED) {
+        @if (tournament().status != TournamentStatus.FINISHED && interactive()) {
           <p-button label="Supprimer le tableau"
                     icon="pi pi-trash"
                     severity="danger"
@@ -77,11 +77,13 @@
                     <span class="text-xs leading-tight truncate font-semibold text-primary-120">{{ players[0] }}</span>
                     <span class="text-xs leading-tight truncate text-primary-80">{{ players[1] }}</span>
                   </div>
-                  <button type="button"
-                          class="shrink-0 text-gris-50 hover:text-error-100 transition-colors"
-                          (click)="onDeleteScore(bracket().root_match.id)">
-                    <i class="bi bi-x-lg text-xs"></i>
-                  </button>
+                  @if (interactive()) {
+                    <button type="button"
+                            class="shrink-0 text-gris-50 hover:text-error-100 transition-colors"
+                            (click)="onDeleteScore(bracket().root_match.id)">
+                      <i class="bi bi-x-lg text-xs"></i>
+                    </button>
+                  }
                 } @else {
                   <span class="text-body-light text-primary-120 font-semibold">—</span>
                 }
@@ -100,11 +102,13 @@
                     <span class="text-xs leading-tight truncate font-medium text-success-120">{{ players[0] }}</span>
                     <span class="text-xs leading-tight truncate text-success-80">{{ players[1] }}</span>
                   </div>
-                  <button type="button"
-                          class="shrink-0 text-gris-50 hover:text-error-100 transition-colors"
-                          (click)="onDeleteScore(bracket().root_match.id)">
-                    <i class="bi bi-x-lg text-xs"></i>
-                  </button>
+                  @if (interactive()) {
+                    <button type="button"
+                            class="shrink-0 text-gris-50 hover:text-error-100 transition-colors"
+                            (click)="onDeleteScore(bracket().root_match.id)">
+                      <i class="bi bi-x-lg text-xs"></i>
+                    </button>
+                  }
                 } @else {
                   <span class="text-xs text-success-80">—</span>
                 }
@@ -122,7 +126,7 @@
                     <span class="text-xs leading-tight truncate font-medium">{{ players[0] }}</span>
                     <span class="text-xs leading-tight truncate text-gris-50">{{ players[1] }}</span>
                   </div>
-                  @if (promotionSourceMatchId().get(slot.id); as sourceMatchId) {
+                  @if (interactive() && promotionSourceMatchId().get(slot.id); as sourceMatchId) {
                     <button type="button"
                             class="shrink-0 text-gris-50 hover:text-error-100 transition-colors"
                             (click)="onDeleteScore(sourceMatchId)">
@@ -161,6 +165,7 @@
                    [cdkDropListConnectedTo]="['pairs-panel-list']"
                    [cdkDropListEnterPredicate]="slotEnterPredicate"
                    [cdkDropListSortingDisabled]="true"
+                   [cdkDropListDisabled]="!interactive()"
                    (cdkDropListDropped)="onDropIntoSlot($event, slot)"
                    [style.left.px]="slot.x"
                    [style.top.px]="slot.y - HEADER_HEIGHT - PAIR_H / 2"
@@ -173,7 +178,7 @@
                      : 'border-dashed border-primary-30 bg-primary-5'">
                 @if (seedingMap().get(slot.id); as placedPairId) {
                   @let players = getPairPlayerNames(placedPairId);
-                  @if (getSeedBadge(placedPairId); as badge) {
+                  @if (interactive() && getSeedBadge(placedPairId); as badge) {
                     <div class="absolute -top-2 -right-2 z-10">
                       <p-tag [value]="badge.rank.toString()" [severity]="badge.severity"
                              styleClass="!text-xs !rounded-full !leading-none"></p-tag>
@@ -184,13 +189,13 @@
                       <span class="text-xs leading-tight truncate font-medium">{{ players[0] }}</span>
                       <span class="text-xs leading-tight truncate text-gris-50">{{ players[1] }}</span>
                     </div>
-                    @if (!lockedSlotIds().has(slot.id)) {
+                    @if (interactive() && !lockedSlotIds().has(slot.id)) {
                       <button type="button"
                               class="shrink-0 text-gris-50 hover:text-error-100 transition-colors"
                               (click)="onRemoveFromSlot(slot.id)">
                         <i class="bi bi-x-lg text-xs"></i>
                       </button>
-                    } @else if (promotionSourceMatchId().has(slot.id)) {
+                    } @else if (interactive() && promotionSourceMatchId().has(slot.id)) {
                       @let sourceMatchId = promotionSourceMatchId().get(slot.id)!;
                       <button type="button"
                               class="shrink-0 text-gris-50 hover:text-error-100 transition-colors"
@@ -221,10 +226,10 @@
                     [style.top.px]="junction.y - HEADER_HEIGHT"
                     [class.border-success-50]="junction.match.winner_id"
                     [class.border-gris-15]="!junction.match.winner_id"
-                    [class.cursor-pointer]="hasBothPairs"
+                    [class.cursor-pointer]="hasBothPairs && interactive()"
                     [class.cursor-not-allowed]="!hasBothPairs"
                     [class.opacity-40]="!hasBothPairs"
-                    [disabled]="!hasBothPairs"
+                    [disabled]="!hasBothPairs || !interactive()"
                     [title]="junction.match.round_display + ' #' + junction.match.match_number"
                     (mousedown)="$event.stopPropagation()"
                     (click)="$event.stopPropagation(); onMatchClick(junction.match)">
@@ -238,7 +243,7 @@
   </div>
 
   <!-- Panneau paires (droite) -->
-  @if (mode() === 'placement' && !allPairsPlaced()) {
+  @if (mode() === 'placement' && !allPairsPlaced() && interactive()) {
     <div class="w-80 shrink-0 flex flex-col border-l border-gris-15 overflow-y-auto">
       <!-- Header panneau -->
       <div class="flex flex-col px-4 py-3 border-b border-gris-15 bg-blanc-100 sticky top-0 gap-2">
@@ -289,7 +294,7 @@
                     size="small"
                     (onClick)="onPrint()">
           </p-button>
-          @if (tournament().status != TournamentStatus.FINISHED) {
+          @if (tournament().status != TournamentStatus.FINISHED && interactive()) {
             <p-button label="Supprimer le tableau"
                       icon="pi pi-trash"
                       severity="danger"

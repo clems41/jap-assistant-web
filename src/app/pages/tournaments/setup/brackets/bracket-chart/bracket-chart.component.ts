@@ -50,10 +50,11 @@ import {
 })
 export class BracketChartComponent {
   bracket = input.required<BracketBase>();
-  tournament = input.required<Tournament>();
+  tournament = input.required<Pick<Tournament, 'status'>>();
   pairs = input.required<Pair[]>();
   mode = input<'placement' | 'score-only'>('placement');
   startPlace = input<number | null>(null);
+  interactive = input<boolean>(true);
 
   scoreChanged = output<{ matchId: number; score: string; winnerId: number }>();
   seedingChanged = output<SeedingRequest>();
@@ -265,6 +266,7 @@ export class BracketChartComponent {
   }
 
   onMatchClick(match: BracketMatch): void {
+    if (!this.interactive()) return;
     this.selectedMatch.set(match);
   }
 

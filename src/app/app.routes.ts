@@ -105,6 +105,24 @@ export const routes: Routes = [
       import('./pages/draw/draw.page').then(m => m.DrawPageComponent),
   },
 
+  // Public read-only tournament access (QR code) — no auth, no main layout
+  {
+    path: 'public/tournaments/:code',
+    data: { title: 'Tournoi' },
+    loadComponent: () =>
+      import('./pages/public-tournament/public-tournament.page').then(
+        (m) => m.PublicTournamentPageComponent,
+      ),
+  },
+  {
+    path: 'public/tournaments',
+    data: { title: 'Tournoi' },
+    loadComponent: () =>
+      import('./pages/public-tournament/public-tournament.page').then(
+        (m) => m.PublicTournamentPageComponent,
+      ),
+  },
+
   // Wildcard — redirect to root
   {
     path: '**',

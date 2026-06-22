@@ -37,9 +37,10 @@ import { ClassificationBracketNodeComponent } from './classification-bracket-nod
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ClassificationBracketsComponent {
-  tournament = input.required<Tournament>();
+  tournament = input.required<Pick<Tournament, 'id' | 'status'>>();
   pairs = input.required<Pair[]>();
   bracket = input.required<Bracket>();
+  interactive = input<boolean>(true);
 
   // Le tableau principal (onglet "Tableau principal") conserve sa propre copie du bracket et
   // n'est pas resynchronisé par les mises à jour de score faites depuis cet onglet : sans impact

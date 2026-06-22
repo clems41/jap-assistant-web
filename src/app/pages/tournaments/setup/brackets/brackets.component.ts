@@ -1,4 +1,4 @@
-import {Component, inject, input, OnInit, output, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, effect, inject, input, output, signal, untracked} from '@angular/core';
 import {Bracket, ScoreRequest, SeedingRequest, Tournament} from '../../../../shared/models/tournament.models';
 import {EnumChoice} from '../../../../shared/models/base.models';
 import {Pair} from '../../../../shared/models/pair.models';
@@ -15,13 +15,16 @@ import {ConfirmationService} from 'primeng/api';
     BracketChartComponent,
     ButtonModule,
   ],
-  templateUrl: './brackets.component.html'
+  templateUrl: './brackets.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BracketsComponent implements OnInit {
+export class BracketsComponent {
   tournament = input.required<Tournament>();
   pairs = input.required<Pair[]>();
   availableGameFormats = input.required<EnumChoice[]>();
+  refreshTrigger = input<number>(0);
   bracketChange = output<Bracket | null>();
+  matchesChanged = output<void>();
 
   private readonly tournamentService = inject(TournamentService);
   private readonly confirmationService = inject(ConfirmationService);
@@ -30,20 +33,28 @@ export class BracketsComponent implements OnInit {
   bracket = signal<Bracket | null>(null);
   bracketAlreadyGenerated = signal<boolean>(false);
 
-  ngOnInit() {
-    this.loadBracket();
+  constructor() {
+    effect(() => {
+      const tournament = this.tournament();
+      this.refreshTrigger();
+      untracked(() => this.loadBracket(tournament));
+    });
   }
 
   onScoreChanged(event: { matchId: number; score: string; winnerId: number }): void {
     const req: ScoreRequest = { score: event.score, winner_id: event.winnerId };
     this.tournamentService
       .updateMatchScore(this.tournament().id, event.matchId, req)
-      .subscribe({ next: () => this.loadBracket() });
+      .subscribe({
+        next: () => {
+          this.loadBracket(this.tournament());
+          this.matchesChanged.emit();
+        },
+      });
   }
 
-  protected loadBracket(): void {
+  private loadBracket(tournament: Tournament): void {
     this.loading.set(true);
-    const tournament = this.tournament();
     this.tournamentService.getTournamentBracket(tournament.id)
       .subscribe({
         next: bracket => {
@@ -60,6 +71,7 @@ export class BracketsComponent implements OnInit {
     this.bracket.set(bracket);
     this.bracketChange.emit(bracket);
     this.bracketAlreadyGenerated.set(true);
+    this.matchesChanged.emit();
   }
 
   onDeleteBracketRequested(): void {
@@ -79,6 +91,7 @@ export class BracketsComponent implements OnInit {
               this.bracket.set(null);
               this.bracketChange.emit(null);
               this.bracketAlreadyGenerated.set(false);
+              this.matchesChanged.emit();
             }
           });
       },
@@ -89,7 +102,8 @@ export class BracketsComponent implements OnInit {
     this.tournamentService
       .updateBracketPlacement(this.tournament().id, req)
       .subscribe({ next: () => {
-        this.loadBracket();
+        this.loadBracket(this.tournament());
+        this.matchesChanged.emit();
       }});
   }
 
@@ -105,7 +119,12 @@ export class BracketsComponent implements OnInit {
       accept: () => {
         this.tournamentService
           .deleteMatchScore(this.tournament().id, matchId)
-          .subscribe({ next: () => this.loadBracket() });
+          .subscribe({
+            next: () => {
+              this.loadBracket(this.tournament());
+              this.matchesChanged.emit();
+            },
+          });
       },
     });
   }

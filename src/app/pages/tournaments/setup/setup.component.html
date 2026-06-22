@@ -59,7 +59,9 @@
           [tournament]="t"
           [pairs]="pairs()"
           [availableGameFormats]="gameFormats()"
+          [refreshTrigger]="matchesUpdateTick()"
           (bracketChange)="bracket.set($event)"
+          (matchesChanged)="bumpMatchesUpdateTick()"
         ></app-brackets>
       </p-tabpanel>
       <p-tabpanel value="classification">
@@ -68,14 +70,17 @@
             [tournament]="t"
             [pairs]="pairs()"
             [bracket]="b"
-            (bracketChange)="bracket.set($event)">
+            (bracketChange)="bracket.set($event)"
+            (matchesChanged)="bumpMatchesUpdateTick()">
           </app-classification-brackets>
         }
       </p-tabpanel>
       <p-tabpanel value="matchs">
         <app-matchs
           [tournament]="t"
-          [pairs]="pairs()">
+          [pairs]="pairs()"
+          [refreshTrigger]="matchesUpdateTick()"
+          (matchesChanged)="bumpMatchesUpdateTick()">
         </app-matchs>
       </p-tabpanel>
     </p-tabpanels>

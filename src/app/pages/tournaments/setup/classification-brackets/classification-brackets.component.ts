@@ -45,6 +45,7 @@ export class ClassificationBracketsComponent {
   // n'est pas resynchronisé par les mises à jour de score faites depuis cet onglet : sans impact
   // aujourd'hui car les deux arbres sont disjoints.
   bracketChange = output<Bracket>();
+  matchesChanged = output<void>();
 
   private readonly tournamentService = inject(TournamentService);
   private readonly confirmationService = inject(ConfirmationService);
@@ -87,7 +88,12 @@ export class ClassificationBracketsComponent {
       .updateMatchScore(this.tournament().id, event.matchId, req)
       .subscribe({
         next: () => this.tournamentService.getTournamentBracket(this.tournament().id)
-          .subscribe({ next: bracket => this.bracketChange.emit(bracket) }),
+          .subscribe({
+            next: bracket => {
+              this.bracketChange.emit(bracket);
+              this.matchesChanged.emit();
+            },
+          }),
       });
   }
 
@@ -104,7 +110,12 @@ export class ClassificationBracketsComponent {
         this.tournamentService.deleteMatchScore(this.tournament().id, matchId)
           .subscribe({
             next: () => this.tournamentService.getTournamentBracket(this.tournament().id)
-              .subscribe({ next: bracket => this.bracketChange.emit(bracket) }),
+              .subscribe({
+                next: bracket => {
+                  this.bracketChange.emit(bracket);
+                  this.matchesChanged.emit();
+                },
+              }),
           });
       },
     });

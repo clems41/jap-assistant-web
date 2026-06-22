@@ -47,6 +47,11 @@ export class SetupComponent implements OnInit {
   pairs = signal<Pair[]>([]);
   bracket = signal<Bracket | null>(null);
   loading = signal<boolean>(false);
+  matchesUpdateTick = signal(0);
+
+  bumpMatchesUpdateTick(): void {
+    this.matchesUpdateTick.update(v => v + 1);
+  }
 
   genders = toSignal(this.tournamentService.getGenders(), {initialValue: []});
   categories = toSignal(this.tournamentService.getCategories(), {initialValue: []});

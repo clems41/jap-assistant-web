@@ -10,6 +10,7 @@ import {
   RegisterResponse,
   ResetPasswordConfirmRequest,
   ResetPasswordRequest,
+  UserProfile,
 } from '../models/auth.models';
 
 export type {
@@ -21,6 +22,7 @@ export type {
   RegisterResponse,
   ResetPasswordConfirmRequest,
   ResetPasswordRequest,
+  UserProfile,
 };
 
 @Injectable({ providedIn: 'root' })
@@ -50,6 +52,14 @@ export class AuthService {
    */
   changePassword(input: ChangePasswordRequest): Observable<ChangePasswordResponse> {
     return this.http.post<ChangePasswordResponse>('/auth/me/change-password', input);
+  }
+
+  /**
+   * Retrieves the authenticated user's profile information.
+   * GET /auth/me
+   */
+  getMe(): Observable<UserProfile> {
+    return this.http.get<UserProfile>('/auth/me');
   }
 
   /**

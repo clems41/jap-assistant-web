@@ -1,1 +1,61 @@
-<p>user-profile works!</p>
+<div class="flex flex-col gap-6 w-full pb-4">
+
+  <app-loading-spinner [loading]="loading()"></app-loading-spinner>
+
+  <div [class.hidden]="loading()" class="flex flex-col gap-6 w-full">
+
+    <section class="flex flex-col gap-3 w-full bg-blanc-100 rounded-xl p-4">
+      <h2 class="text-title-4 font-bold text-gris-120">Mes informations</h2>
+
+      <div class="flex flex-col gap-1">
+        <span class="text-label text-gris-80">Prénom</span>
+        <span class="text-body-regular text-gris-120">{{ profile()?.first_name }}</span>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <span class="text-label text-gris-80">Nom</span>
+        <span class="text-body-regular text-gris-120">{{ profile()?.last_name }}</span>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <span class="text-label text-gris-80">Email</span>
+        <span class="text-body-regular text-gris-120">{{ profile()?.email }}</span>
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-3 w-full bg-blanc-100 rounded-xl p-4">
+      <h2 class="text-title-4 font-bold text-gris-120">Modifier mon mot de passe</h2>
+
+      <form [formGroup]="form" class="flex flex-col gap-5 w-full items-center" (ngSubmit)="changePassword()">
+
+        <div class="flex flex-col w-full">
+          <label for="old_password">Mot de passe actuel</label>
+          <p-password fluid="" formControlName="old_password" inputId="old_password" [feedback]="false" [toggleMask]="true" />
+          <app-field-error [control]="form.get('old_password')"></app-field-error>
+        </div>
+
+        <div class="flex flex-col w-full">
+          <label for="password">Nouveau mot de passe</label>
+          <p-password fluid="" formControlName="password" inputId="password" [feedback]="true" [toggleMask]="true" />
+          <app-field-error [control]="form.get('password')"></app-field-error>
+        </div>
+
+        <div class="flex flex-col w-full">
+          <label for="password_confirm">Confirmation du nouveau mot de passe</label>
+          <p-password fluid="" formControlName="password_confirm" inputId="password_confirm" [feedback]="false" [toggleMask]="true" />
+          @if (form.hasError('passwordMismatch') && form.get('password_confirm')?.dirty) {
+            <small class="text-error-100 text-body-light mt-1">Les mots de passe ne correspondent pas.</small>
+          }
+        </div>
+
+        <div class="w-full">
+          <p-button label="Modifier le mot de passe" icon="bi bi-check-circle" type="submit" fluid=""
+                    [disabled]="form.invalid" [loading]="passwordLoading()"/>
+        </div>
+
+      </form>
+    </section>
+
+  </div>
+
+</div>

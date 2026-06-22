@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 
-import { AuthService, LoginResponse, RegisterResponse, ChangePasswordResponse } from './auth.service';
+import { AuthService, LoginResponse, RegisterResponse, ChangePasswordResponse, UserProfile } from './auth.service';
 import { HttpRequesterService } from './http-requester.service';
 
 describe('AuthService', () => {
@@ -11,7 +11,7 @@ describe('AuthService', () => {
   beforeEach(() => {
     httpRequesterSpy = jasmine.createSpyObj<HttpRequesterService>(
       'HttpRequesterService',
-      ['post', 'saveTokens'],
+      ['get', 'post', 'saveTokens'],
     );
 
     TestBed.configureTestingModule({
@@ -136,13 +136,13 @@ describe('AuthService', () => {
     const input = { old_password: 'oldPass1', new_password: 'newPass2' };
     const mockResponse: ChangePasswordResponse = { detail: 'Password updated.' };
 
-    it('should call POST /auth/change-password with the correct body', () => {
+    it('should call POST /auth/me/change-password with the correct body', () => {
       httpRequesterSpy.post.and.returnValue(of(mockResponse));
 
       service.changePassword(input).subscribe();
 
       expect(httpRequesterSpy.post).toHaveBeenCalledOnceWith(
-        '/auth/change-password',
+        '/auth/me/change-password',
         input,
       );
     });
@@ -174,6 +174,48 @@ describe('AuthService', () => {
       httpRequesterSpy.post.and.returnValue(throwError(() => error));
 
       service.changePassword(input).subscribe({
+        error: (err) => {
+          expect(err).toBe(error);
+          done();
+        },
+      });
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // getMe()
+  // ---------------------------------------------------------------------------
+
+  describe('getMe()', () => {
+    const mockProfile: UserProfile = {
+      id: 1,
+      email: 'alice@example.com',
+      first_name: 'Alice',
+      last_name: 'Dupont',
+    };
+
+    it('should call GET /auth/me', () => {
+      httpRequesterSpy.get.and.returnValue(of(mockProfile));
+
+      service.getMe().subscribe();
+
+      expect(httpRequesterSpy.get).toHaveBeenCalledOnceWith('/auth/me');
+    });
+
+    it('should return the server response on success', (done) => {
+      httpRequesterSpy.get.and.returnValue(of(mockProfile));
+
+      service.getMe().subscribe((res) => {
+        expect(res).toEqual(mockProfile);
+        done();
+      });
+    });
+
+    it('should propagate HTTP errors', (done) => {
+      const error = new Error('401 Unauthorized');
+      httpRequesterSpy.get.and.returnValue(throwError(() => error));
+
+      service.getMe().subscribe({
         error: (err) => {
           expect(err).toBe(error);
           done();

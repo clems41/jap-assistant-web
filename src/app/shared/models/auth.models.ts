@@ -39,3 +39,10 @@ export interface ResetPasswordConfirmRequest {
   token: string;
   new_password: string;
 }
+
+export interface UserProfile {
+  id: number;
+  email: string;
+  first_name: string;
+  last_name: string;
+}

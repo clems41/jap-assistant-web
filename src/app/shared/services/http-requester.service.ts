@@ -9,7 +9,7 @@ import { Injectable, Injector, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { Observable, EMPTY, throwError, switchMap, catchError, take, tap, finalize, map, shareReplay } from 'rxjs';
+import { Observable, throwError, switchMap, catchError, take, tap, finalize, map, shareReplay } from 'rxjs';
 import { Environment } from '../../../environments/environment.model';
 import { AuthService } from './auth.service';
 import {ENVIRONMENT} from '../core/tokens/environment.token';
@@ -135,7 +135,7 @@ export class HttpRequesterService {
     if (!refreshToken) {
       this.injector.get(AuthService).logout();
       this.router.navigate(['/auth/login']);
-      return EMPTY;
+      return throwError(() => new Error('No refresh token available'));
     }
 
     this.refreshInProgress$ = this.http
@@ -151,10 +151,10 @@ export class HttpRequesterService {
           }
           return response.access_token;
         }),
-        catchError(() => {
+        catchError((err) => {
           this.injector.get(AuthService).logout();
           this.router.navigate(['/auth/login']);
-          return EMPTY;
+          return throwError(() => err);
         }),
         finalize(() => {
           this.refreshInProgress$ = null;

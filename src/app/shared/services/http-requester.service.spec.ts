@@ -1,4 +1,5 @@
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { forkJoin } from 'rxjs';
 import {
   HttpTestingController,
   provideHttpClientTesting,
@@ -351,11 +352,12 @@ describe('HttpRequesterService', () => {
       expect(router.navigate).not.toHaveBeenCalled();
     }));
 
-    it('should redirect to /login when refresh token call fails', fakeAsync(() => {
+    it('should redirect to /login and error out the original call when refresh token call fails', fakeAsync(() => {
       localStorage.setItem('access_token', 'expired-token');
       localStorage.setItem('refresh_token', 'invalid-refresh-token');
 
-      service.get('/protected').subscribe();
+      let errored = false;
+      service.get('/protected').subscribe({ error: () => (errored = true) });
 
       // First attempt — 401
       const firstReq = httpMock.expectOne(
@@ -375,13 +377,16 @@ describe('HttpRequesterService', () => {
 
       expect(authServiceSpy.logout).toHaveBeenCalled();
       expect(router.navigate).toHaveBeenCalledWith(['/auth/login']);
+      // The original caller must be notified (not left hanging forever, e.g. a stuck loading button)
+      expect(errored).toBeTrue();
     }));
 
-    it('should redirect to /login immediately when no refresh_token is stored', fakeAsync(() => {
+    it('should redirect to /login and error out the original call immediately when no refresh_token is stored', fakeAsync(() => {
       localStorage.setItem('access_token', 'expired-token');
       // No refresh_token in localStorage
 
-      service.get('/protected').subscribe();
+      let errored = false;
+      service.get('/protected').subscribe({ error: () => (errored = true) });
 
       const firstReq = httpMock.expectOne(
         `${mockEnvironment.apiBaseUrl}/protected/`,
@@ -394,13 +399,16 @@ describe('HttpRequesterService', () => {
       expect(router.navigate).toHaveBeenCalledWith(['/auth/login']);
       // No refresh request should have been sent
       httpMock.expectNone(`${mockEnvironment.apiBaseUrl}/auth/token/refresh/`);
+      // The original caller must be notified (not left hanging forever, e.g. a stuck loading button)
+      expect(errored).toBeTrue();
     }));
 
-    it('should redirect to /login when refresh call returns 500', fakeAsync(() => {
+    it('should redirect to /login and error out the original call when refresh call returns 500', fakeAsync(() => {
       localStorage.setItem('access_token', 'expired-token');
       localStorage.setItem('refresh_token', 'some-refresh-token');
 
-      service.get('/protected').subscribe();
+      let errored = false;
+      service.get('/protected').subscribe({ error: () => (errored = true) });
 
       const firstReq = httpMock.expectOne(
         `${mockEnvironment.apiBaseUrl}/protected/`,
@@ -421,6 +429,40 @@ describe('HttpRequesterService', () => {
 
       expect(authServiceSpy.logout).toHaveBeenCalled();
       expect(router.navigate).toHaveBeenCalledWith(['/auth/login']);
+      // The original caller must be notified (not left hanging forever, e.g. a stuck loading button)
+      expect(errored).toBeTrue();
+    }));
+
+    it('should error out a forkJoin of multiple calls instead of completing silently, so loading flags relying on next/error always reset', fakeAsync(() => {
+      localStorage.setItem('access_token', 'expired-token');
+      // No refresh_token in localStorage — refresh path fails immediately
+
+      let nextCalled = false;
+      let errorCalled = false;
+      let completeCalled = false;
+
+      // Mirrors the forkJoin pattern used by HomeComponent.getData()
+      forkJoin({
+        a: service.get('/a'),
+        b: service.get('/b'),
+      }).subscribe({
+        next: () => (nextCalled = true),
+        error: () => (errorCalled = true),
+        complete: () => (completeCalled = true),
+      });
+
+      const reqA = httpMock.expectOne(`${mockEnvironment.apiBaseUrl}/a/`);
+      httpMock.expectOne(`${mockEnvironment.apiBaseUrl}/b/`);
+      // Erroring "a" makes forkJoin cancel "b" — that's expected forkJoin behavior.
+      reqA.flush({}, { status: 401, statusText: 'Unauthorized' });
+
+      tick();
+
+      // A loading flag gated only on next/error (no complete handler, like dataLoading
+      // in HomeComponent) must be reset — it must not be stuck forever.
+      expect(errorCalled).toBeTrue();
+      expect(nextCalled).toBeFalse();
+      expect(completeCalled).toBeFalse();
     }));
   });
 

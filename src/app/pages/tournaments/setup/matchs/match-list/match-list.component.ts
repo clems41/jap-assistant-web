@@ -1,6 +1,7 @@
 import {ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal, untracked} from '@angular/core';
+import {CdkDragDrop, DragDropModule, moveItemInArray} from '@angular/cdk/drag-drop';
 import {TournamentService} from '../../../../../shared/services/tournament.service';
-import {Match, MatchStatus, ScoreRequest, Tournament} from '../../../../../shared/models/tournament.models';
+import {Match, MatchStatus, ReorderMatchesRequest, ScoreRequest, Tournament} from '../../../../../shared/models/tournament.models';
 import {Pair} from '../../../../../shared/models/pair.models';
 import {formatPairName} from '../../../../../shared/utils/pair.utils';
 import {LoadingSpinnerComponent} from '../../../../../shared/components/loading-spinner/loading-spinner.component';
@@ -14,6 +15,7 @@ import {ScoreDialogComponent, ScoreSavedEvent} from '../../score-dialog/score-di
     LoadingSpinnerComponent,
     MatchCardComponent,
     ScoreDialogComponent,
+    DragDropModule,
   ],
   templateUrl: './match-list.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -25,6 +27,7 @@ export class MatchListComponent {
   sortByFinishedAtDesc = input<boolean>(false);
   emptyStateLabel = input<string>('');
   refreshTrigger = input<number>(0);
+  reorderable = input<boolean>(false);
 
   refreshNeeded = output<void>();
 
@@ -60,7 +63,7 @@ export class MatchListComponent {
     this.loading.set(true);
     this.tournamentService.getMatches(tournamentId, statuses).subscribe({
       next: matches => {
-        this.matches.set(this.sortByFinishedAtDesc() ? this.sortDesc(matches) : matches);
+        this.matches.set(this.sortByFinishedAtDesc() ? this.sortDesc(matches) : this.sortByOrder(matches));
         this.loading.set(false);
       },
       error: () => this.loading.set(false),
@@ -69,6 +72,10 @@ export class MatchListComponent {
 
   private sortDesc(matches: Match[]): Match[] {
     return [...matches].sort((a, b) => new Date(b.finished_at).getTime() - new Date(a.finished_at).getTime());
+  }
+
+  private sortByOrder(matches: Match[]): Match[] {
+    return [...matches].sort((a, b) => a.order - b.order);
   }
 
   getPair(pairId: number | null): Pair | undefined {
@@ -102,5 +109,18 @@ export class MatchListComponent {
 
   onScoreDialogClosed(): void {
     this.selectedMatchForScore.set(null);
+  }
+
+  onDrop(event: CdkDragDrop<Match[]>): void {
+    if (event.previousIndex === event.currentIndex) return;
+    const previous = this.matches();
+    const reordered = [...previous];
+    moveItemInArray(reordered, event.previousIndex, event.currentIndex);
+    this.matches.set(reordered);
+    const request: ReorderMatchesRequest = { match_ids: reordered.map(m => m.id) };
+    this.tournamentService.updateMatchesOrder(this.tournament().id, request).subscribe({
+      next: updated => this.matches.set(updated),
+      error: () => this.matches.set(previous),
+    });
   }
 }

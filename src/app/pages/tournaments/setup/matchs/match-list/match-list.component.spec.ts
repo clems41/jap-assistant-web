@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { MatchListComponent } from './match-list.component';
 import { TournamentService } from '../../../../../shared/services/tournament.service';
 import { Match, MatchStatus, Tournament, TournamentStatus } from '../../../../../shared/models/tournament.models';
@@ -50,6 +51,7 @@ describe('MatchListComponent', () => {
       'getMatches',
       'startMatch',
       'updateMatchScore',
+      'updateMatchesOrder',
     ]);
     tournamentServiceSpy.getMatches.and.returnValue(of([]));
 
@@ -120,5 +122,63 @@ describe('MatchListComponent', () => {
       winner_id: 1,
     });
     expect(emitSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('trie les matchs par order croissant quand sortByFinishedAtDesc est faux', () => {
+    const unsortedBatch = [makeMatch({ id: 1, order: 3 }), makeMatch({ id: 2, order: 1 })];
+    tournamentServiceSpy.getMatches.and.returnValue(of(unsortedBatch));
+
+    const fixture = createFixture();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.matches().map(m => m.id)).toEqual([2, 1]);
+  });
+
+  describe('onDrop', () => {
+    function buildEvent(previousIndex: number, currentIndex: number): CdkDragDrop<Match[]> {
+      return { previousIndex, currentIndex } as CdkDragDrop<Match[]>;
+    }
+
+    it('met à jour optimistiquement matches() puis applique le résultat serveur', () => {
+      const initialBatch = [makeMatch({ id: 1, order: 1 }), makeMatch({ id: 2, order: 2 }), makeMatch({ id: 3, order: 3 })];
+      tournamentServiceSpy.getMatches.and.returnValue(of(initialBatch));
+      const serverResult = [makeMatch({ id: 2, order: 1 }), makeMatch({ id: 1, order: 2 }), makeMatch({ id: 3, order: 3 })];
+      tournamentServiceSpy.updateMatchesOrder.and.returnValue(of(serverResult));
+
+      const fixture = createFixture();
+      fixture.detectChanges();
+
+      fixture.componentInstance.onDrop(buildEvent(0, 1));
+
+      expect(tournamentServiceSpy.updateMatchesOrder).toHaveBeenCalledWith(mockTournament.id, {
+        match_ids: [2, 1, 3],
+      });
+      expect(fixture.componentInstance.matches()).toEqual(serverResult);
+    });
+
+    it('revient à l’état précédent si la requête échoue (rollback)', () => {
+      const initialBatch = [makeMatch({ id: 1, order: 1 }), makeMatch({ id: 2, order: 2 }), makeMatch({ id: 3, order: 3 })];
+      tournamentServiceSpy.getMatches.and.returnValue(of(initialBatch));
+      tournamentServiceSpy.updateMatchesOrder.and.returnValue(throwError(() => new Error('409')));
+
+      const fixture = createFixture();
+      fixture.detectChanges();
+
+      fixture.componentInstance.onDrop(buildEvent(0, 1));
+
+      expect(fixture.componentInstance.matches()).toEqual(initialBatch);
+    });
+
+    it('ne fait rien si previousIndex === currentIndex', () => {
+      const initialBatch = [makeMatch({ id: 1, order: 1 }), makeMatch({ id: 2, order: 2 })];
+      tournamentServiceSpy.getMatches.and.returnValue(of(initialBatch));
+
+      const fixture = createFixture();
+      fixture.detectChanges();
+
+      fixture.componentInstance.onDrop(buildEvent(1, 1));
+
+      expect(tournamentServiceSpy.updateMatchesOrder).not.toHaveBeenCalled();
+    });
   });
 });

@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { HttpRequesterService } from './http-requester.service';
-import {BracketMatch, Match, MatchStatus, ScoreRequest, Tournament, TournamentRequest, TournamentStatus} from '../models/tournament.models';
+import {BracketMatch, Match, MatchStatus, ReorderMatchesRequest, ScoreRequest, Tournament, TournamentRequest, TournamentStatus} from '../models/tournament.models';
 import {EnumChoice, PaginatedResponse} from '../models/base.models';
 import {TournamentService} from './tournament.service';
 
@@ -396,6 +396,51 @@ describe('TournamentService', () => {
       httpSpy.patch.and.returnValue(throwError(() => error));
 
       service.updateMatchScore(1, 1, mockScoreRequest).subscribe({
+        error: (err) => {
+          expect(err).toBe(error);
+          done();
+        },
+      });
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // updateMatchesOrder()
+  // -------------------------------------------------------------------------
+
+  describe('updateMatchesOrder()', () => {
+    const mockReorderRequest: ReorderMatchesRequest = { match_ids: [3, 7, 1] };
+    const mockReorderedMatches: Match[] = [
+      { ...mockMatch, id: 3 },
+      { ...mockMatch, id: 7 },
+      { ...mockMatch, id: 1 },
+    ];
+
+    it('should call PATCH /api/v1/tournaments/{id}/matches/order with the correct body', () => {
+      httpSpy.patch.and.returnValue(of(mockReorderedMatches));
+
+      service.updateMatchesOrder(1, mockReorderRequest).subscribe();
+
+      expect(httpSpy.patch).toHaveBeenCalledOnceWith(
+        '/tournaments/1/matches/order',
+        mockReorderRequest,
+      );
+    });
+
+    it('should return the updated Match[] on success', (done) => {
+      httpSpy.patch.and.returnValue(of(mockReorderedMatches));
+
+      service.updateMatchesOrder(1, mockReorderRequest).subscribe((res) => {
+        expect(res).toEqual(mockReorderedMatches);
+        done();
+      });
+    });
+
+    it('should propagate HTTP errors', (done) => {
+      const error = new Error('409 Conflict');
+      httpSpy.patch.and.returnValue(throwError(() => error));
+
+      service.updateMatchesOrder(1, mockReorderRequest).subscribe({
         error: (err) => {
           expect(err).toBe(error);
           done();

@@ -6,7 +6,7 @@ import {
   BracketMatch,
   DurationByGameFormat, GenerateBracketRequest,
   Match, MatchStatus,
-  PaginatedTournamentRequest, ScoreRequest, SeedingRequest, TimeSlot, TimeSlotRequest,
+  PaginatedTournamentRequest, ReorderMatchesRequest, ScoreRequest, SeedingRequest, TimeSlot, TimeSlotRequest,
   Tournament, TournamentInformationsResponse,
   TournamentRequest,
 } from '../models/tournament.models';
@@ -54,6 +54,11 @@ export class TournamentService {
       `/tournaments/${tournamentId}/bracket/placement`,
       request,
     );
+  }
+
+  /** PATCH /api/v1/tournaments/{id}/matches/order/ */
+  updateMatchesOrder(tournamentId: number, request: ReorderMatchesRequest): Observable<Match[]> {
+    return this.http.patch<Match[]>(`/tournaments/${tournamentId}/matches/order`, request);
   }
 
   /** PATCH /api/v1/tournaments/{id}/matches/{matchId}/score/ */

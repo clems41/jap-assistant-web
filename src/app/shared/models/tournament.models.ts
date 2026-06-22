@@ -150,6 +150,10 @@ export interface SeedingRequest {
   placements: SeedingMatchPlacement[];
 }
 
+export interface ReorderMatchesRequest {
+  match_ids: number[];
+}
+
 export interface TournamentInformationsResponse {
   last_league: string;
   last_location: string;

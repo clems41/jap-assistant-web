@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { of } from 'rxjs';
 import { MatchsComponent } from './matchs.component';
 import { TournamentService } from '../../../../shared/services/tournament.service';
@@ -74,5 +75,45 @@ describe('MatchsComponent', () => {
     for (const instance of matchListInstances) {
       expect(instance.refreshTrigger()).toBe(5);
     }
+  });
+
+  it('reorderEnabled() est vrai quand le tournoi est STARTED', () => {
+    const fixture = createFixture();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.reorderEnabled()).toBeTrue();
+  });
+
+  it('reorderEnabled() est faux quand le tournoi est FINISHED', () => {
+    const fixture = createFixture();
+    fixture.componentRef.setInput('tournament', { ...mockTournament, status: TournamentStatus.FINISHED });
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.reorderEnabled()).toBeFalse();
+  });
+
+  it('seul le app-match-list de l’onglet "upcoming" reçoit reorderable() à vrai quand le tournoi est STARTED', () => {
+    const fixture = createFixture();
+    fixture.detectChanges();
+
+    // p-tabpanel ne rend son contenu que pour l'onglet actif (cf. TabPanel : `@if (active())`).
+    // On active successivement chaque onglet pour inspecter chaque app-match-list monté.
+    const tabButtons = fixture.debugElement.queryAll(By.css('p-tab'));
+    const reorderableByTab = new Map<string, boolean[]>();
+
+    for (const tabButton of tabButtons) {
+      tabButton.nativeElement.click();
+      fixture.detectChanges();
+
+      const label = (tabButton.nativeElement.textContent ?? '').trim();
+      const matchListInstances = fixture.debugElement
+        .queryAll(By.directive(MatchListComponent))
+        .map(el => el.componentInstance as MatchListComponent);
+      reorderableByTab.set(label, matchListInstances.map(instance => instance.reorderable()));
+    }
+
+    expect(reorderableByTab.get('À venir')).toEqual([true]);
+    expect(reorderableByTab.get('En cours')).toEqual([false]);
+    expect(reorderableByTab.get('Terminés')).toEqual([false]);
   });
 });

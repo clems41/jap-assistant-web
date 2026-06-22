@@ -6,12 +6,22 @@
     <span class="text-body-light">Aucun match {{ emptyStateLabel() }}</span>
   </div>
 } @else {
-  <div class="flex flex-col gap-3 w-full">
+  <div cdkDropList [cdkDropListDisabled]="!reorderable()" (cdkDropListDropped)="onDrop($event)"
+       class="flex flex-col gap-3 w-full">
     @for (match of matches(); track match.id) {
-      <app-match-card [match]="match" [pair1]="getPair(match.pair1)" [pair2]="getPair(match.pair2)"
-                      [starting]="startingMatchId() === match.id"
-                      (startRequested)="onStartRequested($event)"
-                      (scoreRequested)="onScoreRequested($event)"></app-match-card>
+      <div cdkDrag [cdkDragDisabled]="!reorderable()" [cdkDragData]="match" class="flex flex-row items-stretch gap-2">
+        @if (reorderable()) {
+          <div cdkDragHandle class="flex items-center justify-center min-h-12 min-w-12 shrink-0 cursor-grab text-gris-50">
+            <i class="bi bi-grip-vertical text-xl"></i>
+          </div>
+        }
+        <div class="flex-1">
+          <app-match-card [match]="match" [pair1]="getPair(match.pair1)" [pair2]="getPair(match.pair2)"
+                          [starting]="startingMatchId() === match.id"
+                          (startRequested)="onStartRequested($event)"
+                          (scoreRequested)="onScoreRequested($event)"></app-match-card>
+        </div>
+      </div>
     }
   </div>
 }

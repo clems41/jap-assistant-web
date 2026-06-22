@@ -12,7 +12,7 @@
     </p-tabpanel>
     <p-tabpanel value="upcoming">
       <app-match-list [tournament]="tournament()" [pairs]="pairs()" [statuses]="upcomingStatuses"
-                      [refreshTrigger]="refreshTrigger()" emptyStateLabel="à venir"
+                      [refreshTrigger]="refreshTrigger()" [reorderable]="reorderEnabled()" emptyStateLabel="à venir"
                       (refreshNeeded)="onRefreshNeeded()"></app-match-list>
     </p-tabpanel>
     <p-tabpanel value="finished">

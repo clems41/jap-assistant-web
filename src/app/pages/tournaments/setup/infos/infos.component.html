@@ -4,10 +4,10 @@
 
 <form [class.hidden]="loading()"
       [formGroup]="updateForm"
-      class="flex flex-col gap-5 w-full items-center p-4"
+      class="flex flex-col gap-3 sm:gap-5! w-full items-center p-2 sm:p-4!"
       (ngSubmit)="updateTournament()">
 
-  <div class="flex flex-row w-full justify-between gap-3">
+  <div class="flex flex-col sm:flex-row w-full justify-between gap-3 sm:gap-3">
     <div class="flex flex-col w-full">
       <label for="name">Nom du tournoi</label>
       <input pInputText id="name" type="text" autocomplete="off" formControlName="name"/>
@@ -19,7 +19,7 @@
     </div>
   </div>
 
-  <div class="flex flex-row w-full justify-between gap-3">
+  <div class="flex flex-col sm:flex-row w-full justify-between gap-3 sm:gap-3">
     <div class="flex flex-col w-full">
       <label for="category">Catégorie</label>
       <p-select [options]="availableCategories()" formControlName="category" optionLabel="label" placeholder="Catégorie"
@@ -33,7 +33,7 @@
     </div>
   </div>
 
-  <div class="flex flex-row w-full justify-between gap-3">
+  <div class="flex flex-col sm:flex-row w-full justify-between gap-3 sm:gap-3">
     <div class="flex flex-col w-full">
       <label for="league">Ligue</label>
       <p-select [options]="availableLeagues()" formControlName="league" optionLabel="label" placeholder="Ligue"
@@ -47,7 +47,7 @@
     </div>
   </div>
 
-  <div class="flex flex-row gap-3">
+  <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-fit">
     <p-button label="Annuler" outlined="true" icon="bi bi-x-circle" fluid=""
               [loading]="loading()" (click)="cancel()"/>
 

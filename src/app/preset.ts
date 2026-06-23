@@ -258,6 +258,7 @@ export const MyPreset = definePreset(Aura, {
         colorScheme: {
           light: {
             root: {
+              tabpanelPadding: '0.5rem 0.5rem 0.5rem 0.5rem',
               tablistBackground: 'transparent',
               tabpanelBackground: 'transparent',
               tablistBorderColor: 'var(--color-gris-15)',

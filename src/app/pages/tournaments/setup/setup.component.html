@@ -1,5 +1,5 @@
 @if (tournament(); as t) {
-  <p-tabs value="infos" [showNavigators]="false">
+  <p-tabs value="infos" [showNavigators]="false" [scrollable]="true">
     <p-tablist>
       <p-tab value="infos">Informations
         @if (getBadgeValue('infos') > 0) {

@@ -32,11 +32,11 @@
   </p-tabs>
 </div>
 
-<p-dialog header="Nouveau tournoi" [modal]="true" [(visible)]="createDialogVisible" [style]="{ width: '50%' }">
+<p-dialog header="Nouveau tournoi" [modal]="true" [(visible)]="createDialogVisible" styleClass="w-11/12 sm:w-1/2">
   <form [formGroup]="createForm" class="flex flex-col gap-5 w-full items-center p-4" (ngSubmit)="createTournament()">
 
 
-    <div class="flex flex-row w-full justify-between gap-3">
+    <div class="flex flex-col sm:flex-row w-full justify-between gap-3">
       <div class="flex flex-col w-full">
         <label for="name">Nom du tournoi</label>
         <input pInputText id="name" type="text" autocomplete="off" formControlName="name"/>
@@ -48,7 +48,7 @@
       </div>
     </div>
 
-    <div class="flex flex-row w-full justify-between gap-3">
+    <div class="flex flex-col sm:flex-row w-full justify-between gap-3">
       <div class="flex flex-col w-full">
         <label for="category">Catégorie</label>
         <p-select [options]="availableCategories" formControlName="category" optionLabel="label" placeholder="Catégorie"
@@ -62,7 +62,7 @@
       </div>
     </div>
 
-    <div class="flex flex-row w-full justify-between gap-3">
+    <div class="flex flex-col sm:flex-row w-full justify-between gap-3">
       <div class="flex flex-col w-full">
         <label for="league">Ligue</label>
         <p-select [options]="availableLeagues" formControlName="league" optionLabel="label" placeholder="Ligue"

@@ -22,18 +22,20 @@
             <span class="text-floatlabel text-primary-100 font-medium">Modifier le créneau</span>
           </div>
           <form [formGroup]="editForm" (ngSubmit)="confirmEdit(timeSlot)" class="flex flex-col gap-3">
-            <div class="flex flex-row gap-3 w-full">
-              <div class="flex flex-col grow">
-                <label class="text-floatlabel text-gris-80 mb-1">Début</label>
-                <p-datepicker formControlName="start_time" [timeOnly]="true" stepMinute="15" />
-              </div>
-              <div class="flex flex-col grow">
-                <label class="text-floatlabel text-gris-80 mb-1">Fin</label>
-                <p-datepicker formControlName="end_time" [timeOnly]="true" stepMinute="15" />
+            <div class="flex flex-col sm:flex-row gap-3 w-full">
+              <div class="flex flex-row gap-3 w-full">
+                <div class="flex flex-col grow">
+                  <label class="text-floatlabel text-gris-80 mb-1">Début</label>
+                  <p-datepicker formControlName="start_time" [timeOnly]="true" stepMinute="15"/>
+                </div>
+                <div class="flex flex-col grow">
+                  <label class="text-floatlabel text-gris-80 mb-1">Fin</label>
+                  <p-datepicker formControlName="end_time" [timeOnly]="true" stepMinute="15"/>
+                </div>
               </div>
               <div class="flex flex-col grow">
                 <label class="text-floatlabel text-gris-80 mb-1">Terrains</label>
-                <p-inputnumber formControlName="courts_available" [min]="1" [showButtons]="true" />
+                <p-inputnumber formControlName="courts_available" [min]="1" [showButtons]="true"/>
               </div>
             </div>
             <div class="flex flex-row gap-2 justify-end">
@@ -66,7 +68,8 @@
 
       } @else {
         <!-- Mode lecture -->
-        <div class="flex flex-row items-center justify-between w-full bg-blanc-100 border border-gris-15 rounded-xl px-4 py-3 gap-3 min-h-16">
+        <div
+          class="flex flex-col sm:flex-row items-center justify-between w-full bg-blanc-100 border border-gris-15 rounded-xl px-4 py-3 gap-3 min-h-16">
 
           <!-- Plage horaire -->
           <div class="flex flex-row items-center gap-2 min-w-0 shrink">
@@ -80,7 +83,8 @@
 
           <div class="flex flex-row items-center gap-1 shrink-0">
             <!-- Badge terrains -->
-            <div class="flex flex-row items-center gap-1.5 bg-contrast-5 border border-contrast-15 rounded-full px-3 py-1.5 mr-1">
+            <div
+              class="flex flex-row items-center gap-1.5 bg-contrast-5 border border-contrast-15 rounded-full px-3 py-1.5 mr-1">
               <i class="bi bi-grid-3x3-gap-fill text-contrast-80 text-sm"></i>
               <span class="text-body-light text-contrast-80 font-medium whitespace-nowrap">
                 {{ timeSlot.courts_available }} terrain{{ timeSlot.courts_available > 1 ? 's' : '' }}
@@ -131,18 +135,20 @@
   </div>
 
   <form [formGroup]="timeSlotForm" (ngSubmit)="addTimeSlot()" class="flex flex-col gap-3 w-full">
-    <div class="flex flex-row gap-3 w-full">
-      <div class="flex flex-col grow">
-        <label class="text-floatlabel text-gris-80 mb-1" for="start_time">Début</label>
-        <p-datepicker formControlName="start_time" [timeOnly]="true" stepMinute="15" inputId="start_time" />
-      </div>
-      <div class="flex flex-col grow">
-        <label class="text-floatlabel text-gris-80 mb-1" for="end_time">Fin</label>
-        <p-datepicker formControlName="end_time" [timeOnly]="true" stepMinute="15" inputId="end_time" />
+    <div class="flex flex-col sm:flex-row gap-3 w-full">
+      <div class="flex flex-row gap-3 w-full">
+        <div class="flex flex-col grow">
+          <label class="text-floatlabel text-gris-80 mb-1" for="start_time">Début</label>
+          <p-datepicker formControlName="start_time" [timeOnly]="true" stepMinute="15" inputId="start_time"/>
+        </div>
+        <div class="flex flex-col grow">
+          <label class="text-floatlabel text-gris-80 mb-1" for="end_time">Fin</label>
+          <p-datepicker formControlName="end_time" [timeOnly]="true" stepMinute="15" inputId="end_time"/>
+        </div>
       </div>
       <div class="flex flex-col grow">
         <label class="text-floatlabel text-gris-80 mb-1" for="courts_available">Terrains</label>
-        <p-inputnumber formControlName="courts_available" inputId="courts_available" [min]="1" [showButtons]="true" />
+        <p-inputnumber formControlName="courts_available" inputId="courts_available" [min]="1" [showButtons]="true"/>
       </div>
     </div>
     <p-button

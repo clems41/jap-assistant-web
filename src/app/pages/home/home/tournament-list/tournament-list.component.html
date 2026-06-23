@@ -47,9 +47,9 @@
   </div>
 }
 
-<p-dialog header="Filtrer" [modal]="true" [(visible)]="filterDialogVisible" [style]="{ width: '50%' }">
+<p-dialog header="Filtrer" [modal]="true" [(visible)]="filterDialogVisible" styleClass="w-11/12 sm:w-1/2">
   <form [formGroup]="filterForm" class="flex flex-col gap-5 w-full items-center p-4" (ngSubmit)="filterTournaments()">
-    <div class="flex flex-row w-full justify-between gap-3">
+    <div class="flex flex-col sm:flex-row w-full justify-between gap-3">
       <div class="flex flex-col w-full">
         <label for="category">Catégorie</label>
         <p-select [options]="availableCategories()" formControlName="category" optionLabel="label" placeholder="Catégorie"
@@ -63,7 +63,7 @@
       </div>
     </div>
 
-    <div class="flex flex-row w-full justify-between gap-3">
+    <div class="flex flex-col sm:flex-row w-full justify-between gap-3">
       <div class="flex flex-col w-full">
         <label for="start_date">Date de début après le :</label>
         <p-datepicker fluid="" inputId="start_date" formControlName="start_date" dateFormat="dd/mm/yy"
@@ -77,7 +77,7 @@
       </div>
     </div>
 
-    <div class="flex flex-row gap-3">
+    <div class="flex flex-col sm:flex-row gap-3">
       <p-button label="Réinitialiser les filtres" icon="bi bi-x-circle" fluid=""
                 outlined="true" [loading]="loading()" (click)="reinitialiserFiltres()"/>
       <p-button label="Valider" icon="bi bi-check-circle" type="submit" fluid=""

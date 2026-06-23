@@ -68,7 +68,7 @@
     }
 
     @if ((canEnterScore || canStart) && !readonly()) {
-      <div class="flex flex-row justify-end gap-2 pt-1">
+      <div class="flex flex-col sm:flex-row justify-end gap-2 pt-1">
         @if (canEnterScore) {
           <p-button [label]="scoreButtonLabel" icon="bi bi-clipboard-data" size="small"
                     severity="secondary" [outlined]="true" (click)="onScoreClick()"></p-button>

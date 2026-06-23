@@ -2,17 +2,17 @@
 
 <div [class.hidden]="loading()" class="flex flex-col gap-3 w-full items-center justify-center">
 
-  <div class="flex flex-row justify-between items-center w-full">
+  <div class="flex flex-col sm:flex-row gap-3 justify-between items-center w-full">
     <div class="flex flex-row gap-2 items-center">
       <h3>Paires inscrites : </h3>
       <span
         class="w-10 h-10 text-body-bold text-2xl flex items-center justify-center bg-contrast-100 text-blanc-100 rounded-full">{{ pairs().length }}</span>
     </div>
-    <div class="flex flex-row gap-3" *ngIf="!playersAreLocked">
-      <p-button label="Importer" icon="bi bi-upload" outlined="true"
+    <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-fit" *ngIf="!playersAreLocked">
+      <p-button label="Importer" icon="bi bi-upload" outlined="true" fluid=""
                 (click)="showImportPairsDialog()" [loading]="loading()"
       ></p-button>
-      <p-button label="Ajouter une paire" icon="bi bi-plus-circle"
+      <p-button label="Ajouter une paire" icon="bi bi-plus-circle" fluid=""
                 (click)="showAddPairDialog()" [loading]="loading()"
       ></p-button>
     </div>
@@ -92,7 +92,7 @@
         </div>
 
         <!-- Footer : poids + supprimer -->
-        <div class="flex flex-row items-center justify-between pt-1 border-t border-contrast-15">
+        <div class="flex flex-col sm:flex-row gap-2 items-center justify-between pt-1 border-t border-contrast-15">
           <div class="flex items-center gap-2 text-body-light text-gris-100">
             <i class="bi bi-speedometer2 text-primary-100"></i>
             <span>Poids : {{pair.weight ?? '—'}}</span>
@@ -118,29 +118,29 @@
 
     <h3>Joueur 1</h3>
 
-    <div class="flex flex-row w-full justify-between gap-3">
-      <div class="flex flex-col w-full">
+    <div class="flex flex-col sm:flex-row w-full gap-3">
+      <div class="flex flex-col w-full min-w-0">
         <label for="player1_last_name">Nom *</label>
-        <input pInputText id="player1_last_name" type="text" autocomplete="off" formControlName="player1_last_name"/>
+        <input pInputText id="player1_last_name" type="text" autocomplete="off" formControlName="player1_last_name" class="w-full"/>
       </div>
 
-      <div class="flex flex-col w-full">
+      <div class="flex flex-col w-full min-w-0">
         <label for="player1_first_name">Prénom *</label>
-        <input pInputText id="player1_first_name" type="text" autocomplete="off" formControlName="player1_first_name"/>
+        <input pInputText id="player1_first_name" type="text" autocomplete="off" formControlName="player1_first_name" class="w-full"/>
       </div>
     </div>
 
-    <div class="flex flex-row w-full justify-between gap-3">
-      <div class="flex flex-col w-full">
+    <div class="flex flex-col sm:flex-row w-full gap-3">
+      <div class="flex flex-col w-full min-w-0">
         <label for="player1_license_number">Numéro de licence *</label>
         <p-inputmask styleClass="w-full" slotChar="" mask="9999999a" inputId="player1_license_number" formControlName="player1_license_number"/>
         <app-field-error [control]="form.get('player1_license_number')"></app-field-error>
       </div>
 
-      <div class="flex flex-col w-full">
+      <div class="flex flex-col w-full min-w-0">
         <label for="player1_phone_number">Numéro de téléphone</label>
         <input pInputText id="player1_phone_number" type="text" autocomplete="off"
-               formControlName="player1_phone_number"/>
+               formControlName="player1_phone_number" class="w-full"/>
       </div>
     </div>
 
@@ -153,29 +153,29 @@
 
     <h3>Joueur 2</h3>
 
-    <div class="flex flex-row w-full justify-between gap-3">
-      <div class="flex flex-col w-full">
+    <div class="flex flex-col sm:flex-row w-full gap-3">
+      <div class="flex flex-col w-full min-w-0">
         <label for="player2_last_name">Nom *</label>
-        <input pInputText id="player2_last_name" type="text" autocomplete="off" formControlName="player2_last_name"/>
+        <input pInputText id="player2_last_name" type="text" autocomplete="off" formControlName="player2_last_name" class="w-full"/>
       </div>
 
-      <div class="flex flex-col w-full">
+      <div class="flex flex-col w-full min-w-0">
         <label for="player2_first_name">Prénom *</label>
-        <input pInputText id="player2_first_name" type="text" autocomplete="off" formControlName="player2_first_name"/>
+        <input pInputText id="player2_first_name" type="text" autocomplete="off" formControlName="player2_first_name" class="w-full"/>
       </div>
     </div>
 
-    <div class="flex flex-row w-full justify-between gap-3">
-      <div class="flex flex-col w-full">
+    <div class="flex flex-col sm:flex-row w-full gap-3">
+      <div class="flex flex-col w-full min-w-0">
         <label for="player2_license_number">Numéro de licence *</label>
         <p-inputmask styleClass="w-full" slotChar="" mask="9999999a" inputId="player2_license_number" formControlName="player2_license_number"/>
         <app-field-error [control]="form.get('player2_license_number')"></app-field-error>
       </div>
 
-      <div class="flex flex-col w-full">
+      <div class="flex flex-col w-full min-w-0">
         <label for="player2_phone_number">Numéro de téléphone</label>
         <input pInputText id="player2_phone_number" type="text" autocomplete="off"
-               formControlName="player2_phone_number"/>
+               formControlName="player2_phone_number" class="w-full"/>
       </div>
     </div>
 
@@ -186,7 +186,7 @@
       </div>
     }
 
-    <div class="flex flex-row gap-3">
+    <div class="flex flex-col sm:flex-row gap-3 w-full">
       <p-button label="Annuler" icon="bi bi-x-circle" fluid=""
                 [loading]="loading()" (click)="cancel()" outlined="true"/>
       <p-button label="Valider" icon="bi bi-check-circle" type="submit" fluid=""
@@ -196,26 +196,29 @@
   </form>
 </ng-template>
 
-<p-dialog header="Ajouter une paire" [modal]="true" [visible]="addPairDialogVisible()" (visibleChange)="addPairDialogVisible.set($event)" [style]="{ width: '50%' }">
+<p-dialog header="Ajouter une paire" [modal]="true" [visible]="addPairDialogVisible()"
+          (visibleChange)="addPairDialogVisible.set($event)" styleClass="w-11/12 sm:w-1/2">
   <ng-container [ngTemplateOutlet]="pairFormTemplate"
                 [ngTemplateOutletContext]="{ form: addPairForm, onSubmit: addPair.bind(this),
                 edit: false, cancel: closeAddPairDialog.bind(this)}"/>
 </p-dialog>
 
-<p-dialog header="Modifier une paire" [modal]="true" [visible]="editPairDialogVisible()" (visibleChange)="editPairDialogVisible.set($event)" [style]="{ width: '50%' }">
+<p-dialog header="Modifier une paire" [modal]="true" [visible]="editPairDialogVisible()"
+          (visibleChange)="editPairDialogVisible.set($event)" styleClass="w-11/12 sm:w-1/2">
   <ng-container [ngTemplateOutlet]="pairFormTemplate"
                 [ngTemplateOutletContext]="{ form: editPairForm, onSubmit: editPair.bind(this),
                 edit: true, cancel: closeEditPairDialog.bind(this) }"/>
 </p-dialog>
 
-<p-dialog header="Importer des paires" [modal]="true" [visible]="importPairsDialogVisible()" (visibleChange)="importPairsDialogVisible.set($event)" [style]="{ width: '50%' }">
+<p-dialog header="Importer des paires" [modal]="true" [visible]="importPairsDialogVisible()" (visibleChange)="importPairsDialogVisible.set($event)"
+          styleClass="w-11/12 sm:w-1/2">
 
   <p class="text-body-medium text-gris-100 mb-1">
     <i class="bi bi-exclamation-triangle"></i>
     Le fichier XLS est celui fourni par l'application beach-padel.app.fft.fr et doit contenir l'onglet 'Inscriptions'.
     Cet onglet contient les champs suivants :
   </p>
-  <code class="block text-body-light bg-gris-5 text-gris-120 rounded px-3 py-2 mb-3">
+  <code class="block text-body-light bg-gris-5 text-gris-120 rounded px-3 py-2 mb-3 break-words">
     Epreuve, Catégorie d'âge,	Rang, Nom J1,	Prénom J1,	Naissance J1,	Licence J1,	Club J1,	Classement J1,	Courriel J1,	Portable J1,	Nom J2,	Prénom J2,	Naissance J2,	Licence J2,	Club J2,	Classement J2,	Courriel J2,	Portable J2,	Poids paire
   </code>
 

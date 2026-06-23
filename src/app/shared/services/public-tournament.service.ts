@@ -5,6 +5,7 @@ import { MatchStatus } from '../models/tournament.models';
 import {
   PublicBracketResponse,
   PublicMatch,
+  PublicPair,
   PublicTournament,
 } from '../models/public-tournament.models';
 
@@ -29,5 +30,10 @@ export class PublicTournamentService {
   /** GET /api/v1/public/tournaments/{code}/bracket/ */
   getPublicBracket(code: string): Observable<PublicBracketResponse> {
     return this.http.get<PublicBracketResponse>(`/public/tournaments/${code}/bracket`, undefined, { show_error: false });
+  }
+
+  /** GET /api/v1/public/tournaments/{code}/pairs/ */
+  getPublicPairs(code: string): Observable<PublicPair[]> {
+    return this.http.get<PublicPair[]>(`/public/tournaments/${code}/pairs`, undefined, { show_error: false });
   }
 }

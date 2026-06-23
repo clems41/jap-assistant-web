@@ -1,0 +1,62 @@
+@if (loading()) {
+  <app-loading-spinner [loading]="loading()"></app-loading-spinner>
+} @else if (pairs().length === 0) {
+  <div class="flex flex-col items-center justify-center w-full gap-2 py-8 text-gris-50">
+    <i class="bi bi-people text-4xl"></i>
+    <span class="text-body-light">Aucune paire inscrite</span>
+  </div>
+} @else {
+  <div class="flex flex-col gap-3 w-full">
+    @for (pair of pairs(); track $index) {
+      <div class="w-full flex flex-col rounded-xl border border-contrast-15 bg-blanc-100 shadow-sm">
+        <div class="p-3 flex flex-col gap-3">
+
+          <!-- Joueurs côte à côte -->
+          <div class="flex flex-row gap-4">
+
+            <!-- Joueur 1 -->
+            <div class="flex-1 flex flex-col gap-1 min-w-0">
+              <span class="text-body-bold text-contrast-100 truncate">{{ pair.player1.last_name.toUpperCase() }} {{ pair.player1.first_name }}</span>
+              @if (pair.player1.club) {
+                <div class="flex items-center gap-1 text-body-light text-gris-100">
+                  <i class="bi bi-shield text-primary-100 text-xs"></i>
+                  <span class="truncate">{{ pair.player1.club }}</span>
+                </div>
+              }
+              <div class="flex items-center gap-1 text-body-light text-gris-100">
+                <i class="bi bi-trophy text-primary-100 text-xs"></i>
+                <span>{{ pair.player1.ranking?.toLocaleString('fr-FR') ?? '—' }}</span>
+              </div>
+            </div>
+
+            <!-- Séparateur vertical -->
+            <div class="w-px bg-contrast-15"></div>
+
+            <!-- Joueur 2 -->
+            <div class="flex-1 flex flex-col gap-1 min-w-0">
+              <span class="text-body-bold text-contrast-100 truncate">{{ pair.player2.last_name.toUpperCase() }} {{ pair.player2.first_name }}</span>
+              @if (pair.player2.club) {
+                <div class="flex items-center gap-1 text-body-light text-gris-100">
+                  <i class="bi bi-shield text-primary-100 text-xs"></i>
+                  <span class="truncate">{{ pair.player2.club }}</span>
+                </div>
+              }
+              <div class="flex items-center gap-1 text-body-light text-gris-100">
+                <i class="bi bi-trophy text-primary-100 text-xs"></i>
+                <span>{{ pair.player2.ranking?.toLocaleString('fr-FR') ?? '—' }}</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Footer : poids -->
+          <div class="flex items-center gap-2 text-body-light text-gris-100 pt-1 border-t border-contrast-15">
+            <i class="bi bi-speedometer2 text-primary-100"></i>
+            <span>Poids : {{ pair.weight ?? '—' }}</span>
+          </div>
+
+        </div>
+      </div>
+    }
+  </div>
+}

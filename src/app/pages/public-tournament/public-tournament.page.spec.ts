@@ -68,8 +68,10 @@ describe('PublicTournamentPageComponent', () => {
       'getPublicTournament',
       'getPublicMatches',
       'getPublicBracket',
+      'getPublicPairs',
     ]);
     publicTournamentServiceSpy.getPublicMatches.and.returnValue(of([]));
+    publicTournamentServiceSpy.getPublicPairs.and.returnValue(of([]));
 
     TestBed.configureTestingModule({
       imports: [PublicTournamentPageComponent],

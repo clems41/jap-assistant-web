@@ -8,6 +8,7 @@ import { PublicTournamentService } from '../../shared/services/public-tournament
 import { mapPublicBracketResponse } from '../../shared/utils/public-tournament.utils';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
 import { PublicTournamentInfoComponent } from './public-tournament-info/public-tournament-info.component';
+import { PublicTournamentPlayersComponent } from './public-tournament-players/public-tournament-players.component';
 import { PublicTournamentMatchesComponent } from './public-tournament-matches/public-tournament-matches.component';
 import { BracketChartComponent } from '../tournaments/setup/brackets/bracket-chart/bracket-chart.component';
 import { ClassificationBracketsComponent } from '../tournaments/setup/classification-brackets/classification-brackets.component';
@@ -20,6 +21,7 @@ import { ClassificationBracketsComponent } from '../tournaments/setup/classifica
     TabsModule,
     LoadingSpinnerComponent,
     PublicTournamentInfoComponent,
+    PublicTournamentPlayersComponent,
     PublicTournamentMatchesComponent,
     BracketChartComponent,
     ClassificationBracketsComponent,

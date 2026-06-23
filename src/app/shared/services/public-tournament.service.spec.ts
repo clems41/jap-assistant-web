@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { HttpRequesterService } from './http-requester.service';
 import { MatchStatus, TournamentStatus } from '../models/tournament.models';
-import { PublicMatch, PublicTournament, PublicBracketResponse, PublicBracketMatch } from '../models/public-tournament.models';
+import { PublicMatch, PublicTournament, PublicBracketResponse, PublicBracketMatch, PublicPair } from '../models/public-tournament.models';
 import { PublicTournamentService } from './public-tournament.service';
 
 // ---------------------------------------------------------------------------
@@ -62,6 +62,22 @@ const mockPublicBracketMatch: PublicBracketMatch = {
 const mockPublicBracketResponse: PublicBracketResponse = {
   root_match: mockPublicBracketMatch,
   classification_brackets: [],
+};
+
+const mockPublicPair: PublicPair = {
+  player1: {
+    first_name: 'Jean',
+    last_name: 'Dupont',
+    ranking: 1500,
+    club: 'Padel Club Lyon',
+  },
+  player2: {
+    first_name: 'Marc',
+    last_name: 'Martin',
+    ranking: 1800,
+    club: 'Padel Club Villeurbanne',
+  },
+  weight: 3300,
 };
 
 // ---------------------------------------------------------------------------
@@ -244,6 +260,54 @@ describe('PublicTournamentService', () => {
       httpSpy.get.and.returnValue(throwError(() => error));
 
       service.getPublicBracket('ABCD1234').subscribe({
+        error: (err) => {
+          expect(err).toBe(error);
+          done();
+        },
+      });
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // getPublicPairs()
+  // -------------------------------------------------------------------------
+
+  describe('getPublicPairs()', () => {
+    it('should call GET /api/v1/public/tournaments/{code}/pairs without surfacing errors', () => {
+      httpSpy.get.and.returnValue(of([mockPublicPair]));
+
+      service.getPublicPairs('ABCD1234').subscribe();
+
+      expect(httpSpy.get).toHaveBeenCalledOnceWith(
+        '/public/tournaments/ABCD1234/pairs',
+        undefined,
+        { show_error: false },
+      );
+    });
+
+    it('should return the list of public pairs on success', (done) => {
+      httpSpy.get.and.returnValue(of([mockPublicPair]));
+
+      service.getPublicPairs('ABCD1234').subscribe((res) => {
+        expect(res).toEqual([mockPublicPair]);
+        done();
+      });
+    });
+
+    it('should return an empty array when the tournament has no pairs', (done) => {
+      httpSpy.get.and.returnValue(of([]));
+
+      service.getPublicPairs('ABCD1234').subscribe((res) => {
+        expect(res).toEqual([]);
+        done();
+      });
+    });
+
+    it('should propagate a 404 error (unknown code) to the subscriber', (done) => {
+      const error = new Error('404 Not Found');
+      httpSpy.get.and.returnValue(throwError(() => error));
+
+      service.getPublicPairs('UNKNOWN1').subscribe({
         error: (err) => {
           expect(err).toBe(error);
           done();

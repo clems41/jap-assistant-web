@@ -16,9 +16,10 @@
     </header>
 
     <main class="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-20">
-      <p-tabs value="infos" [showNavigators]="false">
+      <p-tabs value="infos" [showNavigators]="false" [scrollable]="true">
         <p-tablist>
           <p-tab value="infos">Informations</p-tab>
+          <p-tab value="players">Joueurs</p-tab>
           <p-tab value="matchs">Matchs</p-tab>
           <p-tab value="bracket">Tableau principal</p-tab>
           @if (hasClassification()) {
@@ -28,6 +29,9 @@
         <p-tabpanels>
           <p-tabpanel value="infos">
             <app-public-tournament-info [tournament]="t" />
+          </p-tabpanel>
+          <p-tabpanel value="players">
+            <app-public-tournament-players [code]="t.public_code" />
           </p-tabpanel>
           <p-tabpanel value="matchs">
             <app-public-tournament-matches [code]="t.public_code" />

@@ -23,6 +23,7 @@ import { TagModule } from 'primeng/tag';
 import { CdkDrag, CdkDragDrop, CdkDragEnd, CdkDragStart, CdkDropList, DragDropModule } from '@angular/cdk/drag-drop';
 import { PrintService } from '../../../../../shared/services/print.service';
 import { ScoreDialogComponent, ScoreSavedEvent } from '../../score-dialog/score-dialog.component';
+import { PairPickerDialogComponent, PairPickerOption } from '../pair-picker-dialog/pair-picker-dialog.component';
 import {
   BracketLayout,
   buildPrintSections,
@@ -44,6 +45,7 @@ import {
     DragDropModule,
     NgTemplateOutlet,
     ScoreDialogComponent,
+    PairPickerDialogComponent,
   ],
   templateUrl: './bracket-chart.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -88,6 +90,7 @@ export class BracketChartComponent {
 
   readonly seedingMap = signal<Map<string, number | null>>(new Map());
   readonly draggedPairId = signal<number | null>(null);
+  readonly pairPickerSlot = signal<PairSlot | null>(null);
 
   readonly sortedPairs = computed<Pair[]>(() =>
     [...this.pairs()].sort((a, b) => (a.weight ?? Infinity) - (b.weight ?? Infinity))
@@ -155,6 +158,19 @@ export class BracketChartComponent {
   );
 
   readonly allPairsPlaced = computed(() => this.unplacedPairs().length === 0);
+
+  readonly pairPickerOptions = computed<PairPickerOption[] | null>(() => {
+    const slot = this.pairPickerSlot();
+    if (!slot) return null;
+    return this.unplacedPairs()
+      .filter(p => this.matchesEntryRoundSize(p.id, slot.roundSize))
+      .map(p => ({ id: p.id, label: this.getPairName(p.id), badge: this.getSeedBadge(p.id) }));
+  });
+
+  readonly pairPickerSlotLabel = computed<string>(() => {
+    const slot = this.pairPickerSlot();
+    return slot ? `1/${slot.roundSize}` : '';
+  });
 
   readonly dropListIds = computed<string[]>(() =>
     this.layout().pairSlots
@@ -234,7 +250,29 @@ export class BracketChartComponent {
   }
 
   onDropIntoSlot(event: CdkDragDrop<PairSlot>, targetSlot: PairSlot): void {
-    const pairId = event.item.data as number;
+    this.placePairInSlot(event.item.data as number, targetSlot);
+  }
+
+  onSlotClick(slot: PairSlot): void {
+    if (!this.interactive()) return;
+    if (slot.isChampion || slot.state !== SlotState.Interactive) return;
+    if (this.seedingMap().get(slot.id)) return;
+    if (this.lockedSlotIds().has(slot.id)) return;
+    this.pairPickerSlot.set(slot);
+  }
+
+  onPairPicked(pairId: number): void {
+    const slot = this.pairPickerSlot();
+    if (!slot) return;
+    this.placePairInSlot(pairId, slot);
+    this.pairPickerSlot.set(null);
+  }
+
+  closePairPicker(): void {
+    this.pairPickerSlot.set(null);
+  }
+
+  private placePairInSlot(pairId: number, targetSlot: PairSlot): void {
     const newMap = new Map(this.seedingMap());
     newMap.set(targetSlot.id, pairId);
     this.seedingMap.set(newMap);

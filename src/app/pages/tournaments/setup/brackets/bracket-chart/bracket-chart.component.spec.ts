@@ -236,6 +236,105 @@ describe('BracketChartComponent — impression multi-pages', () => {
     });
   });
 
+  describe('sélection de paire par clic sur un slot (modale)', () => {
+    function setupUnplacedFixture() {
+      const fixture = TestBed.createComponent(BracketChartComponent);
+      // Tableau de dimension 8 non joué : pair1/pair2 à 0 partout sauf les feuilles -> paires non placées.
+      const rootMatch = makeMatch({ round_display: 'Finale' });
+      rootMatch.child1 = makeMatch({ round_display: 'Demi-finale' });
+      rootMatch.child2 = makeMatch({ round_display: 'Demi-finale' });
+      rootMatch.child1.child1 = makeMatch({ round_display: 'Quart de finale' });
+      rootMatch.child1.child2 = makeMatch({ round_display: 'Quart de finale' });
+      rootMatch.child2.child1 = makeMatch({ round_display: 'Quart de finale' });
+      rootMatch.child2.child2 = makeMatch({ round_display: 'Quart de finale' });
+      const bracket: BracketBase = { id: 20, dimension: 8, root_match: rootMatch };
+
+      fixture.componentRef.setInput('bracket', bracket);
+      fixture.componentRef.setInput('tournament', { status: TournamentStatus.STARTED });
+      fixture.componentRef.setInput('pairs', buildPairs(8));
+      fixture.componentRef.setInput('mode', 'placement');
+      fixture.detectChanges();
+      return fixture;
+    }
+
+    it('onSlotClick ouvre la modale (pairPickerSlot) sur un slot interactif libre', () => {
+      const fixture = setupUnplacedFixture();
+      const slot = fixture.componentInstance.layout().pairSlots
+        .find(s => !s.isChampion && s.state === fixture.componentInstance.SlotState.Interactive)!;
+
+      fixture.componentInstance.onSlotClick(slot);
+
+      expect(fixture.componentInstance.pairPickerSlot()).toBe(slot);
+      expect(fixture.componentInstance.pairPickerOptions()).not.toBeNull();
+    });
+
+    it('onSlotClick ne fait rien (no-op) si interactive=false', () => {
+      const fixture = setupUnplacedFixture();
+      fixture.componentRef.setInput('interactive', false);
+      fixture.detectChanges();
+      const slot = fixture.componentInstance.layout().pairSlots
+        .find(s => !s.isChampion && s.state === fixture.componentInstance.SlotState.Interactive)!;
+
+      fixture.componentInstance.onSlotClick(slot);
+
+      expect(fixture.componentInstance.pairPickerSlot()).toBeNull();
+    });
+
+    it('onSlotClick ne fait rien (no-op) si le slot est déjà occupé', () => {
+      const fixture = setupUnplacedFixture();
+      const slot = fixture.componentInstance.layout().pairSlots
+        .find(s => !s.isChampion && s.state === fixture.componentInstance.SlotState.Interactive)!;
+      fixture.componentInstance.onSlotClick(slot);
+      fixture.componentInstance.onPairPicked(1);
+      expect(fixture.componentInstance.pairPickerSlot()).toBeNull();
+
+      // Le même slot est désormais occupé : un nouveau clic ne doit pas rouvrir la modale.
+      fixture.componentInstance.onSlotClick(slot);
+
+      expect(fixture.componentInstance.pairPickerSlot()).toBeNull();
+    });
+
+    it('pairPickerOptions filtre les paires non placées par taille de tour d\'entrée (roundSize)', () => {
+      const fixture = setupUnplacedFixture();
+      const slot = fixture.componentInstance.layout().pairSlots
+        .find(s => !s.isChampion && s.state === fixture.componentInstance.SlotState.Interactive)!;
+
+      fixture.componentInstance.onSlotClick(slot);
+      const options = fixture.componentInstance.pairPickerOptions();
+
+      expect(options).not.toBeNull();
+      expect(options!.length).toBeGreaterThan(0);
+      for (const option of options!) {
+        expect(fixture.componentInstance.unplacedPairs().some(p => p.id === option.id)).toBe(true);
+      }
+    });
+
+    it('onPairPicked place la paire dans le slot ciblé et ferme la modale', () => {
+      const fixture = setupUnplacedFixture();
+      const slot = fixture.componentInstance.layout().pairSlots
+        .find(s => !s.isChampion && s.state === fixture.componentInstance.SlotState.Interactive)!;
+      fixture.componentInstance.onSlotClick(slot);
+      const pairId = fixture.componentInstance.pairPickerOptions()![0].id;
+
+      fixture.componentInstance.onPairPicked(pairId);
+
+      expect(fixture.componentInstance.pairPickerSlot()).toBeNull();
+      expect(fixture.componentInstance.seedingMap().get(slot.id)).toBe(pairId);
+    });
+
+    it('closePairPicker ferme la modale sans placer de paire', () => {
+      const fixture = setupUnplacedFixture();
+      const slot = fixture.componentInstance.layout().pairSlots
+        .find(s => !s.isChampion && s.state === fixture.componentInstance.SlotState.Interactive)!;
+      fixture.componentInstance.onSlotClick(slot);
+
+      fixture.componentInstance.closePairPicker();
+
+      expect(fixture.componentInstance.pairPickerSlot()).toBeNull();
+      expect(fixture.componentInstance.seedingMap().get(slot.id)).toBeFalsy();
+    });
+  });
+
   it('mode score-only (classement) : ne génère aucune section d\'impression dédiée', () => {
     const fixture = TestBed.createComponent(BracketChartComponent);
     const rootMatch = buildPlayedTree(3);

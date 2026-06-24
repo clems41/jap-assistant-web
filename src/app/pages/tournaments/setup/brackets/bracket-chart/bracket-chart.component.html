@@ -1,9 +1,12 @@
 <div [class]="mode() === 'placement' ? 'flex font-poppins bracket-area overflow-hidden -mt-3' : 'flex font-poppins overflow-hidden'">
 
   <!-- Bracket scrollable -->
-  <div class="flex-1 relative">
-    @if (mode() === 'placement' && allPairsPlaced()) {
-      <div class="absolute top-4 right-10 z-10 flex flex-col justify-center items-center gap-2">
+  <!-- min-w-0 : sans ça, cet enfant flex hérite de la largeur intrinsèque de printArea (large,
+       fixée en px) et ne peut jamais rétrécir sous celle-ci — l'excédent est alors juste rogné par
+       overflow-hidden côté parent au lieu d'être scrollable horizontalement. -->
+  <div class="flex-1 relative min-w-0">
+    @if (mode() === 'placement') {
+      <div class="absolute top-4 right-4 z-10 hidden sm:flex flex-col justify-center items-center gap-2">
         <p-button label="Imprimer le tableau"
                   icon="pi pi-print"
                   severity="secondary"
@@ -22,6 +25,10 @@
         }
       </div>
     }
+    <div class="flex items-center gap-2 px-4 pt-3 pb-2 text-label text-gris-50 sm:hidden">
+      <i class="bi bi-arrow-left-right"></i>
+      <span>Faites glisser pour voir tout le tableau</span>
+    </div>
     <div [class]="mode() === 'placement' ? 'overflow-auto h-full pb-6 px-4' : 'overflow-auto pb-2 px-4'">
       <div #printArea class="mx-auto bracket-print-scale" [style.width.px]="layout().totalWidth" [style.--print-scale]="printScale()">
 
@@ -167,6 +174,7 @@
                    [cdkDropListSortingDisabled]="true"
                    [cdkDropListDisabled]="!interactive()"
                    (cdkDropListDropped)="onDropIntoSlot($event, slot)"
+                   (click)="onSlotClick(slot)"
                    [style.left.px]="slot.x"
                    [style.top.px]="slot.y - HEADER_HEIGHT - PAIR_H / 2"
                    [style.width.px]="PAIR_W"
@@ -175,7 +183,7 @@
                    ? 'border-gris-15 bg-blanc-100'
                    : dropState === 'unavailable'
                      ? 'border-dashed border-gris-30 bg-gris-5 opacity-60 cursor-not-allowed'
-                     : 'border-dashed border-primary-30 bg-primary-5'">
+                     : 'border-dashed border-primary-30 bg-primary-5 cursor-pointer'">
                 @if (seedingMap().get(slot.id); as placedPairId) {
                   @let players = getPairPlayerNames(placedPairId);
                   @if (interactive() && getSeedBadge(placedPairId); as badge) {
@@ -208,7 +216,7 @@
                   <span class="text-xs truncate"
                         [class.text-primary-50]="dropState === 'available'"
                         [class.text-gris-50]="dropState === 'unavailable'">
-                    {{ dropState === 'unavailable' ? 'Non disponible' : 'Déposer ici' }}
+                    {{ dropState === 'unavailable' ? 'Non disponible' : 'Choisir une paire' }}
                   </span>
                 }
               </div>
@@ -242,9 +250,10 @@
     </div>
   </div>
 
-  <!-- Panneau paires (droite) -->
+  <!-- Panneau paires (droite) — desktop uniquement : sur mobile, le drag&drop est indisponible
+       (seule liste fournissant les éléments cdkDrag) et le clic sur un slot ouvre la modale. -->
   @if (mode() === 'placement' && !allPairsPlaced() && interactive()) {
-    <div class="w-80 shrink-0 flex flex-col border-l border-gris-15 overflow-y-auto">
+    <div class="hidden sm:flex w-80 shrink-0 flex-col border-l border-gris-15 overflow-y-auto">
       <!-- Header panneau -->
       <div class="flex flex-col px-4 py-3 border-b border-gris-15 bg-blanc-100 sticky top-0 gap-2">
         <div class="flex items-center justify-between">
@@ -286,24 +295,6 @@
             Toutes les paires sont placées
           </p>
         }
-        <div class="flex flex-col justify-center items-center w-full gap-4">
-          <p-button label="Imprimer le tableau"
-                    icon="pi pi-print"
-                    severity="secondary"
-                    [outlined]="true"
-                    size="small"
-                    (onClick)="onPrint()">
-          </p-button>
-          @if (tournament().status != TournamentStatus.FINISHED && interactive()) {
-            <p-button label="Supprimer le tableau"
-                      icon="pi pi-trash"
-                      severity="danger"
-                      [outlined]="true"
-                      size="small"
-                      (onClick)="deleteRequested.emit()">
-            </p-button>
-          }
-        </div>
       </div>
     </div>
   }
@@ -423,3 +414,11 @@
   (scoreSaved)="onScoreSaved($event)"
   (closed)="closeDialog()">
 </app-score-dialog>
+
+<!-- Pair picker dialog : clic sur un emplacement libre (mobile et desktop) -->
+<app-pair-picker-dialog
+  [pairs]="pairPickerOptions()"
+  [slotLabel]="pairPickerSlotLabel()"
+  (pairSelected)="onPairPicked($event)"
+  (closed)="closePairPicker()">
+</app-pair-picker-dialog>

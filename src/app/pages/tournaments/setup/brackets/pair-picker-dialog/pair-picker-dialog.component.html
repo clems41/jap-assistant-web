@@ -1,0 +1,31 @@
+@if (pairs(); as pairs) {
+  <p-dialog
+    [visible]="true"
+    (visibleChange)="!$event && close()"
+    [header]="'Choisir une paire — ' + slotLabel()"
+    [modal]="true"
+    [style]="{width: '360px'}"
+    [draggable]="false"
+    [transitionOptions]="'0ms'"
+    appendTo="body">
+
+    <div class="flex flex-col gap-2">
+      @for (option of pairs; track option.id) {
+        <div class="flex items-center gap-3 border rounded-lg p-3 cursor-pointer border-gris-15
+                     hover:border-primary-50 transition-colors"
+             (click)="selectPair(option.id)">
+          @if (option.badge; as badge) {
+            <p-tag [value]="'TS' + badge.rank" [severity]="badge.severity"
+                   styleClass="shrink-0 !text-xs !px-1 !py-0"></p-tag>
+          }
+          <span class="text-body-regular truncate flex-1">{{ option.label }}</span>
+        </div>
+      } @empty {
+        <p class="text-gris-50 text-body-light text-center py-6">
+          Aucune paire disponible pour cet emplacement.
+        </p>
+      }
+    </div>
+
+  </p-dialog>
+}

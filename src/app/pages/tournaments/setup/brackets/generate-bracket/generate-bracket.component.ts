@@ -10,10 +10,9 @@ import {
   ValidationErrors, ValidatorFn,
   Validators
 } from '@angular/forms';
-import {Select} from 'primeng/select';
-import {Button} from 'primeng/button';
+import {SelectModule} from 'primeng/select';
+import {ButtonModule} from 'primeng/button';
 import {LoadingSpinnerComponent} from '../../../../../shared/components/loading-spinner/loading-spinner.component';
-import {InputNumber} from 'primeng/inputnumber';
 
 class RoundVisible {
   round64: boolean = false;
@@ -28,10 +27,9 @@ class RoundVisible {
   imports: [
     FormsModule,
     ReactiveFormsModule,
-    Select,
-    Button,
+    SelectModule,
+    ButtonModule,
     LoadingSpinnerComponent,
-    InputNumber
   ],
   templateUrl: './generate-bracket.component.html'
 })
@@ -44,9 +42,9 @@ export class GenerateBracketComponent {
 
   loading = signal<boolean>(false);
   private readonly allDimensions: number[] = [4, 8, 16, 32, 64];
-  private readonly allNbTopSeeds: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+  private readonly allowedPairCountValueToGenerateBracket: number[] = [4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64];
   availableDimensions: number[] = [];
-  availableNbTopSeeds: number[] = [];
+  availableNbPairRound: number[] = [0, 2, 4, 8, 16, 32, 64];
 
   inputRoundVisible: RoundVisible = new RoundVisible();
 
@@ -57,12 +55,22 @@ export class GenerateBracketComponent {
     effect(() => {
       const tournament = this.tournament();
       this.availableDimensions = this.allDimensions.filter(dimension => dimension >= tournament.pairs_count);
-      this.availableNbTopSeeds = this.allNbTopSeeds.filter(nbTopSeeds => nbTopSeeds >= tournament.pairs_count / 8 &&
-        nbTopSeeds <= tournament.pairs_count / 2);
       this.form = this.buildForm(tournament);
       this.previousDimension = this.form.value.dimension;
       this.form?.valueChanges.subscribe(value => this.onFormValueChange(value, tournament.pairs_count));
     });
+  }
+
+  get canGenerateBracket(): boolean {
+    return this.allowedPairCountValueToGenerateBracket.includes(this.tournament()?.pairs_count);
+  }
+
+  get nbPairNeededToGenerateBracket(): number {
+    if (this.canGenerateBracket) return 0
+    for (const allowedPairCount of this.allowedPairCountValueToGenerateBracket) {
+      if (allowedPairCount > this.tournament()?.pairs_count) return allowedPairCount - this.tournament()?.pairs_count
+    }
+    return 0
   }
 
   private buildForm(tournament: Tournament): FormGroup {

@@ -6,51 +6,54 @@
       class="w-10 h-10 text-body-bold text-2xl flex items-center justify-center bg-contrast-100 text-blanc-100 rounded-full">
       {{ tournament().pairs_count }}</span>
   </div>
-  <div class="flex flex-col w-full sm:w-1/3">
-    <label for="dimension">Dimension du tableau</label>
-    <p-select [options]="availableDimensions" formControlName="dimension" inputId="dimension" appendTo="body" fluid=""/>
-  </div>
-  @if (inputRoundVisible.round64) {
+  @if (canGenerateBracket) {
     <div class="flex flex-col w-full sm:w-1/3">
-      <label for="nb_pair_round_64">Nombre de paires entrantes en 1/32ème</label>
-      <p-inputnumber formControlName="nb_pair_round_64" [min]="0" [max]="tournament().pairs_count"
-                     [showButtons]="true"></p-inputnumber>
+      <label for="dimension">Dimension du tableau</label>
+      <p-select [options]="availableDimensions" formControlName="dimension" inputId="dimension" appendTo="body" fluid=""/>
     </div>
-  }
-  @if (inputRoundVisible.round32) {
-    <div class="flex flex-col w-full sm:w-1/3">
-      <label for="nb_pair_round_32">Nombre de paires entrantes en 1/16ème</label>
-      <p-inputnumber formControlName="nb_pair_round_32" [min]="0" [max]="tournament().pairs_count"
-                     [showButtons]="true"></p-inputnumber>
-    </div>
-  }
-  @if (inputRoundVisible.round16) {
-    <div class="flex flex-col w-full sm:w-1/3">
-      <label for="nb_pair_round_16">Nombre de paires entrantes en 1/8ème</label>
-      <p-inputnumber formControlName="nb_pair_round_16" [min]="0" [max]="tournament().pairs_count"
-                     [showButtons]="true"></p-inputnumber>
-    </div>
-  }
-  @if (inputRoundVisible.round8) {
-    <div class="flex flex-col w-full sm:w-1/3">
-      <label for="nb_pair_round_8">Nombre de paires entrantes en quart</label>
-      <p-inputnumber formControlName="nb_pair_round_8" [min]="0" [max]="tournament().pairs_count"
-                     [showButtons]="true"></p-inputnumber>
-    </div>
-  }
-  @if (inputRoundVisible.round4) {
-    <div class="flex flex-col w-full sm:w-1/3">
-      <label for="nb_pair_round_4">Nombre de paires entrantes en demie</label>
-      <p-inputnumber formControlName="nb_pair_round_4" [min]="0" [max]="tournament().pairs_count"
-                     [showButtons]="true"></p-inputnumber>
-    </div>
-  }
+    @if (inputRoundVisible.round64) {
+      <div class="flex flex-col w-full sm:w-1/3">
+        <label for="nb_pair_round_64">Nombre de paires entrantes en 1/32ème</label>
+        <p-select [options]="availableNbPairRound" formControlName="nb_pair_round_64" inputId="nb_pair_round_64" appendTo="body" fluid=""/>
+      </div>
+    }
+    @if (inputRoundVisible.round32) {
+      <div class="flex flex-col w-full sm:w-1/3">
+        <label for="nb_pair_round_32">Nombre de paires entrantes en 1/16ème</label>
+        <p-select [options]="availableNbPairRound" formControlName="nb_pair_round_32" inputId="nb_pair_round_32" appendTo="body" fluid=""/>
+      </div>
+    }
+    @if (inputRoundVisible.round16) {
+      <div class="flex flex-col w-full sm:w-1/3">
+        <label for="nb_pair_round_16">Nombre de paires entrantes en 1/8ème</label>
+        <p-select [options]="availableNbPairRound" formControlName="nb_pair_round_16" inputId="nb_pair_round_16" appendTo="body" fluid=""/>
+      </div>
+    }
+    @if (inputRoundVisible.round8) {
+      <div class="flex flex-col w-full sm:w-1/3">
+        <label for="nb_pair_round_8">Nombre de paires entrantes en quart</label>
+        <p-select [options]="availableNbPairRound" formControlName="nb_pair_round_8" inputId="nb_pair_round_8" appendTo="body" fluid=""/>
+      </div>
+    }
+    @if (inputRoundVisible.round4) {
+      <div class="flex flex-col w-full sm:w-1/3">
+        <label for="nb_pair_round_4">Nombre de paires entrantes en demie</label>
+        <p-select [options]="availableNbPairRound" formControlName="nb_pair_round_4" inputId="nb_pair_round_4" appendTo="body" fluid=""/>
+      </div>
+    }
 
   @if (form.hasError('nbPairRoundMismatchPairCount') && form.dirty) {
     <small class="text-error-100 text-body-light mt-1">Le nombre total de paire entrante ne correspond au nombre de
       paires inscrites.</small>
   }
 
-  <p-button label="Générer le tableau" icon="bi bi-check-circle" type="submit" fluid=""
-            [disabled]="form.invalid" [loading]="loading()"/>
+    <p-button label="Générer le tableau" icon="bi bi-check-circle" type="submit" fluid=""
+              [disabled]="form.invalid" [loading]="loading()"/>
+  } @else {
+    <div class="flex flex-col items-center justify-center w-full gap-2 py-8 text-gris-50">
+      <i class="bi bi-people text-4xl"></i>
+      <span class="text-body-light">Il vous manque {{nbPairNeededToGenerateBracket}} paire(s) pour créer les tableaux.</span>
+    </div>
+  }
+  
 </form>

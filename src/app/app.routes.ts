@@ -10,6 +10,18 @@ export const routes: Routes = [
     pathMatch: 'full',
   },
 
+  // Neutral SSR-safe loading screen — used by authGuard/guestGuard to avoid
+  // rendering the wrong page server-side before client-side hydration can
+  // re-evaluate the real auth state from localStorage. No guard, no layout.
+  {
+    path: 'loading',
+    data: {title: 'Chargement'},
+    loadComponent: () =>
+      import('./pages/loading/loading.page').then(
+        (m) => m.LoadingPageComponent,
+      ),
+  },
+
   // Auth routes — accessible to guests only
   {
     path: 'auth',

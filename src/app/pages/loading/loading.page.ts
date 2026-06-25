@@ -1,5 +1,4 @@
-import { isPlatformBrowser, isPlatformServer } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, afterNextRender, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
 
@@ -12,6 +11,12 @@ import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner
  * in the browser, it reads the `redirect` query param and navigates to the
  * actual destination with the reliable client-side auth state, avoiding a
  * flash of the wrong page (login vs. protected content).
+ *
+ * The redirect is issued from `afterNextRender` rather than `ngOnInit`:
+ * `afterNextRender` only ever runs in the browser (no `isPlatformServer`
+ * check needed) and fires once the current render/hydration pass has fully
+ * committed, instead of from inside it — calling `navigateByUrl` mid-hydration
+ * triggered an unreliable hang in some browsers.
  */
 @Component({
   selector: 'app-loading',
@@ -19,21 +24,16 @@ import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner
   templateUrl: './loading.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LoadingPageComponent implements OnInit {
-  private readonly platformId = inject(PLATFORM_ID);
+export class LoadingPageComponent {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
-  ngOnInit(): void {
-    if (isPlatformServer(this.platformId)) {
-      return;
-    }
-
-    if (isPlatformBrowser(this.platformId)) {
+  constructor() {
+    afterNextRender(() => {
       const redirect = this.route.snapshot.queryParamMap.get('redirect');
       const target = this.resolveSafeTarget(redirect);
       this.router.navigateByUrl(target, { replaceUrl: true });
-    }
+    });
   }
 
   /**

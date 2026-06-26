@@ -77,3 +77,12 @@ export interface PublicBracketResponse {
   root_match: PublicBracketMatch;
   classification_brackets: PublicClassificationBracket[];
 }
+
+// WebSocket public (1 connexion par tournoi affiché) — signal d'invalidation uniquement,
+// ne transporte jamais de données de tournoi : le composant doit refaire un fetch REST.
+export type ResourceName = 'tournament' | 'matches' | 'bracket' | 'pairs';
+
+export interface TournamentUpdateMessage {
+  type: 'tournament.update';
+  resources: ResourceName[];
+}

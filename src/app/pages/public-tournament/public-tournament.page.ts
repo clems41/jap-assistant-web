@@ -1,10 +1,13 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { merge } from 'rxjs';
 import { TabsModule } from 'primeng/tabs';
 import { Bracket, TournamentStatus } from '../../shared/models/tournament.models';
 import { Pair } from '../../shared/models/pair.models';
 import { PublicTournament } from '../../shared/models/public-tournament.models';
 import { PublicTournamentService } from '../../shared/services/public-tournament.service';
+import { PublicTournamentUpdatesService } from '../../shared/services/public-tournament-updates.service';
 import { mapPublicBracketResponse } from '../../shared/utils/public-tournament.utils';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
 import { PublicTournamentInfoComponent } from './public-tournament-info/public-tournament-info.component';
@@ -52,15 +55,38 @@ export class PublicTournamentPageComponent {
     () => (this.bracketResult()?.bracket.classification_brackets.length ?? 0) > 0,
   );
 
+  private readonly publicTournamentService = inject(PublicTournamentService);
+
   constructor() {
     if (!this.code) {
       this.notFound.set(true);
       return;
     }
 
-    const publicTournamentService = inject(PublicTournamentService);
+    const updatesService = inject(PublicTournamentUpdatesService);
+    const destroyRef = inject(DestroyRef);
 
-    publicTournamentService.getPublicTournament(this.code).subscribe({
+    this.fetchTournament(this.code);
+    this.fetchBracket(this.code);
+
+    updatesService.connect(this.code);
+    destroyRef.onDestroy(() => updatesService.disconnect());
+
+    merge(updatesService.onResource('tournament'), updatesService.reconnected$)
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.fetchTournament(this.code!));
+
+    merge(updatesService.onResource('bracket'), updatesService.reconnected$)
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.fetchBracket(this.code!));
+  }
+
+  classificationTournament(status: TournamentStatus): { id: number; status: TournamentStatus } {
+    return { id: 0, status };
+  }
+
+  private fetchTournament(code: string): void {
+    this.publicTournamentService.getPublicTournament(code).subscribe({
       next: t => {
         this.tournament.set(t);
         this.loading.set(false);
@@ -70,14 +96,12 @@ export class PublicTournamentPageComponent {
         this.loading.set(false);
       },
     });
+  }
 
-    publicTournamentService.getPublicBracket(this.code).subscribe({
+  private fetchBracket(code: string): void {
+    this.publicTournamentService.getPublicBracket(code).subscribe({
       next: resp => this.bracketResult.set(mapPublicBracketResponse(resp)),
       error: () => this.bracketNotGenerated.set(true),
     });
-  }
-
-  classificationTournament(status: TournamentStatus): { id: number; status: TournamentStatus } {
-    return { id: 0, status };
   }
 }

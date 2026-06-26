@@ -1,10 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { PublicTournamentPageComponent } from './public-tournament.page';
 import { PublicTournamentService } from '../../shared/services/public-tournament.service';
+import { PublicTournamentUpdatesService } from '../../shared/services/public-tournament-updates.service';
 import { MatchStatus, TournamentStatus } from '../../shared/models/tournament.models';
 import { PublicBracketMatch, PublicBracketResponse, PublicTournament } from '../../shared/models/public-tournament.models';
 
@@ -60,6 +61,10 @@ function mockBracketResponse(withClassification: boolean): PublicBracketResponse
 
 describe('PublicTournamentPageComponent', () => {
   let publicTournamentServiceSpy: jasmine.SpyObj<PublicTournamentService>;
+  let updatesServiceSpy: jasmine.SpyObj<PublicTournamentUpdatesService>;
+  let tournamentResourceSubject: Subject<void>;
+  let bracketResourceSubject: Subject<void>;
+  let reconnectedSubject: Subject<void>;
 
   function configureTestBed(routeStub: {
     snapshot: { paramMap: { get: (key: string) => string | null }; queryParamMap: { get: (key: string) => string | null } };
@@ -73,12 +78,26 @@ describe('PublicTournamentPageComponent', () => {
     publicTournamentServiceSpy.getPublicMatches.and.returnValue(of([]));
     publicTournamentServiceSpy.getPublicPairs.and.returnValue(of([]));
 
+    updatesServiceSpy = jasmine.createSpyObj('PublicTournamentUpdatesService', [
+      'connect',
+      'disconnect',
+      'onResource',
+    ]);
+    tournamentResourceSubject = new Subject<void>();
+    bracketResourceSubject = new Subject<void>();
+    updatesServiceSpy.onResource.and.callFake(resource =>
+      resource === 'tournament' ? tournamentResourceSubject : bracketResourceSubject,
+    );
+    reconnectedSubject = new Subject<void>();
+    (updatesServiceSpy as unknown as { reconnected$: Subject<void> }).reconnected$ = reconnectedSubject;
+
     TestBed.configureTestingModule({
       imports: [PublicTournamentPageComponent],
       providers: [
         provideHttpClient(),
         MessageService,
         { provide: PublicTournamentService, useValue: publicTournamentServiceSpy },
+        { provide: PublicTournamentUpdatesService, useValue: updatesServiceSpy },
         { provide: ActivatedRoute, useValue: routeStub },
       ],
     });
@@ -167,5 +186,69 @@ describe('PublicTournamentPageComponent', () => {
 
     const fixtureWith = TestBed.createComponent(PublicTournamentPageComponent);
     expect(fixtureWith.componentInstance.hasClassification()).toBe(true);
+  });
+
+  it('code présent : se connecte au WebSocket avec le code du tournoi', () => {
+    configureTestBed(routeStubWithCode('ABC123'));
+    publicTournamentServiceSpy.getPublicTournament.and.returnValue(of(mockTournament));
+    publicTournamentServiceSpy.getPublicBracket.and.returnValue(of(mockBracketResponse(false)));
+
+    TestBed.createComponent(PublicTournamentPageComponent);
+
+    expect(updatesServiceSpy.connect).toHaveBeenCalledWith('ABC123');
+  });
+
+  it('destruction du composant : se déconnecte du WebSocket', () => {
+    configureTestBed(routeStubWithCode('ABC123'));
+    publicTournamentServiceSpy.getPublicTournament.and.returnValue(of(mockTournament));
+    publicTournamentServiceSpy.getPublicBracket.and.returnValue(of(mockBracketResponse(false)));
+
+    const fixture = TestBed.createComponent(PublicTournamentPageComponent);
+    fixture.destroy();
+
+    expect(updatesServiceSpy.disconnect).toHaveBeenCalled();
+  });
+
+  it("notification sur la ressource 'tournament' : refetch du tournoi (nouveau getPublicTournament)", () => {
+    configureTestBed(routeStubWithCode('ABC123'));
+    publicTournamentServiceSpy.getPublicTournament.and.returnValue(of(mockTournament));
+    publicTournamentServiceSpy.getPublicBracket.and.returnValue(of(mockBracketResponse(false)));
+
+    TestBed.createComponent(PublicTournamentPageComponent);
+    expect(publicTournamentServiceSpy.getPublicTournament).toHaveBeenCalledTimes(1);
+
+    tournamentResourceSubject.next();
+
+    expect(publicTournamentServiceSpy.getPublicTournament).toHaveBeenCalledTimes(2);
+    expect(publicTournamentServiceSpy.getPublicBracket).toHaveBeenCalledTimes(1);
+  });
+
+  it("notification sur la ressource 'bracket' : refetch du bracket (nouveau getPublicBracket)", () => {
+    configureTestBed(routeStubWithCode('ABC123'));
+    publicTournamentServiceSpy.getPublicTournament.and.returnValue(of(mockTournament));
+    publicTournamentServiceSpy.getPublicBracket.and.returnValue(of(mockBracketResponse(false)));
+
+    TestBed.createComponent(PublicTournamentPageComponent);
+    expect(publicTournamentServiceSpy.getPublicBracket).toHaveBeenCalledTimes(1);
+
+    bracketResourceSubject.next();
+
+    expect(publicTournamentServiceSpy.getPublicBracket).toHaveBeenCalledTimes(2);
+    expect(publicTournamentServiceSpy.getPublicTournament).toHaveBeenCalledTimes(1);
+  });
+
+  it('reconnexion (reconnected$) : refetch à la fois du tournoi et du bracket', () => {
+    configureTestBed(routeStubWithCode('ABC123'));
+    publicTournamentServiceSpy.getPublicTournament.and.returnValue(of(mockTournament));
+    publicTournamentServiceSpy.getPublicBracket.and.returnValue(of(mockBracketResponse(false)));
+
+    TestBed.createComponent(PublicTournamentPageComponent);
+    expect(publicTournamentServiceSpy.getPublicTournament).toHaveBeenCalledTimes(1);
+    expect(publicTournamentServiceSpy.getPublicBracket).toHaveBeenCalledTimes(1);
+
+    reconnectedSubject.next();
+
+    expect(publicTournamentServiceSpy.getPublicTournament).toHaveBeenCalledTimes(2);
+    expect(publicTournamentServiceSpy.getPublicBracket).toHaveBeenCalledTimes(2);
   });
 });

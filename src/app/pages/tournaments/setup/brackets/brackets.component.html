@@ -5,10 +5,12 @@
       [bracket]="b"
       [pairs]="pairs()"
       [tournament]="tournament()"
+      [autoDrawLoading]="drawLoading()"
       (scoreChanged)="onScoreChanged($event)"
       (seedingChanged)="onSeedingChanged($event)"
       (deleteRequested)="onDeleteBracketRequested()"
-      (scoreDeleteRequested)="onScoreDeleteRequested($event)">
+      (scoreDeleteRequested)="onScoreDeleteRequested($event)"
+      (drawRequested)="onDrawRequested()">
     </app-bracket-chart>
   </div>
 } @else {

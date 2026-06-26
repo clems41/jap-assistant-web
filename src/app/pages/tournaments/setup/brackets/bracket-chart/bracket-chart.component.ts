@@ -62,6 +62,9 @@ export class BracketChartComponent {
   seedingChanged = output<SeedingRequest>();
   deleteRequested = output<void>();
   scoreDeleteRequested = output<number>();
+  drawRequested = output<void>();
+
+  autoDrawLoading = input<boolean>(false);
 
   private readonly printService = inject(PrintService);
 
@@ -319,6 +322,10 @@ export class BracketChartComponent {
 
   openDrawTool(): void {
     window.open('/draw', 'jap-draw-tool', 'width=520,height=720,noopener');
+  }
+
+  onAutoDrawRequested(): void {
+    this.drawRequested.emit();
   }
 
   onPrint(): void {

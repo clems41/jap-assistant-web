@@ -48,6 +48,15 @@ export class TournamentService {
     return this.http.delete<void>(`/tournaments/${id}/bracket`, { succes_message: 'Tableau supprimé' });
   }
 
+  /** POST /api/v1/tournaments/{id}/bracket/draw/ */
+  drawBracket(tournamentId: number): Observable<Bracket> {
+    return this.http.post<Bracket>(
+      `/tournaments/${tournamentId}/bracket/draw`,
+      null,
+      { succes_message: 'Paires placées automatiquement' }
+    );
+  }
+
   /** PATCH /api/v1/tournaments/{id}/bracket/placement/ */
   updateBracketPlacement(tournamentId: number, request: SeedingRequest): Observable<Bracket> {
     return this.http.patch<Bracket>(

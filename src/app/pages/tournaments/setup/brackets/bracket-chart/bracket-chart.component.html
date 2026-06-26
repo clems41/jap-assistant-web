@@ -6,7 +6,7 @@
        overflow-hidden côté parent au lieu d'être scrollable horizontalement. -->
   <div class="flex-1 relative min-w-0">
     @if (mode() === 'placement') {
-      <div class="absolute top-4 right-4 z-10 hidden sm:flex flex-col justify-center items-center gap-2">
+      <div class="absolute top-12 right-4 z-10 hidden sm:flex flex-col justify-center items-center gap-2">
         <p-button label="Imprimer le tableau"
                   icon="pi pi-print"
                   severity="secondary"
@@ -200,14 +200,14 @@
                     @if (interactive() && !lockedSlotIds().has(slot.id)) {
                       <button type="button"
                               class="shrink-0 text-gris-50 hover:text-error-100 transition-colors"
-                              (click)="onRemoveFromSlot(slot.id)">
+                              (click)="$event.stopPropagation(); onRemoveFromSlot(slot.id)">
                         <i class="bi bi-x-lg text-xs"></i>
                       </button>
                     } @else if (interactive() && promotionSourceMatchId().has(slot.id)) {
                       @let sourceMatchId = promotionSourceMatchId().get(slot.id)!;
                       <button type="button"
                               class="shrink-0 text-gris-50 hover:text-error-100 transition-colors"
-                              (click)="onDeleteScore(sourceMatchId)">
+                              (click)="$event.stopPropagation(); onDeleteScore(sourceMatchId)">
                         <i class="bi bi-x-lg text-xs"></i>
                       </button>
                     }
@@ -267,6 +267,9 @@
         </div>
         <p-button label="Tirage au sort" icon="bi bi-shuffle" outlined="true" size="small" [fluid]="true"
                   (click)="openDrawTool()"></p-button>
+        <p-button label="Placer automatiquement les paires" icon="pi pi-sparkles" outlined="true" size="small"
+                  [fluid]="true" [loading]="autoDrawLoading()"
+                  (click)="onAutoDrawRequested()"></p-button>
       </div>
 
       <!-- Liste des paires non placées -->

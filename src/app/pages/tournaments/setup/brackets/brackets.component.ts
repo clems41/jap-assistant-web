@@ -32,6 +32,7 @@ export class BracketsComponent {
   loading = signal<boolean>(false);
   bracket = signal<Bracket | null>(null);
   bracketAlreadyGenerated = signal<boolean>(false);
+  drawLoading = signal<boolean>(false);
 
   constructor() {
     effect(() => {
@@ -95,6 +96,19 @@ export class BracketsComponent {
             }
           });
       },
+    });
+  }
+
+  onDrawRequested(): void {
+    this.drawLoading.set(true);
+    this.tournamentService.drawBracket(this.tournament().id).subscribe({
+      next: bracket => {
+        this.bracket.set(bracket);
+        this.bracketChange.emit(bracket);
+        this.matchesChanged.emit();
+        this.drawLoading.set(false);
+      },
+      error: () => this.drawLoading.set(false),
     });
   }
 

@@ -24,7 +24,10 @@ export class MatchsComponent {
   readonly upcomingStatuses: MatchStatus[] = [MatchStatus.UPCOMING];
   readonly finishedStatuses: MatchStatus[] = [MatchStatus.FINISHED];
 
-  reorderEnabled = computed(() => this.tournament().status === TournamentStatus.STARTED);
+  reorderEnabled = computed(() =>
+    this.tournament().status === TournamentStatus.SET ||
+    this.tournament().status === TournamentStatus.STARTED
+  );
 
   onRefreshNeeded(): void {
     this.matchesChanged.emit();

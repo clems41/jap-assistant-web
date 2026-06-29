@@ -1,5 +1,5 @@
-import {ChangeDetectionStrategy, Component, effect, inject, input, model, signal} from '@angular/core';
-import {Tournament, TournamentRequest} from '../../../../shared/models/tournament.models';
+import {ChangeDetectionStrategy, Component, computed, effect, inject, input, model, signal} from '@angular/core';
+import {Tournament, TournamentRequest, TournamentStatus} from '../../../../shared/models/tournament.models';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {SelectModule} from 'primeng/select';
 import {DatePickerModule} from 'primeng/datepicker';
@@ -38,6 +38,7 @@ export class InfosComponent {
   availableCategories = input.required<EnumChoice[]>();
   availableLeagues = input.required<EnumChoice[]>();
   loading = signal<boolean>(false);
+  canDelete = computed(() => this.tournament().status === TournamentStatus.DRAFT);
   updateForm: FormGroup = this.buildUpdateForm();
   minDate: Date = new Date();
 

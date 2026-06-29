@@ -55,7 +55,7 @@
               [disabled]="updateForm.invalid || updateForm.untouched" [loading]="loading()"/>
 
     <p-button label="Supprimer" icon="bi bi-trash" fluid="" severity="danger"
-              [loading]="loading()" (click)="deleteTournament($event)"/>
+              [disabled]="!canDelete()" [loading]="loading()" (click)="deleteTournament($event)"/>
   </div>
 
 </form>

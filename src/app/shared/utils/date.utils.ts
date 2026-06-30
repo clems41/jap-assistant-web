@@ -22,7 +22,9 @@ export function toFrenchDate(dateString: string): string {
 }
 
 export function fromBackendToDate(dateString: string): Date {
-  return new Date(dateString);
+  // Parse YYYY-MM-DD as local time to avoid UTC offset shifting the date
+  const [year, month, day] = dateString.split('-').map(Number);
+  return new Date(year, month - 1, day);
 }
 
 /**

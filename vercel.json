@@ -1,4 +1,5 @@
 {
+  "framework": null,
   "buildCommand": "ng build --configuration=production",
   "outputDirectory": "dist/jap-assistant-web/browser",
   "rewrites": [

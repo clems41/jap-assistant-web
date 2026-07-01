@@ -16,7 +16,7 @@ import {Tournament, TournamentRequest, TournamentStatus} from '../../../shared/m
 import {EnumChoice} from '../../../shared/models/base.models';
 import {TabsModule} from 'primeng/tabs';
 import {TournamentListComponent} from './tournament-list/tournament-list.component';
-import {addMonths, startOfDay} from 'date-fns';
+import {startOfDay} from 'date-fns';
 import {forkJoin} from 'rxjs';
 
 @Component({
@@ -50,14 +50,7 @@ export class HomeComponent implements OnInit {
   availableLocations: string[] = [];
   dataLoading = signal(false);
   private readonly today = startOfDay(new Date());
-  startDateForUpcomingTournaments: Date = this.today;
-  endDateForUpcomingTournaments: Date = addMonths(this.today, 3);
   minStartDateForUpcomingTournaments: Date = this.today;
-  minEndDateForUpcomingTournaments: Date = this.today;
-  startDateForPastTournaments: Date = addMonths(this.today, -3);
-  endDateForPastTournaments: Date = this.today;
-  maxStartDateForPastTournaments: Date = this.today;
-  maxEndDateForPastTournaments: Date = this.today;
 
   ngOnInit() {
     this.getData();

@@ -166,4 +166,5 @@ export interface PaginatedTournamentRequest extends PaginatedRequest {
   start_date?: string;
   end_date?: string;
   gender?: string;
+  status?: string[];
 }

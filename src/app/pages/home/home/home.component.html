@@ -14,19 +14,14 @@
         <app-tournament-list
         [availableCategories]="availableCategories"
         [availableGenders]="availableGenders"
-        [startDate]="startDateForUpcomingTournaments"
-        [minStartDate]="minStartDateForUpcomingTournaments"
-        [minEndDate]="minEndDateForUpcomingTournaments"
-        [endDate]="endDateForUpcomingTournaments"></app-tournament-list>
+        [status]="[TournamentStatus.DRAFT, TournamentStatus.SET, TournamentStatus.READY, TournamentStatus.STARTED]">
+        </app-tournament-list>
       </p-tabpanel>
       <p-tabpanel value="past">
         <app-tournament-list
           [availableCategories]="availableCategories"
           [availableGenders]="availableGenders"
-          [startDate]="startDateForPastTournaments"
-          [maxStartDate]="maxStartDateForPastTournaments"
-          [maxEndDate]="maxEndDateForPastTournaments"
-          [endDate]="endDateForPastTournaments"></app-tournament-list>
+          [status]="[TournamentStatus.FINISHED]"></app-tournament-list>
       </p-tabpanel>
     </p-tabpanels>
   </p-tabs>

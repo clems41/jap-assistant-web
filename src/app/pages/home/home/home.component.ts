@@ -12,7 +12,7 @@ import {InputTextModule} from 'primeng/inputtext';
 import {SelectModule} from 'primeng/select';
 import {DatePickerModule} from 'primeng/datepicker';
 import {TagModule} from 'primeng/tag';
-import {Tournament, TournamentRequest} from '../../../shared/models/tournament.models';
+import {Tournament, TournamentRequest, TournamentStatus} from '../../../shared/models/tournament.models';
 import {EnumChoice} from '../../../shared/models/base.models';
 import {TabsModule} from 'primeng/tabs';
 import {TournamentListComponent} from './tournament-list/tournament-list.component';
@@ -129,4 +129,6 @@ export class HomeComponent implements OnInit {
       }
     })
   }
+
+  protected readonly TournamentStatus = TournamentStatus;
 }

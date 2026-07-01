@@ -1,7 +1,7 @@
 import {Component, effect, inject, input, signal, untracked} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {TournamentService} from '../../../../shared/services/tournament.service';
-import {PaginatedTournamentRequest, Tournament} from '../../../../shared/models/tournament.models';
+import {PaginatedTournamentRequest, Tournament, TournamentStatus} from '../../../../shared/models/tournament.models';
 import {toFrenchDate, toISODate} from '../../../../shared/utils/date.utils';
 import {nbFiltersApplied} from '../../../../shared/utils/data.utils';
 import {PaginatorModule, PaginatorState} from 'primeng/paginator';
@@ -30,10 +30,11 @@ import {EnumChoice} from '../../../../shared/models/base.models';
   templateUrl: './tournament-list.component.html'
 })
 export class TournamentListComponent {
-  startDate = input.required<Date>();
+  status = input<TournamentStatus[]>();
+  startDate = input<Date>();
   minStartDate = input<Date>();
   maxStartDate = input<Date>();
-  endDate = input.required<Date>();
+  endDate = input<Date>();
   minEndDate = input<Date>();
   maxEndDate = input<Date>();
   availableGenders = input.required<EnumChoice[]>();
@@ -80,6 +81,7 @@ export class TournamentListComponent {
       start_date: start_date ? toISODate(start_date) : undefined,
       end_date: end_date ? toISODate(end_date) : undefined,
       gender: gender,
+      status: this.status(),
     }
     this.tournamentService.getTournaments(filters)
       .subscribe({

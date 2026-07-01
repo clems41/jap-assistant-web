@@ -5,6 +5,7 @@ import {InputTextModule} from 'primeng/inputtext';
 import {PasswordModule} from 'primeng/password';
 import {ButtonModule} from 'primeng/button';
 import {Router, RouterLink} from '@angular/router';
+import {FieldErrorComponent} from '../../../shared/components/field-error/field-error.component';
 
 @Component({
   selector: 'app-login',
@@ -14,6 +15,7 @@ import {Router, RouterLink} from '@angular/router';
     PasswordModule,
     ButtonModule,
     RouterLink,
+    FieldErrorComponent,
   ],
   templateUrl: './login.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -9,7 +9,8 @@
 
   <div class="flex flex-col w-full">
     <label for="password">Mot de passe</label>
-    <input pInputText id="password" type="password" autocomplete="off" formControlName="password"/>
+    <p-password fluid="" formControlName="password" inputId="password" [toggleMask]="true" [feedback]="false" />
+    <app-field-error [control]="form.get('password')"></app-field-error>
   </div>
 
   <a routerLink="/auth/password-forgotten" class="text-sm text-contrast-80 font-medium underline">Mot de passe oublié ?</a>

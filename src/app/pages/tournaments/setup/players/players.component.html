@@ -215,22 +215,21 @@
 
   <p class="text-body-medium text-gris-100 mb-1">
     <i class="bi bi-exclamation-triangle"></i>
-    Le fichier XLS est celui fourni par l'application beach-padel.app.fft.fr et doit contenir l'onglet 'Inscriptions'.
-    Cet onglet contient les champs suivants :
+    Le fichier XLSX est celui fourni par l'application MOJA et doit contenir les colonnes suivantes :
   </p>
   <code class="block text-body-light bg-gris-5 text-gris-120 rounded px-3 py-2 mb-3 break-words">
-    Epreuve, Catégorie d'âge,	Rang, Nom J1,	Prénom J1,	Naissance J1,	Licence J1,	Club J1,	Classement J1,	Courriel J1,	Portable J1,	Nom J2,	Prénom J2,	Naissance J2,	Licence J2,	Club J2,	Classement J2,	Courriel J2,	Portable J2,	Poids paire
+    Nom de l'épreuve,	Catégorie de l'épreuve,	Position de la paire,	Nom joueur 1,	Prénom joueur 1,	Date de naissance joueur 1,	Licence joueur 1,	Club joueur 1,	Classement joueur 1,	Mail joueur 1,	Téléphone joueur 1,	Nom joueur 2,	Prénom joueur 2,	Date de naissance joueur 2,	Licence joueur 2,	Club joueur 2,	Classement joueur 2,	Mail joueur 2,	Téléphone joueur 2,	Poids paire
   </code>
 
 
   <p class="text-body-light text-gris-100 py-1">
-    Les paires déjà enregistrées seront mises à jour avec les données du XLS. <br>
-    Cependant, les paires déjà enregistrées, non présentes dans le XLS seront conservées.
+    Les paires déjà enregistrées seront mises à jour avec les données du XLSX. <br>
+    Cependant, les paires déjà enregistrées, non présentes dans le fichier seront conservées.
     Vous devrez les supprimer manuellement si elles ne font plus partie de la liste des paires inscrites.
   </p>
 
   <div class="flex flex-row gap-3 pt-4 justify-center">
-    <p-fileupload mode="basic" chooseLabel="Importer un XLS" chooseIcon="pi pi-upload" accept=".xls"
+    <p-fileupload mode="basic" chooseLabel="Importer un XLSX" chooseIcon="pi pi-upload" accept=".xlsx"
                   maxFileSize="1000000" [auto]="true" [customUpload]="true"
                   (uploadHandler)="importPairs($event)" [multiple]="false" />
   </div>

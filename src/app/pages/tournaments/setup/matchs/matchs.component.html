@@ -1,8 +1,8 @@
 <p-tabs value="started" [showNavigators]="false">
   <p-tablist>
-    <p-tab value="started">En cours</p-tab>
-    <p-tab value="upcoming">À venir</p-tab>
-    <p-tab value="finished">Terminés</p-tab>
+    <p-tab value="started">En cours <p-badge [value]="startedCount() + '/' + totalCount()" severity="secondary" /></p-tab>
+    <p-tab value="upcoming">À venir <p-badge [value]="upcomingCount() + '/' + totalCount()" severity="secondary" /></p-tab>
+    <p-tab value="finished">Terminés <p-badge [value]="finishedCount() + '/' + totalCount()" severity="secondary" /></p-tab>
   </p-tablist>
   <p-tabpanels>
     <p-tabpanel value="started">

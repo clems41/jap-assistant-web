@@ -3,8 +3,28 @@ import { By } from '@angular/platform-browser';
 import { of } from 'rxjs';
 import { MatchsComponent } from './matchs.component';
 import { TournamentService } from '../../../../shared/services/tournament.service';
-import { Tournament, TournamentStatus } from '../../../../shared/models/tournament.models';
+import { Match, MatchStatus, Tournament, TournamentStatus } from '../../../../shared/models/tournament.models';
 import { MatchListComponent } from './match-list/match-list.component';
+
+function makeMatch(overrides: Partial<Match> = {}): Match {
+  return {
+    id: 1,
+    round: 'R',
+    round_display: 'Round',
+    match_number: 1,
+    order: 1,
+    pair1: 1,
+    pair2: 2,
+    game_format: 'C1',
+    score: '',
+    winner_id: 0,
+    status: MatchStatus.UPCOMING,
+    finished_at: '',
+    started_at: null,
+    estimated_start_at: null,
+    ...overrides,
+  };
+}
 
 const mockTournament: Tournament = {
   id: 1,
@@ -78,6 +98,33 @@ describe('MatchsComponent', () => {
     }
   });
 
+  it('affiche le décompte par statut sur fond du total dans les badges des onglets', () => {
+    const allMatches = [
+      makeMatch({ id: 1, status: MatchStatus.STARTED }),
+      makeMatch({ id: 2, status: MatchStatus.STARTED }),
+      makeMatch({ id: 3, status: MatchStatus.STARTED }),
+      makeMatch({ id: 4, status: MatchStatus.UPCOMING }),
+      makeMatch({ id: 5, status: MatchStatus.UPCOMING }),
+      ...Array.from({ length: 12 }, (_, i) => makeMatch({ id: 100 + i, status: MatchStatus.FINISHED })),
+    ];
+    tournamentServiceSpy.getMatches.and.callFake((_id: number, statuses?: MatchStatus[]) =>
+      of(statuses?.length ? allMatches.filter(m => statuses.includes(m.status)) : allMatches),
+    );
+
+    const fixture = createFixture();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.totalCount()).toBe(17);
+    expect(fixture.componentInstance.startedCount()).toBe(3);
+    expect(fixture.componentInstance.upcomingCount()).toBe(2);
+    expect(fixture.componentInstance.finishedCount()).toBe(12);
+
+    const badgeTexts = fixture.debugElement
+      .queryAll(By.css('p-tab p-badge'))
+      .map(el => (el.nativeElement.textContent ?? '').trim());
+    expect(badgeTexts).toEqual(['3/17', '2/17', '12/17']);
+  });
+
   it('reorderEnabled() est vrai quand le tournoi est STARTED', () => {
     const fixture = createFixture();
     fixture.detectChanges();
@@ -106,7 +153,7 @@ describe('MatchsComponent', () => {
       tabButton.nativeElement.click();
       fixture.detectChanges();
 
-      const label = (tabButton.nativeElement.textContent ?? '').trim();
+      const label = (tabButton.nativeElement.textContent ?? '').replace(/\d+\/\d+$/, '').trim();
       const matchListInstances = fixture.debugElement
         .queryAll(By.directive(MatchListComponent))
         .map(el => el.componentInstance as MatchListComponent);

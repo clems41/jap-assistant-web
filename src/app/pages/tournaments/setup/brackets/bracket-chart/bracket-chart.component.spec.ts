@@ -366,4 +366,91 @@ describe('BracketChartComponent — impression multi-pages', () => {
     const sections = printArea.querySelectorAll(':scope > .break-inside-avoid');
     expect(sections.length).toBe(1);
   });
+
+  describe('badges TS (têtes de série) quand aucun bye n\'existe (un seul palier = dimension)', () => {
+    // weight décroissant par rapport à l'id : la paire avec l'id le plus élevé a le meilleur
+    // classement (poids le plus faible), pour vérifier que le tri se fait bien par poids et non
+    // par id/ordre du tableau.
+    function buildPairsWithWeights(count: number): Pair[] {
+      return buildPairs(count).map((p, i) => ({ ...p, weight: count - i }));
+    }
+
+    function setupFixture(bracket: BracketBase, pairs: Pair[]) {
+      const fixture = TestBed.createComponent(BracketChartComponent);
+      fixture.componentRef.setInput('bracket', bracket);
+      fixture.componentRef.setInput('tournament', { status: TournamentStatus.STARTED });
+      fixture.componentRef.setInput('pairs', pairs);
+      fixture.componentRef.setInput('mode', 'placement');
+      fixture.detectChanges();
+      return fixture;
+    }
+
+    it('dimension 8, nb_pair_round_8=8, 8 paires : les 4 mieux classées (poids le plus faible) sont TS1-TS4, les 4 autres n\'ont pas de badge', () => {
+      const rootMatch = buildPlayedTree(3);
+      const bracket: BracketBase = { id: 100, dimension: 8, nb_pair_round_8: 8, root_match: rootMatch };
+      const fixture = setupFixture(bracket, buildPairsWithWeights(8));
+
+      // Poids = 8,7,6,5,4,3,2,1 pour les ids 1..8 -> triées par poids croissant : 8,7,6,5,4,3,2,1.
+      const bestFour = [8, 7, 6, 5];
+      const worstFour = [4, 3, 2, 1];
+
+      for (const id of bestFour) {
+        const badge = fixture.componentInstance.getSeedBadge(id);
+        expect(badge).not.toBeNull();
+        expect(badge!.rank).toBeGreaterThanOrEqual(1);
+        expect(badge!.rank).toBeLessThanOrEqual(4);
+      }
+      for (const id of worstFour) {
+        expect(fixture.componentInstance.getSeedBadge(id)).toBeNull();
+      }
+    });
+
+    it('effectif impair (7 paires) : seules les 3 meilleures (floor(7/2)=3) sont badgées', () => {
+      const rootMatch = buildPlayedTree(3);
+      const bracket: BracketBase = { id: 101, dimension: 8, nb_pair_round_8: 7, root_match: rootMatch };
+      const fixture = setupFixture(bracket, buildPairsWithWeights(7));
+
+      // Poids = 7,6,5,4,3,2,1 pour les ids 1..7 -> triées par poids croissant : 7,6,5,4,3,2,1.
+      const bestThree = [7, 6, 5];
+      const rest = [4, 3, 2, 1];
+
+      for (const id of bestThree) {
+        expect(fixture.componentInstance.getSeedBadge(id)).not.toBeNull();
+      }
+      for (const id of rest) {
+        expect(fixture.componentInstance.getSeedBadge(id)).toBeNull();
+      }
+    });
+
+    it('non-régression : quand il existe un vrai palier de bye, le palier sans bye (roundSize = dimension) reste sans badge', () => {
+      const rootMatch = buildPlayedTree(3);
+      // 8 paires : les 4 premières (meilleur poids) forment le palier protégé (roundSize=4, avec bye),
+      // les 4 dernières tombent dans le palier sans bye (roundSize=8=dimension) et ne doivent pas être badgées.
+      const bracket: BracketBase = { id: 102, dimension: 8, nb_pair_round_4: 4, root_match: rootMatch };
+      const fixture = setupFixture(bracket, buildPairsWithWeights(8));
+
+      const byeTierIds = [8, 7, 6, 5]; // meilleur poids -> palier roundSize=4
+      const noByeTierIds = [4, 3, 2, 1]; // palier roundSize=8=dimension
+
+      for (const id of byeTierIds) {
+        expect(fixture.componentInstance.getSeedBadge(id)).not.toBeNull();
+      }
+      for (const id of noByeTierIds) {
+        expect(fixture.componentInstance.getSeedBadge(id)).toBeNull();
+      }
+    });
+
+    it('les paires badgées dans le cas sans bye reçoivent la sévérité "warn"', () => {
+      const rootMatch = buildPlayedTree(3);
+      const bracket: BracketBase = { id: 103, dimension: 8, nb_pair_round_8: 8, root_match: rootMatch };
+      const fixture = setupFixture(bracket, buildPairsWithWeights(8));
+
+      const bestFour = [8, 7, 6, 5];
+      for (const id of bestFour) {
+        const badge = fixture.componentInstance.getSeedBadge(id);
+        expect(badge).not.toBeNull();
+        expect(badge!.severity).toBe('warn');
+      }
+    });
+  });
 });

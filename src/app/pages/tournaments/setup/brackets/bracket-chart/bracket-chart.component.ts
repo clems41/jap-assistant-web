@@ -124,13 +124,23 @@ export class BracketChartComponent {
     return tiers;
   });
 
-  // Couleur de badge par paire ; le palier sans bye (taille = dimension) n'a pas de couleur.
+  // Couleur de badge par paire ; le palier sans bye (taille = dimension) n'a pas de couleur,
+  // sauf s'il s'agit de l'unique palier (aucun bye nulle part) : dans ce cas, la meilleure
+  // moitié des paires (triées par rang) reçoit tout de même un badge TS.
   private readonly seedSeverityByPairId = computed<Map<number, string>>(() => {
     const bracket = this.bracket();
+    const tiers = this.seedTiers();
     const map = new Map<number, string>();
 
+    if (tiers.length === 1 && tiers[0].roundSize === bracket.dimension) {
+      const seededCount = Math.floor(tiers[0].pairIds.length / 2);
+      const severity = BracketChartComponent.SEED_SEVERITIES[0];
+      for (const pairId of tiers[0].pairIds.slice(0, seededCount)) map.set(pairId, severity);
+      return map;
+    }
+
     let severityIndex = 0;
-    for (const tier of this.seedTiers()) {
+    for (const tier of tiers) {
       if (tier.roundSize === bracket.dimension) continue;
       const severity = BracketChartComponent.SEED_SEVERITIES[severityIndex];
       for (const pairId of tier.pairIds) map.set(pairId, severity);
